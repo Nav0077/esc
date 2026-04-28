@@ -1,9 +1,15 @@
+/* ============================================
+   VARIABLES & BASE
+   ============================================ */
 :root {
   --primary-green: #22c55e;
+  --live-red: #ef4444;
   --text-dark: #111827;
   --text-muted: #6b7280;
   --border-color: #f3f4f6;
   --bg-light: #ffffff;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.02);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -17,6 +23,9 @@ body {
   background-color: #ffffff;
   color: var(--text-dark);
   line-height: 1.5;
+  overflow-x: hidden;
+  /* Adds space for the fixed bars */
+  scroll-padding-top: 130px; 
 }
 
 html {
@@ -30,13 +39,13 @@ html {
   width: 100%;
 }
 
-/* Main Spacing (Notice + Navbar height) */
+/* Main Spacing Adjustment */
 main.container {
     margin-top: 130px; 
 }
 
 /* ============================================
-   NOTICE TICKER
+   NOTICE TICKER FIXES
    ============================================ */
 .notice-ticker {
     position: fixed;
@@ -47,9 +56,17 @@ main.container {
     background: #111827;
     color: white;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    z-index: 2005; 
+    z-index: 3000; /* Stays above everything */
     display: flex;
     align-items: center;
+    overflow: hidden;
+}
+
+.ticker-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
 }
 
 .ticker-label {
@@ -58,13 +75,23 @@ main.container {
     font-size: 11px;
     font-weight: 700;
     padding: 0 16px;
-    height: 40px;
+    height: 100%;
     display: flex;
     align-items: center;
     gap: 8px;
-    z-index: 10;
+    z-index: 20; 
     position: relative;
     white-space: nowrap;
+    box-shadow: 10px 0 15px rgba(0,0,0,0.3);
+}
+
+.ticker-label .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--primary-green);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--primary-green);
+  animation: blink 1.5s infinite;
 }
 
 .ticker-content {
@@ -84,6 +111,10 @@ main.container {
   animation: scroll-ticker 30s linear infinite;
 }
 
+.ticker-content:hover .ticker-text {
+    animation-play-state: paused;
+}
+
 /* ============================================
    HERO SECTION
    ============================================ */
@@ -97,9 +128,9 @@ main.container {
 }
 
 .hero h1 {
-  font-size: 3rem;
+  font-size: clamp(2rem, 5vw, 3.2rem); 
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin-bottom: 20px;
   line-height: 1.1;
 }
@@ -116,7 +147,7 @@ main.container {
 }
 
 /* ============================================
-   MATCHES SECTION
+   MATCHES SECTION & GRID
    ============================================ */
 .matches-section {
   margin-top: 60px;
@@ -130,117 +161,139 @@ main.container {
   margin-bottom: 24px;
 }
 
+.section-header h2 { font-size: 1.4rem; font-weight: 800; }
+
 .matches-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 Columns for Desktop */
-  gap: 20px;
+  /* Smart responsive grid: stacks on mobile, 3 columns on desktop */
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+  gap: 24px;
 }
 
-/* Card Styling */
+/* ============================================
+   MATCH CARD (The "Elite" Fix)
+   ============================================ */
 .match-card {
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
   background: white;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
 }
 
 .match-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-green);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.series-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: var(--text-dark);
+  text-transform: uppercase;
+}
+
+.status-badge.live {
+  background: #fef2f2;
+  color: var(--live-red);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-badge.live::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--live-red);
+  border-radius: 50%;
+  animation: blink 1s infinite;
 }
 
 .team-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .team-meta {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-weight: 600;
 }
 
 .team-logo {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid var(--border-color);
 }
+
+.team-name { font-size: 14px; font-weight: 700; }
+
+.score-info { text-align: right; }
+.score { font-size: 15px; font-weight: 800; display: block; }
+.overs-text { font-size: 11px; color: var(--text-muted); }
+
+.card-footer {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  min-height: 40px;
+}
+
+.live-footer { color: var(--primary-green); font-weight: 700; }
 
 /* ============================================
-   RESPONSIVE DESIGN (Media Queries)
+   RESPONSIVE FIXES
    ============================================ */
-
-/* --- TABLET VIEW (Laptops/Large Tablets) --- */
 @media (max-width: 1024px) {
-    .matches-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 Columns */
-    }
-    
-    .hero h1 {
-        font-size: 2.5rem;
-    }
+    main.container { margin-top: 120px; }
 }
 
-/* --- MOBILE VIEW (Phones) --- */
 @media (max-width: 768px) {
-    main.container {
-        margin-top: 120px; /* Adjusted for smaller screens */
-    }
+    main.container { margin-top: 110px; }
 
-    .hero {
-        padding: 40px 15px;
-        border-radius: 16px;
-    }
+    .hero { padding: 50px 20px; border-radius: 16px; }
+    .hero h1 { font-size: 2.2rem; }
 
-    .hero h1 {
-        font-size: 1.8rem; /* Scale down heading */
-    }
+    /* Responsive Ticker Label */
+    .ticker-label .label-text { display: none; }
+    .ticker-label { padding: 0 12px; }
 
-    .hero p {
-        font-size: 1rem;
-    }
-
-    .matches-grid {
-        grid-template-columns: 1fr; /* 1 Column (Stacks cards) */
-    }
-
-    .section-header h2 {
-        font-size: 1.1rem;
-    }
-
-    /* Adjust Ticker on Mobile */
-    .ticker-label {
-        padding: 0 10px;
-    }
-    
-    .ticker-label span:not(.dot) {
-        display: none; /* Hide the word "LATEST" on very small screens to save space */
-    }
+    .matches-grid { grid-template-columns: 1fr; }
 }
 
-/* --- SMALL MOBILE --- */
 @media (max-width: 480px) {
-    .container {
-        padding: 0 15px;
-    }
-
-    .hero h1 {
-        font-size: 1.5rem;
-    }
-
-    .match-card {
-        padding: 16px;
-    }
-
-    .team-meta {
-        font-size: 0.9rem;
-        gap: 8px;
-    }
+    .hero h1 { font-size: 1.8rem; }
+    .match-card { padding: 16px; }
 }
 
 /* Animations */
