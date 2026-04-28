@@ -1,0 +1,115 @@
+/* Variables for consistency */
+:root {
+    --nav-height: 72px;
+    --brand-green: #22c55e;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --nav-bg: rgba(255, 255, 255, 0.95);
+}
+
+/* Navbar Container */
+.navbar {
+    height: var(--nav-height);
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid #f3f4f6;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(8px); /* Modern frosted glass effect */
+}
+
+.nav-container {
+    max-width: 1200px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo Styling */
+.logo {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+/* Navigation Menu */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 100%;
+}
+
+.nav-link {
+    text-decoration: none;
+    font-size: 0.925rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    position: relative;
+    padding: 8px 0;
+    transition: color 0.3s ease;
+}
+
+/* Hover State */
+.nav-link:hover {
+    color: var(--text-main);
+}
+
+/* Active State with the Green Underline */
+.nav-link.active {
+    color: var(--brand-green);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -24px; /* Perfectly aligns with the bottom of the nav bar */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--brand-green);
+    border-radius: 2px;
+}
+
+/* Action Icons (Right Side) */
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    color: var(--text-main);
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+    background-color: #f9fafb;
+    color: var(--brand-green);
+}
+
+/* Animation for the icons on click */
+.icon-btn:active {
+    transform: scale(0.9);
+}
+
+/* Mobile Responsive adjustment */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none; /* Hide links on mobile usually for a hamburger menu */
+    }
+}

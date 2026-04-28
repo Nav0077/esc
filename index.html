@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="navbar-placeholder"></div>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>WELCOME TO <span class="highlight">ELITE SOCIAL CLUB</span></h1>
+            <p>Your premier destination for data-driven cricket analytics and live match updates.</p>
+        </section>
+
+        <!-- Live & Recent Section -->
+        <section class="matches-section">
+            <div class="section-header">
+                <h2>Live & Recent Matches</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="matches-grid">
+                <!-- Cards will be loaded here via JS or components folder -->
+                <div id="live-card"></div>
+                <div id="finished-card"></div>
+                <div id="upcoming-card"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+        async function loadComponent(id, file) {
+            const res = await fetch(file);
+            document.getElementById(id).innerHTML = await res.text();
+        }
+
+        loadComponent('navbar-placeholder', 'components/navbar.html');
+        loadComponent('footer-placeholder', 'components/footer.html');
+        
+        // Loading the three different card types
+        loadComponent('live-card', 'components/card-live.html');
+        loadComponent('finished-card', 'components/card-finished.html');
+        loadComponent('upcoming-card', 'components/card-upcoming.html');
+    </script>
+</body>
+</html>
