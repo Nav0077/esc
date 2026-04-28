@@ -1,64 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Elite Social Club | Home</title>
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/navbar.css">
-        <link rel="stylesheet" href="css/footer.css">
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-            rel="stylesheet">
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
 
-        <div id="navbar-placeholder"></div>
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
 
-        <!-- Notice Ticker Placeholder -->
-        <div id="notice-placeholder"></div>
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
 
-        <main class="container">
-            <!-- Hero Section -->
-            <section class="hero">
-                <h1>WELCOME TO <span class="highlight">ELITE SOCIAL
-                        CLUB</span></h1>
-                <p>Your premier destination for data-driven cricket analytics
-                    and live match updates.</p>
-            </section>
+    <!-- Dark Overlay for Mobile Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
 
-            <!-- Live & Recent Section -->
-            <section class="matches-section">
-                <div class="section-header">
-                    <h2>Live & Recent Matches</h2>
-                    <a href="#" class="view-all">View All</a>
-                </div>
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>WELCOME TO <span class="highlight">ELITE SOCIAL CLUB</span></h1>
+            <p>Your premier destination for data-driven cricket analytics and live match updates.</p>
+        </section>
 
-                <div class="matches-grid">
-                    <!-- Cards will be loaded here via JS or components folder -->
-                    <div id="live-card"></div>
-                    <div id="finished-card"></div>
-                    <div id="upcoming-card"></div>
-                </div>
-            </section>
-        </main>
+        <!-- Matches Section -->
+        <section class="matches-section">
+            <div class="section-header">
+                <h2>Live & Recent Matches</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            <div class="matches-grid">
+                <div id="live-card"></div>
+                <div id="finished-card"></div>
+                <div id="upcoming-card"></div>
+            </div>
+        </section>
+    </main>
 
-        <div id="footer-placeholder"></div>
+    <div id="footer-placeholder"></div>
 
-        <script>
+    <script>
+        // ✅ Load Component Function
         async function loadComponent(id, file) {
-            const res = await fetch(file);
-            document.getElementById(id).innerHTML = await res.text();
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                document.getElementById(id).innerHTML = await res.text();
+            } catch (error) {
+                console.error('❌ Error:', error.message);
+            }
         }
 
-        loadComponent('navbar-placeholder', 'components/navbar.html');
-        loadComponent('notice-placeholder', 'components/notice-ticker.html');
-        loadComponent('footer-placeholder', 'components/footer.html');
-        
-        // Loading the three different card types
-        loadComponent('live-card', 'components/card-live.html');
-        loadComponent('finished-card', 'components/card-finished.html');
-        loadComponent('upcoming-card', 'components/card-upcoming.html');
+        // ✅ Initialize App
+        async function initApp() {
+            // Step 1: Load critical components first
+            await loadComponent('notice-placeholder', 'components/notice-ticker.html');
+            await loadComponent('navbar-placeholder', 'components/navbar.html');
+            await loadComponent('footer-placeholder', 'components/footer.html');
+
+            // Step 2: Load cards (can load in parallel)
+            Promise.all([
+                loadComponent('live-card', 'components/card-live.html'),
+                loadComponent('finished-card', 'components/card-finished.html'),
+                loadComponent('upcoming-card', 'components/card-upcoming.html')
+            ]);
+
+            // Step 3: Setup interactive features
+            setupHamburgerMenu();
+            setupActiveLinks();
+        }
+
+        // ✅ Hamburger Menu
+        function setupHamburgerMenu() {
+            const hamburger = document.getElementById('hamburger');
+            const navMenu = document.getElementById('nav-menu');
+            const overlay = document.getElementById('nav-overlay');
+
+            if (!hamburger || !navMenu) {
+                console.error('❌ Hamburger or nav-menu not found!');
+                return;
+            }
+
+            console.log('✅ Menu initialized');
+
+            // Toggle menu
+            hamburger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = navMenu.classList.toggle('show');
+                hamburger.classList.toggle('open');
+                if (overlay) overlay.classList.toggle('show');
+
+                // Prevent body scroll when menu is open
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            });
+
+            // Close menu when link is clicked
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => closeMenu());
+            });
+
+            // Close menu when overlay is clicked
+            if (overlay) {
+                overlay.addEventListener('click', () => closeMenu());
+            }
+
+            // Close menu on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMenu();
+            });
+
+            // Close menu when window is resized to desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) closeMenu();
+            });
+
+            function closeMenu() {
+                navMenu.classList.remove('show');
+                hamburger.classList.remove('open');
+                if (overlay) overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ✅ Highlight Current Page Link
+        function setupActiveLinks() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.includes(currentPage)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // ✅ Start
+        initApp();
     </script>
-    </body>
+
+</body>
 </html>

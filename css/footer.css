@@ -1,8 +1,11 @@
+/* Base Footer Styling */
 .footer {
   border-top: 1px solid #eee;
   margin-top: 100px;
   padding: 40px 0;
+  background-color: #ffffff; /* Ensures it stays white */
 }
+
 .footer-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -10,24 +13,73 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
+
 .footer-logo {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
+
 .footer-copy {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
 }
+
 .footer-links {
   display: flex;
-  gap: 20px;
+  gap: 24px;
 }
+
 .footer-links a {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
+
 .footer-links a:hover {
   color: var(--text-dark);
+  text-decoration: underline;
+}
+
+/* ============================================
+   RESPONSIVE FOOTER
+   ============================================ */
+
+/* Mobile & Tablet View */
+@media (max-width: 768px) {
+  .footer {
+    margin-top: 60px; /* Reduce top margin on mobile */
+    padding: 30px 0;
+  }
+
+  .footer-container {
+    flex-direction: column; /* Stack elements vertically */
+    gap: 25px;              /* Space between stacked items */
+    text-align: center;     /* Center all text */
+  }
+
+  .footer-links {
+    justify-content: center; /* Center links row */
+    flex-wrap: wrap;        /* Allow links to wrap to next line if needed */
+    gap: 15px 25px;         /* Vertical and Horizontal gap */
+  }
+
+  .footer-copy {
+    order: 3; /* Moves copyright to the very bottom of the stack */
+  }
+}
+
+/* Small Mobile Adjustments */
+@media (max-width: 480px) {
+  .footer-links {
+    gap: 10px 20px;
+  }
+  
+  .footer-links a {
+    font-size: 12px;
+  }
 }
