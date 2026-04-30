@@ -306,3 +306,153 @@ main.container {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+/* Top container */
+.top-bar {
+  display: flex;
+  justify-content: space-between; /* tabs left, search right */
+  align-items: center;
+  padding: 10px 15px;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+/* Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 10px;
+  
+  
+}
+
+.tab {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.tab.active {
+  background: #2ecc71;
+  color: white;
+  border: none;
+}
+
+/* Search */
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #eee;
+  border-radius: 20px;
+  padding: 5px 10px;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  margin-right: 6px;
+  color: #777;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 6px;
+  font-size: 14px;
+}
+
+/* player card css */
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
+
+/* Card */
+.player-card {
+  width: 300px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Top */
+.card-top {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  position: relative;
+  border-left: 4px solid #2ecc71;
+}
+
+.player-img {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.player-info h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.role {
+  background: #eee;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #555;
+}
+
+.tag {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  background: #2ecc71;
+  color: white;
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 5px;
+}
+
+/* Stats */
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.card-stats p {
+  font-size: 11px;
+  color: #888;
+  margin: 0;
+}
+
+.card-stats h4 {
+  margin: 5px 0 10px;
+  font-size: 16px;
+}
+
+/* Footer */
+.card-footer {
+  text-align: center;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.card-footer a {
+  text-decoration: none;
+  color: #2ecc71;
+  font-weight: bold;
+  font-size: 13px;
+}
