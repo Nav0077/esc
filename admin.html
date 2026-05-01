@@ -12,15 +12,6 @@
 </head>
 <body>
 
-    <!-- Notice Bar -->
-    <div id="notice-placeholder"></div>
-
-    <!-- Navbar -->
-    <div id="navbar-placeholder"></div>
-
-    <!-- Dark Overlay for Mobile Menu -->
-    <div class="nav-overlay" id="nav-overlay"></div>
-
     <main class="admin-container">
         
         <!-- ========================================== -->
@@ -213,10 +204,7 @@
 
     </main>
 
-    <div id="footer-placeholder"></div>
-
     <script type="module">
-        import { initNavbar } from "./js/navbar.js";
         import { supabase } from "./js/supabase_client.js";
 
         // Global State
@@ -291,13 +279,7 @@
         });
 
         // Initialize App
-        async function initApp() {
-            try {
-                const navRes = await fetch("components/navbar.html");
-                document.getElementById("navbar-placeholder").innerHTML = await navRes.text();
-                initNavbar();
-            } catch(e) {}
-
+        function initApp() {
             checkSession();
         }
 
