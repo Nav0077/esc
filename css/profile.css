@@ -1,3 +1,15 @@
+/* ============================================
+   PROFILE PAGE — FULLY RESPONSIVE
+   Breakpoints:
+     1400px+ : Large Desktop / 4K
+     1200px  : Desktop
+     992px   : Tablet Landscape
+     768px   : Tablet Portrait
+     640px   : Large Phone
+     480px   : Small Phone
+     360px   : iPhone SE / Galaxy Fold
+   ============================================ */
+
 :root {
     --bg-color: #f9fafb;
     --card-bg: #ffffff;
@@ -9,12 +21,9 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    font-family: 'Inter', sans-serif;
-}
-
+/* ============================================
+   LAYOUT — Main Grid
+   ============================================ */
 .profile-container {
     max-width: 1200px;
     margin: 40px auto;
@@ -24,27 +33,29 @@ body {
     gap: 24px;
 }
 
-@media (max-width: 992px) {
-    .profile-container {
-        grid-template-columns: 1fr;
-        margin: 20px auto;
-    }
+.main-column {
+    min-width: 0; /* prevent grid blowout from tables */
 }
 
+.sidebar-column {
+    min-width: 0;
+}
+
+/* ============================================
+   CARD — Base
+   ============================================ */
 .profile-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 32px;
     box-shadow: var(--shadow-sm);
+    overflow: hidden; /* contain children */
 }
 
-@media (max-width: 640px) {
-    .profile-card {
-        padding: 20px;
-    }
-}
-
+/* ============================================
+   HEADER — Avatar + Name + Tags
+   ============================================ */
 .profile-header {
     display: flex;
     align-items: center;
@@ -52,16 +63,9 @@ body {
     margin-bottom: 32px;
 }
 
-@media (max-width: 640px) {
-    .profile-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-    }
-}
-
 .profile-avatar-wrapper {
     position: relative;
+    flex-shrink: 0;
 }
 
 .profile-avatar {
@@ -90,6 +94,10 @@ body {
     border: 2px solid #fff;
 }
 
+.profile-title {
+    min-width: 0; /* prevent text overflow */
+}
+
 .profile-title h1 {
     font-size: 32px;
     font-weight: 800;
@@ -97,19 +105,14 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-@media (max-width: 640px) {
-    .profile-title h1 {
-        font-size: 24px;
-        justify-content: center;
-    }
+    flex-wrap: wrap;
 }
 
 .flag-icon {
     width: 24px;
     height: 18px;
     border-radius: 2px;
+    flex-shrink: 0;
 }
 
 .profile-subtitle {
@@ -122,12 +125,7 @@ body {
     display: flex;
     gap: 8px;
     margin-top: 16px;
-}
-
-@media (max-width: 640px) {
-    .style-tags {
-        justify-content: center;
-    }
+    flex-wrap: wrap;
 }
 
 .style-tag {
@@ -137,26 +135,17 @@ body {
     font-size: 12px;
     color: var(--text-muted);
     font-weight: 600;
+    white-space: nowrap;
 }
 
-/* Quick Stats Row */
+/* ============================================
+   QUICK STATS — 4-column Grid
+   ============================================ */
 .quick-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin-bottom: 32px;
-}
-
-@media (max-width: 992px) {
-    .quick-stats {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .quick-stats {
-        grid-template-columns: 1fr;
-    }
 }
 
 .stat-box {
@@ -185,7 +174,9 @@ body {
     font-weight: 800;
 }
 
-/* Overview Section */
+/* ============================================
+   SECTION TITLES
+   ============================================ */
 .section-title {
     display: flex;
     align-items: center;
@@ -197,44 +188,52 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+/* ============================================
+   OVERVIEW TEXT
+   ============================================ */
 .overview-content {
     color: #4b5563;
-    line-height: 1.6;
+    line-height: 1.7;
     font-size: 14px;
 }
 
-/* Table Styles */
+/* ============================================
+   STATS TABLES — Scrollable on small screens
+   ============================================ */
 .stats-table-wrapper {
     overflow-x: auto;
-    margin-top: 32px;
+    margin-top: 16px;
+    -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
 }
 
 .stats-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    min-width: 600px; /* force horizontal scroll below this */
 }
 
 .stats-table th {
     text-align: left;
-    padding: 12px;
+    padding: 12px 10px;
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 11px;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
+    background: #fafafa;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
 }
 
 .stats-table td {
-    padding: 12px;
+    padding: 12px 10px;
     border-bottom: 1px solid #f3f4f6;
     font-weight: 500;
-}
-
-@media (max-width: 640px) {
-    .stats-table th, .stats-table td {
-        padding: 8px;
-    }
+    white-space: nowrap;
 }
 
 .stats-table tr:last-child td {
@@ -246,7 +245,9 @@ body {
     font-weight: 700;
 }
 
-/* Sidebar Recent Form */
+/* ============================================
+   SIDEBAR — Recent Form
+   ============================================ */
 .recent-form-item {
     display: flex;
     justify-content: space-between;
@@ -262,6 +263,7 @@ body {
 .opponent-info {
     display: flex;
     flex-direction: column;
+    min-width: 0;
 }
 
 .opponent-name {
@@ -277,6 +279,7 @@ body {
 .score-badge {
     font-size: 18px;
     font-weight: 800;
+    flex-shrink: 0;
 }
 
 .score-notout {
@@ -288,6 +291,8 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .form-label {
@@ -295,4 +300,322 @@ body {
     color: var(--text-muted);
     font-weight: 700;
     text-transform: uppercase;
+}
+
+/* ============================================
+   RESPONSIVE — Large Desktop (1400px+)
+   ============================================ */
+@media (min-width: 1400px) {
+    .profile-container {
+        max-width: 1400px;
+    }
+
+    .profile-title h1 {
+        font-size: 36px;
+    }
+
+    .stat-value {
+        font-size: 28px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE — Tablet Landscape (<=992px)
+   ============================================ */
+@media (max-width: 992px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+        margin: 20px auto;
+        gap: 20px;
+    }
+
+    .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-title h1 {
+        font-size: 28px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE — Tablet Portrait (<=768px)
+   ============================================ */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 0 16px;
+        margin: 16px auto;
+    }
+
+    .profile-card {
+        padding: 24px;
+        border-radius: 12px;
+    }
+
+    .profile-header {
+        gap: 20px;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-title h1 {
+        font-size: 24px;
+        gap: 8px;
+    }
+
+    .profile-subtitle {
+        font-size: 14px;
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+
+    .stat-box {
+        padding: 16px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE — Large Phone (<=640px)
+   ============================================ */
+@media (max-width: 640px) {
+    .profile-container {
+        padding: 0 12px;
+        margin: 12px auto;
+        gap: 16px;
+    }
+
+    .profile-card {
+        padding: 20px;
+    }
+
+    /* Stack header vertically */
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+    }
+
+    .profile-title h1 {
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .style-tags {
+        justify-content: center;
+    }
+
+    .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stat-box {
+        padding: 14px 10px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+
+    .section-title {
+        font-size: 15px;
+        gap: 8px;
+    }
+
+    .overview-content {
+        font-size: 13px;
+    }
+
+    .stats-table {
+        font-size: 12px;
+    }
+
+    .stats-table th {
+        padding: 10px 6px;
+        font-size: 10px;
+    }
+
+    .stats-table td {
+        padding: 10px 6px;
+    }
+
+    .recent-form-item {
+        padding: 12px 0;
+    }
+
+    .opponent-name {
+        font-size: 13px;
+    }
+
+    .score-badge {
+        font-size: 16px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE — Small Phone (<=480px)
+   ============================================ */
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0 10px;
+        margin: 10px auto;
+        gap: 12px;
+    }
+
+    .profile-card {
+        padding: 16px;
+        border-radius: 10px;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-width: 3px;
+    }
+
+    .captain-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+    }
+
+    .profile-title h1 {
+        font-size: 20px;
+    }
+
+    .profile-subtitle {
+        font-size: 13px;
+    }
+
+    .style-tag {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .stat-box {
+        padding: 12px 8px;
+        border-radius: 8px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .form-label {
+        font-size: 9px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+    }
+
+    .stats-table-wrapper {
+        margin-top: 12px;
+    }
+
+    .stats-table {
+        font-size: 11px;
+        min-width: 520px; /* tighter for small phones */
+    }
+
+    .stats-table th {
+        padding: 8px 5px;
+        font-size: 9px;
+    }
+
+    .stats-table td {
+        padding: 8px 5px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE — Tiny Phone / Galaxy Fold (<=360px)
+   ============================================ */
+@media (max-width: 360px) {
+    .profile-container {
+        padding: 0 8px;
+    }
+
+    .profile-card {
+        padding: 14px;
+    }
+
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+    }
+
+    .profile-title h1 {
+        font-size: 18px;
+        gap: 6px;
+    }
+
+    .flag-icon {
+        width: 20px;
+        height: 14px;
+    }
+
+    .profile-subtitle {
+        font-size: 12px;
+    }
+
+    .style-tag {
+        font-size: 10px;
+        padding: 2px 8px;
+    }
+
+    .quick-stats {
+        gap: 6px;
+    }
+
+    .stat-box {
+        padding: 10px 6px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+    }
+
+    .overview-content {
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .section-title {
+        font-size: 13px;
+    }
+
+    .score-badge {
+        font-size: 15px;
+    }
+
+    .opponent-name {
+        font-size: 12px;
+    }
+
+    .match-meta {
+        font-size: 10px;
+    }
 }
