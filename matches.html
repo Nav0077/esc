@@ -3,9 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Elite Social Club | Matches Schedule</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .match-center-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .match-center-title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .match-center-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .match-tabs {
+            display: flex;
+            background: #f3f4f6;
+            padding: 4px;
+            border-radius: 8px;
+            gap: 4px;
+        }
+
+        .match-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .match-tab:hover {
+            color: var(--text-dark);
+        }
+
+        .match-tab.active {
+            background: #fff;
+            color: var(--text-dark);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .live-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--live-red);
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+            animation: blink 1.5s infinite;
+        }
+
+        @media (max-width: 640px) {
+            .match-center-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .match-tabs {
+                width: 100%;
+                overflow-x: auto;
+            }
+            .match-tab {
+                white-space: nowrap;
+            }
+        }
+    </style>
 </head>
 <body>
-    
+
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Dark Overlay for Mobile Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <main class="container">
+        <section class="matches-section">
+            <div class="match-center-header">
+                <div class="match-center-title">
+                    <h1>Match Center</h1>
+                    <p>Live scores, recent results, and upcoming fixtures.</p>
+                </div>
+                <div class="match-tabs" id="match-filters">
+                    <button class="match-tab active" data-filter="all">All Matches</button>
+                    <button class="match-tab" data-filter="live"><span class="live-dot"></span>Live</button>
+                    <button class="match-tab" data-filter="upcoming">Upcoming</button>
+                    <button class="match-tab" data-filter="finished">Recent</button>
+                </div>
+            </div>
+
+            <div class="matches-grid" id="matches-grid">
+                <!-- Matches will be loaded here dynamically -->
+                <p>Loading matches...</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module">
+        import { initNavbar } from "./js/navbar.js";
+        import { supabase } from "./js/supabase_client.js";
+
+        let allMatches = [];
+
+        async function loadComponent(id, file) {
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) element.innerHTML = content;
+                return content;
+            } catch (error) {
+                console.error("Error loading component:", error);
+            }
+        }
+
+        async function fetchMatches() {
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .order('match_date', { ascending: true });
+            
+            if (error) {
+                console.error('Error fetching matches:', error);
+                return [];
+            }
+            return data;
+        }
+
+        function renderMatchCard(match, templates) {
+            let template = '';
+            if (match.status === 'live') template = templates.live;
+            else if (match.status === 'finished') template = templates.finished;
+            else template = templates.upcoming;
+
+            let card = template;
+            
+            // Generic replacements based on the templates from components
+            card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/g, `${match.tournament_name} • MATCH ${match.match_number}`);
+            
+            // Team 1
+            card = card.replace(/Falcons|Royals|Spartans/g, match.team1_name);
+            card = card.replace(/145\/6|140\/8/g, match.team1_score || '-');
+            card = card.replace(/\(18\.4\)|\(20\.0\)/g, match.team1_overs ? `(${match.team1_overs})` : '');
+            
+            // Team 2
+            card = card.replace(/Strikers|Titans|Knights/g, match.team2_name);
+            card = card.replace(/Yet to bat|144\/4/g, match.team2_score || 'Yet to bat');
+            card = card.replace(/\(19\.2\)/g, match.team2_overs ? `(${match.team2_overs})` : '');
+
+            // Footer summary
+            card = card.replace(/Falcons elect to bat|Titans won by 6 wickets|Starts tomorrow at 14:00/g, match.summary || '');
+
+            return card;
+        }
+
+        function displayMatches(filter) {
+            const grid = document.getElementById('matches-grid');
+            const filteredMatches = filter === 'all' 
+                ? allMatches 
+                : allMatches.filter(m => m.status === filter);
+
+            if (filteredMatches.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6b7280;">No matches found.</p>`;
+                return;
+            }
+
+            // We need the templates from window or fetch them once
+            grid.innerHTML = filteredMatches.map(m => renderMatchCard(m, window.matchTemplates)).join('');
+        }
+
+        async function initApp() {
+            await loadComponent("notice-placeholder", "components/notice-ticker.html");
+            await loadComponent("navbar-placeholder", "components/navbar.html");
+            initNavbar();
+            await loadComponent("footer-placeholder", "components/footer.html");
+
+            // Fetch templates
+            window.matchTemplates = {
+                live: await (await fetch('components/card-live.html')).text(),
+                finished: await (await fetch('components/card-finished.html')).text(),
+                upcoming: await (await fetch('components/card-upcoming.html')).text()
+            };
+
+            // Fetch matches
+            allMatches = await fetchMatches();
+            
+            // Initial render
+            displayMatches('all');
+
+            // Setup filters
+            const tabs = document.querySelectorAll('.match-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    displayMatches(e.currentTarget.getAttribute('data-filter'));
+                });
+            });
+        }
+
+        initApp();
+    </script>
 </body>
 </html>
