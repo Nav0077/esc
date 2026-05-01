@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Social Club | Full Scoreboard</title>
+    <title>Elite Social Club | Scorecard</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
@@ -23,95 +23,25 @@
 
     <main class="container">
         <div id="scoreboard-container" class="scoreboard-container" style="display: none;">
-            <!-- Header -->
-            <div class="scoreboard-header">
+            
+            <!-- Match Header -->
+            <div class="match-header-info">
                 <h1 id="match-title">Loading Match...</h1>
-                <div class="toss-info" id="match-toss"></div>
+                <div class="match-status" id="match-status-text"></div>
             </div>
 
-            <!-- Innings 1 -->
-            <div class="innings-section" id="innings1-container">
-                <div class="innings-header">
-                    <h2 id="innings1-team">Team 1 Innings</h2>
-                    <div class="innings-score" id="innings1-score">0/0 (0.0)</div>
-                </div>
-                
-                <table class="score-table">
-                    <thead>
-                        <tr>
-                            <th>Batter</th>
-                            <th></th>
-                            <th class="num">R</th>
-                            <th class="num">B</th>
-                            <th class="num">4s</th>
-                            <th class="num">6s</th>
-                            <th class="num">SR</th>
-                        </tr>
-                    </thead>
-                    <tbody id="innings1-batting"></tbody>
-                </table>
+            <div id="innings-wrapper"></div>
 
-                <table class="score-table">
-                    <thead>
-                        <tr>
-                            <th>Bowler</th>
-                            <th class="num">O</th>
-                            <th class="num">M</th>
-                            <th class="num">R</th>
-                            <th class="num">W</th>
-                            <th class="num">Econ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="innings1-bowling"></tbody>
-                </table>
-            </div>
-
-            <!-- Innings 2 -->
-            <div class="innings-section" id="innings2-container" style="display: none;">
-                <div class="innings-header">
-                    <h2 id="innings2-team">Team 2 Innings</h2>
-                    <div class="innings-score" id="innings2-score">0/0 (0.0)</div>
-                </div>
-                
-                <table class="score-table">
-                    <thead>
-                        <tr>
-                            <th>Batter</th>
-                            <th></th>
-                            <th class="num">R</th>
-                            <th class="num">B</th>
-                            <th class="num">4s</th>
-                            <th class="num">6s</th>
-                            <th class="num">SR</th>
-                        </tr>
-                    </thead>
-                    <tbody id="innings2-batting"></tbody>
-                </table>
-
-                <table class="score-table">
-                    <thead>
-                        <tr>
-                            <th>Bowler</th>
-                            <th class="num">O</th>
-                            <th class="num">M</th>
-                            <th class="num">R</th>
-                            <th class="num">W</th>
-                            <th class="num">Econ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="innings2-bowling"></tbody>
-                </table>
-            </div>
         </div>
 
         <div id="loading-state" style="text-align: center; padding: 100px;">
-            <p>Loading scoreboard...</p>
+            <p>Loading scorecard...</p>
         </div>
         <div id="error-state" style="display: none; text-align: center; padding: 100px; color: red;">
-            <p>Failed to load scoreboard or match not found.</p>
+            <p>Failed to load scorecard or match not found.</p>
         </div>
         <div id="no-data-state" style="display: none; text-align: center; padding: 100px;">
-            <p>Scoreboard data is not available for this match yet.</p>
+            <p>Scorecard data is not available for this match yet.</p>
         </div>
     </main>
 
@@ -138,9 +68,9 @@
             if (!battingArray || battingArray.length === 0) return '<tr><td colspan="7">No batting data</td></tr>';
             return battingArray.map(b => `
                 <tr>
-                    <td><span class="player-name">${b.name}</span></td>
-                    <td><span class="dismissal">${b.status}</span></td>
-                    <td class="num" style="font-weight: 600;">${b.runs}</td>
+                    <td><a href="#" class="player-name">${b.name}</a></td>
+                    <td class="dismissal">${b.status}</td>
+                    <td class="num runs-bold">${b.runs}</td>
                     <td class="num">${b.balls}</td>
                     <td class="num">${b.fours}</td>
                     <td class="num">${b.sixes}</td>
@@ -150,17 +80,89 @@
         }
 
         function renderBowlingRows(bowlingArray) {
-            if (!bowlingArray || bowlingArray.length === 0) return '<tr><td colspan="6">No bowling data</td></tr>';
+            if (!bowlingArray || bowlingArray.length === 0) return '<tr><td colspan="8">No bowling data</td></tr>';
             return bowlingArray.map(b => `
                 <tr>
-                    <td><span class="player-name">${b.name}</span></td>
+                    <td><a href="#" class="player-name">${b.name}</a></td>
                     <td class="num">${b.overs}</td>
                     <td class="num">${b.maidens}</td>
-                    <td class="num">${b.runs}</td>
-                    <td class="num" style="font-weight: 600;">${b.wkts}</td>
+                    <td class="num runs-bold">${b.runs}</td>
+                    <td class="num runs-bold" style="color: #cb202d;">${b.wkts}</td>
+                    <td class="num">0</td>
+                    <td class="num">0</td>
                     <td class="num">${b.econ}</td>
                 </tr>
             `).join('');
+        }
+
+        function generateInningsHTML(inningsData) {
+            if (!inningsData) return '';
+
+            // Calculate mock extras/total if not provided in JSON
+            const extras = inningsData.extras || "0 (b 0, lb 0, w 0, nb 0, p 0)";
+            const rr = (parseFloat(inningsData.score.split('/')[0]) / parseFloat(inningsData.overs)).toFixed(2);
+            const runRateStr = isNaN(rr) ? '0.00' : rr;
+
+            return `
+            <div class="innings-section">
+                <div class="innings-header">
+                    <h2>${inningsData.team} Innings</h2>
+                    <div class="innings-score">${inningsData.score} (${inningsData.overs} Ov)</div>
+                </div>
+                
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Batter</th>
+                            <th></th>
+                            <th class="num">R</th>
+                            <th class="num">B</th>
+                            <th class="num">4s</th>
+                            <th class="num">6s</th>
+                            <th class="num">SR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderBattingRows(inningsData.batting)}
+                        <tr class="extra-row">
+                            <td>Extras</td>
+                            <td colspan="6">${extras}</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total</td>
+                            <td colspan="6">${inningsData.score} (${inningsData.overs} Ov) <span style="font-weight: normal; margin-left: 15px;">RR: ${runRateStr}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="innings-footer-info">
+                    <span class="label">Did not bat:</span>
+                    <span class="content">Data not available</span>
+                </div>
+                <div class="innings-footer-info" style="margin-bottom: 20px;">
+                    <span class="label">Fall of wickets:</span>
+                    <span class="content">Data not available</span>
+                </div>
+
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Bowler</th>
+                            <th class="num">O</th>
+                            <th class="num">M</th>
+                            <th class="num">R</th>
+                            <th class="num">W</th>
+                            <th class="num">NB</th>
+                            <th class="num">WD</th>
+                            <th class="num">ECO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderBowlingRows(inningsData.bowling)}
+                    </tbody>
+                </table>
+            </div>
+            `;
         }
 
         async function loadScoreboard() {
@@ -193,27 +195,25 @@
 
             const sb = data.scoreboard;
 
-            // Header
-            document.getElementById('match-title').textContent = `${data.team1_name} vs ${data.team2_name} - ${data.tournament_name}`;
-            document.getElementById('match-toss').textContent = sb.toss || '';
+            // Match Header Info
+            document.getElementById('match-title').textContent = `${data.team1_name} vs ${data.team2_name}, Match ${data.match_number || '-'} - Live Cricket Score`;
+            
+            // Priority: Summary -> Toss
+            document.getElementById('match-status-text').textContent = data.summary || sb.toss || '';
 
-            // Innings 1
+            // Render Innings
+            let inningsHtml = '';
+            
+            // In Cricbuzz, usually Innings 2 is shown at the top if it's currently going on, 
+            // but for simplicity we show Innings 1 then Innings 2.
             if (sb.innings1) {
-                document.getElementById('innings1-team').textContent = `${sb.innings1.team} Innings`;
-                document.getElementById('innings1-score').textContent = `${sb.innings1.score} (${sb.innings1.overs} ov)`;
-                document.getElementById('innings1-batting').innerHTML = renderBattingRows(sb.innings1.batting);
-                document.getElementById('innings1-bowling').innerHTML = renderBowlingRows(sb.innings1.bowling);
+                inningsHtml += generateInningsHTML(sb.innings1);
+            }
+            if (sb.innings2 && (sb.innings2.batting.length > 0 || sb.innings2.bowling.length > 0)) {
+                inningsHtml += generateInningsHTML(sb.innings2);
             }
 
-            // Innings 2
-            if (sb.innings2 && sb.innings2.batting && (sb.innings2.batting.length > 0 || sb.innings2.bowling.length > 0)) {
-                document.getElementById('innings2-container').style.display = 'block';
-                document.getElementById('innings2-team').textContent = `${sb.innings2.team} Innings`;
-                document.getElementById('innings2-score').textContent = `${sb.innings2.score} (${sb.innings2.overs} ov)`;
-                document.getElementById('innings2-batting').innerHTML = renderBattingRows(sb.innings2.batting);
-                document.getElementById('innings2-bowling').innerHTML = renderBowlingRows(sb.innings2.bowling);
-            }
-
+            document.getElementById('innings-wrapper').innerHTML = inningsHtml;
             document.getElementById('scoreboard-container').style.display = 'block';
         }
 
