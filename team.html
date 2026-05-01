@@ -8,7 +8,10 @@
     <link rel="stylesheet" href="css/navbar.css" />
     <link rel="stylesheet" href="css/footer.css" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
@@ -27,20 +30,22 @@
     <main class="container">
       <!-- Hero Section -->
       <section class="teams-caption">
-        <h1>FRIST XI ROSTER</h1>
+        <h1>FIRST XI ROSTER</h1>
         <p>
-          Meet the core squad reprsenting Elite Social Club. Comprehensive staic
-          preformance tracking
+          Meet the core squad representing Elite Social Club. Comprehensive static
+          performance tracking
         </p>
-        <p>performance accross all formats.</p>
+        <p>performance across all formats.</p>
       </section>
 
       <div class="top-bar">
         <div class="filter-tabs">
-          <button class="tab active">All Players</button>
-          <button class="tab">Batsmen</button>
-          <button class="tab">Bowlers</button>
-          <button class="tab">All-Rounders</button>
+          <button class="tab active" data-filter="all-players">
+            All Players
+          </button>
+          <button class="tab" data-filter="batsmen">Batsmen</button>
+          <button class="tab" data-filter="bowlers">Bowlers</button>
+          <button class="tab" data-filter="all-rounders">All-Rounders</button>
         </div>
 
         <div class="search-box">
@@ -53,126 +58,101 @@
               />
             </svg>
           </span>
-          <input type="text" placeholder="Search player..." />
+          <input type="text" id="player-search" placeholder="Search player..." />
         </div>
       </div>
 
-       <div class="player-card">
-        <div class="card-top">
-          <img src="https://via.placeholder.com/60" class="player-img" />
-
-          <div class="player-info">
-            <h3>A. Sharma</h3>
-            <span class="role">Batsman (RHB)</span>
-          </div>
-
-          <span class="tag">(C)</span>
-        </div>
-
-        <div class="card-stats">
-          <div>
-            <p>RUNS</p>
-            <h4>2,451</h4>
-          </div>
-          <div>
-            <p>AVG</p>
-            <h4>45.3</h4>
-          </div>
-          <div>
-            <p>HS</p>
-            <h4>112*</h4>
-          </div>
-          <div>
-            <p>SR</p>
-            <h4>135.2</h4>
-          </div>
-        </div>  
-        <div class="card-footer">
-          <a href="#">View Full Profile →</a>
-        </div>
-    </div>
-
-    <div class="player-card">
-
-       <div class="player-card">
-        <div class="card-top">
-          <img src="https://via.placeholder.com/60" class="player-img" />
-
-          <div class="player-info">
-            <h3>A. Sharma</h3>
-            <span class="role">Batsman (RHB)</span>
-          </div>
-
-          <span class="tag">(C)</span>
-        </div>
-
-        <div class="card-stats">
-          <div>
-            <p>RUNS</p>
-            <h4>2,451</h4>
-          </div>
-          <div>
-            <p>AVG</p>
-            <h4>45.3</h4>
-          </div>
-          <div>
-            <p>HS</p>
-            <h4>112*</h4>
-          </div>
-          <div>
-            <p>SR</p>
-            <h4>135.2</h4>
-          </div>
-        </div>  
-        <div class="card-footer">
-          <a href="#">View Full Profile →</a>
-        </div>
-    </div>
-
-
+      <div class="players-grid" id="players-container">
+          <!-- Players will be loaded here -->
+      </div>
     </main>
 
     <div id="footer-placeholder"></div>
-    
 
     <script type="module">
-    import { initNavbar } from './js/navbar.js'; // Adjust path as needed
+      import { initNavbar } from "./js/navbar.js";
 
-    // ✅ Load Component Function
-    async function loadComponent(id, file) {
+      async function loadComponent(id, file) {
         try {
-            const res = await fetch(file);
-            if (!res.ok) throw new Error(`Failed to load ${file}`);
-            document.getElementById(id).innerHTML = await res.text();
+          const res = await fetch(file);
+          if (!res.ok) throw new Error(`Failed to load ${file}`);
+          const content = await res.text();
+          const element = document.getElementById(id);
+          if (element) {
+              element.innerHTML = content;
+          }
+          return content;
         } catch (error) {
-            console.error("❌ Error:", error.message);
+          console.error("Error:", error.message);
         }
-    }
+      }
 
-    // ✅ Initialize App
-    async function initApp() {
-        // 1. Load critical components
+      async function initApp() {
         await loadComponent("notice-placeholder", "components/notice-ticker.html");
-        
-        // Wait for navbar to fully load before initializing its JS
         await loadComponent("navbar-placeholder", "components/navbar.html");
-        initNavbar(); // <--- Call the function from navbar.js here
-
+        initNavbar();
         await loadComponent("footer-placeholder", "components/footer.html");
 
-        // 2. Load cards
-        loadComponent('player-card', 'components/player-card.html');
-    }
+        // Load multiple players for demonstration
+        const container = document.getElementById("players-container");
+        const playerCardHtml = await (await fetch("components/player_card.html")).text();
+        
+        // Inject multiple cards with different categories for demo
+        const demoPlayers = [
+            { name: "A. Sharma", role: "Batsman (RHB)", cat: "batsmen", img: "https://i.pravatar.cc/150?u=1" },
+            { name: "J. Bumrah", role: "Bowler (RMF)", cat: "bowlers", img: "https://i.pravatar.cc/150?u=2" },
+            { name: "V. Kohli", role: "Batsman (RHB)", cat: "batsmen", img: "https://i.pravatar.cc/150?u=3" },
+            { name: "R. Jadeja", role: "All-Rounder", cat: "all-rounders", img: "https://i.pravatar.cc/150?u=4" }
+        ];
 
-    initApp();
+        container.innerHTML = demoPlayers.map(p => {
+            let card = playerCardHtml;
+            card = card.replace('A. Sharma', p.name);
+            card = card.replace('Batsman (RHB)', p.role);
+            card = card.replace('batsmen', p.cat);
+            card = card.replace('https://via.placeholder.com/60', p.img);
+            return card;
+        }).join('');
 
-    // ✅ Tab Logic (Keep here if it's only for the specific page content)
-    document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('tab')) {
-            document.querySelector(".tab.active")?.classList.remove("active");
-            e.target.classList.add("active");
+        initFilters();
+      }
+
+      function initFilters() {
+        const tabs = document.querySelectorAll(".tab");
+        const searchInput = document.getElementById("player-search");
+
+        function filterPlayers() {
+          const activeFilter = document.querySelector(".tab.active").getAttribute("data-filter");
+          const searchQuery = searchInput.value.toLowerCase();
+          const cards = document.querySelectorAll(".player-card");
+
+          cards.forEach(card => {
+            const category = card.getAttribute("data-category");
+            const name = card.querySelector("h3").textContent.toLowerCase();
+            
+            const matchesTab = activeFilter === "all-players" || category === activeFilter;
+            const matchesSearch = name.includes(searchQuery);
+
+            if (matchesTab && matchesSearch) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
         }
-    });
-</script>
+
+        tabs.forEach(tab => {
+          tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            filterPlayers();
+          });
+        });
+
+        searchInput.addEventListener("input", filterPlayers);
+      }
+
+      initApp();
+    </script>
   </body>
 </html>
