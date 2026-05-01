@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournaments</title>
+    <title>Elite Social Club | Tournament Details</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/tournament-details.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -22,57 +23,233 @@
 
     <main class="container">
 
-        <!-- Matches Section -->
-        <section class="matches-section">
-            <div class="section-header">
-                <h2>Live & Recent Matches</h2>
-                <a href="#" class="view-all">View All</a>
+        <!-- Tournament Header -->
+        <div class="tourney-header">
+            <div class="tourney-title">T20 Elite Cup 2024</div>
+            <div class="tourney-meta">Oct 12 - Nov 30 • Kathmandu, Nepal</div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tourney-nav">
+            <button class="tourney-tab active" data-target="matches-panel">Matches</button>
+            <button class="tourney-tab" data-target="standings-panel">Points Table</button>
+            <button class="tourney-tab" data-target="stats-panel">Stats</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MATCHES PANEL -->
+        <!-- ========================================== -->
+        <div id="matches-panel" class="tourney-panel active">
+            <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Tournament Matches</h2>
+            <div class="matches-grid" id="all-matches-grid">
+                <!-- Matches will be dynamically loaded here -->
             </div>
-            <div class="matches-grid">
-                <div id="live-card"></div>
-                <div id="finished-card"></div>
-                <div id="upcoming-card"></div>
+            <div id="loading-matches" style="text-align: center; padding: 40px; color: #6b7280;">Loading matches...</div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- STANDINGS PANEL -->
+        <!-- ========================================== -->
+        <div id="standings-panel" class="tourney-panel">
+            <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Points Table</h2>
+            <div style="overflow-x: auto;">
+                <table class="standings-table">
+                    <thead>
+                        <tr>
+                            <th>Teams</th>
+                            <th class="num">Mat</th>
+                            <th class="num">Won</th>
+                            <th class="num">Lost</th>
+                            <th class="num hide-mobile">Tied</th>
+                            <th class="num hide-mobile">NR</th>
+                            <th class="num">Pts</th>
+                            <th class="num">NRR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="team-name-cell">
+                                    <img src="https://via.placeholder.com/24" alt="Falcons"> Falcons
+                                </div>
+                            </td>
+                            <td class="num">5</td>
+                            <td class="num">4</td>
+                            <td class="num">1</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num" style="font-weight: 700;">8</td>
+                            <td class="num">+1.245</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="team-name-cell">
+                                    <img src="https://via.placeholder.com/24" alt="Titans"> Titans
+                                </div>
+                            </td>
+                            <td class="num">5</td>
+                            <td class="num">3</td>
+                            <td class="num">2</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num" style="font-weight: 700;">6</td>
+                            <td class="num">+0.850</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="team-name-cell">
+                                    <img src="https://via.placeholder.com/24" alt="Strikers"> Strikers
+                                </div>
+                            </td>
+                            <td class="num">5</td>
+                            <td class="num">3</td>
+                            <td class="num">2</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num" style="font-weight: 700;">6</td>
+                            <td class="num">-0.120</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="team-name-cell">
+                                    <img src="https://via.placeholder.com/24" alt="Warriors"> Warriors
+                                </div>
+                            </td>
+                            <td class="num">5</td>
+                            <td class="num">2</td>
+                            <td class="num">3</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num hide-mobile">0</td>
+                            <td class="num" style="font-weight: 700;">4</td>
+                            <td class="num">-0.500</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- STATS PANEL -->
+        <!-- ========================================== -->
+        <div id="stats-panel" class="tourney-panel">
+            <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Tournament Stats</h2>
+            
+            <div class="stats-grid">
+                <!-- Most Runs Widget -->
+                <div class="stat-widget">
+                    <div class="stat-widget-header">Most Runs</div>
+                    
+                    <div class="stat-list-item">
+                        <div class="stat-player">
+                            <img src="https://via.placeholder.com/40" alt="Player">
+                            <div class="stat-player-info">
+                                <h4>V. Kohli</h4>
+                                <p>Falcons • 5 Matches</p>
+                            </div>
+                        </div>
+                        <div class="stat-value">314</div>
+                    </div>
+                    
+                    <div class="stat-list-item">
+                        <div class="stat-player">
+                            <img src="https://via.placeholder.com/40" alt="Player">
+                            <div class="stat-player-info">
+                                <h4>S. Dhawan</h4>
+                                <p>Warriors • 5 Matches</p>
+                            </div>
+                        </div>
+                        <div class="stat-value">285</div>
+                    </div>
+
+                    <div class="stat-list-item">
+                        <div class="stat-player">
+                            <img src="https://via.placeholder.com/40" alt="Player">
+                            <div class="stat-player-info">
+                                <h4>R. Sharma</h4>
+                                <p>Titans • 5 Matches</p>
+                            </div>
+                        </div>
+                        <div class="stat-value">250</div>
+                    </div>
+                </div>
+
+                <!-- Most Wickets Widget -->
+                <div class="stat-widget">
+                    <div class="stat-widget-header">Most Wickets</div>
+                    
+                    <div class="stat-list-item">
+                        <div class="stat-player">
+                            <img src="https://via.placeholder.com/40" alt="Player">
+                            <div class="stat-player-info">
+                                <h4>N. Basnet</h4>
+                                <p>Falcons • 5 Matches</p>
+                            </div>
+                        </div>
+                        <div class="stat-value">12</div>
+                    </div>
+                    
+                    <div class="stat-list-item">
+                        <div class="stat-player">
+                            <img src="https://via.placeholder.com/40" alt="Player">
+                            <div class="stat-player-info">
+                                <h4>Y. Chahal</h4>
+                                <p>Warriors • 5 Matches</p>
+                            </div>
+                        </div>
+                        <div class="stat-value">10</div>
+                    </div>
+
+                    <div class="stat-list-item">
+                        <div class="stat-player">
+                            <img src="https://via.placeholder.com/40" alt="Player">
+                            <div class="stat-player-info">
+                                <h4>T. Boult</h4>
+                                <p>Strikers • 5 Matches</p>
+                            </div>
+                        </div>
+                        <div class="stat-value">9</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <div id="footer-placeholder"></div>
 
     <script type="module">
+        import { initNavbar } from "./js/navbar.js";
         import { supabase } from "./js/supabase_client.js";
 
-        // ✅ Load Component Function
+        // UI Tabs Logic
+        document.querySelectorAll('.tourney-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.tourney-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tourney-panel').forEach(p => p.classList.remove('active'));
+                
+                e.target.classList.add('active');
+                document.getElementById(e.target.getAttribute('data-target')).classList.add('active');
+            });
+        });
+
+        // Load HTML Components
         async function loadComponent(id, file) {
             try {
                 const res = await fetch(file);
                 if (!res.ok) throw new Error(`Failed to load ${file}`);
                 const content = await res.text();
                 const element = document.getElementById(id);
-                if (element) {
-                    element.innerHTML = content;
-                }
+                if (element) element.innerHTML = content;
                 return content;
             } catch (error) {
-                console.error('❌ Error:', error.message);
+                console.error("Error loading component:", error);
             }
-        }
-
-        async function fetchMatches() {
-            const { data, error } = await supabase
-                .from('matches')
-                .select('*')
-                .order('match_date', { ascending: true });
-            
-            if (error) {
-                console.error('Error fetching matches:', error);
-                return [];
-            }
-            return data;
         }
 
         function renderMatchCard(match, template) {
             let card = template;
             card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/, `${match.tournament_name} • MATCH ${match.match_number}`);
+            
             card = card.replace('Falcons', match.team1_name);
             card = card.replace('Strikers', match.team2_name);
             card = card.replace('Royals', match.team1_name);
@@ -99,84 +276,53 @@
             return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
         }
 
-        // ✅ Initialize App
-        async function initApp() {
-            // Step 1: Load critical components first
-            await loadComponent('notice-placeholder', 'components/notice-ticker.html');
-            await loadComponent('navbar-placeholder', 'components/navbar.html');
-            await loadComponent('footer-placeholder', 'components/footer.html');
-
-            // Step 2: Load and Render Matches
-            const matches = await fetchMatches();
+        async function loadMatches() {
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .order('match_date', { ascending: false });
             
+            document.getElementById('loading-matches').style.display = 'none';
+
+            if (error || !data || data.length === 0) {
+                document.getElementById('all-matches-grid').innerHTML = '<p>No matches found.</p>';
+                return;
+            }
+
             const liveTemplate = await (await fetch('components/card-live.html')).text();
             const finishedTemplate = await (await fetch('components/card-finished.html')).text();
             const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
 
-            const liveContainer = document.getElementById('live-card');
-            const finishedContainer = document.getElementById('finished-card');
-            const upcomingContainer = document.getElementById('upcoming-card');
+            const grid = document.getElementById('all-matches-grid');
+            let html = '';
 
-            const liveMatch = matches.find(m => m.status === 'live');
-            const finishedMatch = matches.find(m => m.status === 'finished');
-            const upcomingMatch = matches.find(m => m.status === 'upcoming');
-
-            if (liveMatch && liveContainer) {
-                liveContainer.innerHTML = renderMatchCard(liveMatch, liveTemplate);
-            }
-            if (finishedMatch && finishedContainer) {
-                finishedContainer.innerHTML = renderMatchCard(finishedMatch, finishedTemplate);
-            }
-            if (upcomingMatch && upcomingContainer) {
-                upcomingContainer.innerHTML = renderMatchCard(upcomingMatch, upcomingTemplate);
-            }
-
-            // Step 3: Setup interactive features
-            setupHamburgerMenu();
-            setupActiveLinks();
-        }
-
-        // ✅ Hamburger Menu
-        function setupHamburgerMenu() {
-            const hamburger = document.getElementById('hamburger');
-            const navMenu = document.getElementById('nav-menu');
-            const overlay = document.getElementById('nav-overlay');
-
-            if (!hamburger || !navMenu) return;
-
-            hamburger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = navMenu.classList.toggle('show');
-                hamburger.classList.toggle('open');
-                if (overlay) overlay.classList.toggle('show');
-                document.body.style.overflow = isOpen ? 'hidden' : '';
+            data.forEach(match => {
+                let tmpl = upcomingTemplate;
+                if(match.status === 'live') tmpl = liveTemplate;
+                if(match.status === 'finished') tmpl = finishedTemplate;
+                
+                html += renderMatchCard(match, tmpl);
             });
 
-            if (overlay) {
-                overlay.addEventListener('click', closeMenu);
-            }
-
-            function closeMenu() {
-                navMenu.classList.remove('show');
-                hamburger.classList.remove('open');
-                if (overlay) overlay.classList.remove('show');
-                document.body.style.overflow = '';
-            }
+            grid.innerHTML = html;
         }
 
-        // ✅ Highlight Current Page Link
-        function setupActiveLinks() {
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            document.querySelectorAll('.nav-link').forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && href.includes(currentPage)) {
-                    link.classList.add('active');
-                }
-            }); 
+        async function initApp() {
+            await loadComponent("notice-placeholder", "components/notice-ticker.html");
+            await loadComponent("navbar-placeholder", "components/navbar.html");
+            initNavbar();
+            
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(l => l.classList.remove('active'));
+            const tourneyLink = Array.from(links).find(l => l.getAttribute('href') === '/tournament.html');
+            if (tourneyLink) tourneyLink.classList.add('active');
+
+            await loadComponent("footer-placeholder", "components/footer.html");
+
+            await loadMatches();
         }
 
         initApp();
     </script>
-
 </body>
 </html>

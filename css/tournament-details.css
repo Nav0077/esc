@@ -1,0 +1,201 @@
+/* ============================================
+   TOURNAMENT DETAILS CSS (CRICBUZZ STYLE)
+   ============================================ */
+
+/* Tournament Header */
+.tourney-header {
+    background: #111827;
+    color: white;
+    padding: 24px 20px;
+    border-radius: 12px 12px 0 0;
+    margin-top: 30px;
+}
+
+.tourney-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.tourney-meta {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* Sub Navigation Tabs */
+.tourney-nav {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 30px;
+    display: flex;
+    overflow-x: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.tourney-tab {
+    padding: 16px 24px;
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+.tourney-tab:hover {
+    color: #111827;
+}
+
+.tourney-tab.active {
+    color: var(--brand-green);
+    border-bottom-color: var(--brand-green);
+}
+
+/* Panels */
+.tourney-panel {
+    display: none;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+}
+
+.tourney-panel.active {
+    display: block;
+}
+
+/* Points Table */
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.standings-table th {
+    background: #f3f4f6;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.standings-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #111827;
+}
+
+.standings-table th.num, .standings-table td.num {
+    text-align: center;
+}
+
+.standings-table tr:hover td {
+    background: #f9fafb;
+}
+
+.team-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+}
+
+.team-name-cell img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Stats Widgets */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.stat-widget {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.stat-widget-header {
+    background: #f9fafb;
+    padding: 12px 16px;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    color: #111827;
+}
+
+.stat-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.stat-list-item:last-child {
+    border-bottom: none;
+}
+
+.stat-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-player img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.stat-player-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: var(--brand-green);
+}
+
+.stat-player-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+}
+
+@media (max-width: 640px) {
+    .tourney-header {
+        padding: 20px 16px;
+        margin-top: 16px;
+    }
+    
+    .tourney-panel {
+        padding: 16px;
+    }
+    
+    .standings-table th, .standings-table td {
+        padding: 10px 8px;
+    }
+    
+    /* Hide some columns on mobile */
+    .hide-mobile {
+        display: none;
+    }
+}
