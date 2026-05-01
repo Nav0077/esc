@@ -197,3 +197,62 @@ textarea.form-control {
     color: #166534;
     border: 1px solid #bbf7d0;
 }
+
+/* Grid layout overrides for responsiveness */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Search Box */
+.search-box {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+/* List Item Enhancements */
+.list-item-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+    background: #e5e7eb;
+}
+
+.list-item-content-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        padding: 0 12px;
+        margin: 20px auto;
+    }
+    .admin-header h1 {
+        font-size: 22px;
+    }
+    .admin-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 8px;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .list-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

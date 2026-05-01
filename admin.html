@@ -22,20 +22,44 @@
     <div class="nav-overlay" id="nav-overlay"></div>
 
     <main class="admin-container">
-        <div class="admin-header">
-            <h1>Site Administration</h1>
+        
+        <!-- ========================================== -->
+        <!-- AUTH PANEL -->
+        <!-- ========================================== -->
+        <div id="auth-section" style="max-width: 400px; margin: 60px auto; background: white; padding: 32px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+            <h2 style="text-align: center; margin-bottom: 24px;">Admin Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="auth-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;" id="login-btn">Sign In</button>
+            </form>
+            <div id="auth-error" style="color: #ef4444; margin-top: 16px; font-size: 14px; text-align: center; display: none;"></div>
+            <p style="margin-top: 24px; font-size: 13px; color: #6b7280; text-align: center;">
+                If you don't have an account, create one in your Supabase Dashboard under Authentication > Users.
+            </p>
         </div>
 
-        <div class="alert alert-warning">
-            <strong>Security Notice:</strong> Currently, this admin panel relies on public Row Level Security. Anyone with this URL can modify data. Please configure Supabase Auth to secure this panel before going to production.
-        </div>
+        <!-- ========================================== -->
+        <!-- DASHBOARD (Hidden by default) -->
+        <!-- ========================================== -->
+        <div id="dashboard-section" style="display: none;">
+            <div class="admin-header">
+                <h1>Site Administration</h1>
+                <button class="btn btn-secondary" id="logout-btn">Logout</button>
+            </div>
 
-        <div id="status-message" style="display: none;" class="alert alert-success"></div>
+            <div id="status-message" style="display: none;" class="alert alert-success"></div>
 
-        <div class="admin-tabs">
-            <button class="admin-tab active" data-target="players-panel">Manage Players</button>
-            <button class="admin-tab" data-target="matches-panel">Manage Matches & Scoreboards</button>
-        </div>
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-target="players-panel">Manage Players</button>
+                <button class="admin-tab" data-target="matches-panel">Manage Matches & Scoreboards</button>
+            </div>
 
         <!-- ========================================== -->
         <!-- PLAYERS PANEL -->
@@ -100,7 +124,10 @@
             </form>
 
             <div class="item-list">
-                <h3>Existing Players</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0;">Existing Players</h3>
+                </div>
+                <input type="text" id="search-players" class="search-box" placeholder="Search players by name...">
                 <div id="players-list">Loading players...</div>
             </div>
         </div>
@@ -113,7 +140,7 @@
             <form id="match-form">
                 <input type="hidden" id="match-id">
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-grid">
                     <div class="form-group">
                         <label>Tournament Name</label>
                         <input type="text" id="match-tournament" class="form-control" required placeholder="e.g. T20 Elite Cup">
@@ -124,7 +151,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-grid">
                     <div class="form-group">
                         <label>Team 1 Name</label>
                         <input type="text" id="match-team1" class="form-control" required>
@@ -158,7 +185,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Scoreboard JSON (Advanced)</label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Scoreboard JSON (Advanced)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="insert-template-btn">Insert Template</button>
+                    </label>
                     <textarea id="match-scoreboard" class="form-control" style="font-family: monospace; min-height: 200px;" placeholder='{"innings1": {...}, "innings2": {...}}'></textarea>
                     <p style="font-size: 12px; color: #666; margin-top: 4px;">Paste valid JSON object to update the detailed scorecard. Leave empty if none.</p>
                 </div>
@@ -171,10 +201,15 @@
             </form>
 
             <div class="item-list">
-                <h3>Existing Matches</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0;">Existing Matches</h3>
+                </div>
+                <input type="text" id="search-matches" class="search-box" placeholder="Search matches by team or tournament...">
                 <div id="matches-list">Loading matches...</div>
             </div>
         </div>
+
+        </div> <!-- END DASHBOARD SECTION -->
 
     </main>
 
@@ -208,6 +243,53 @@
             });
         });
 
+        // ==========================================
+        // AUTHENTICATION LOGIC
+        // ==========================================
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+                await fetchPlayers();
+                await fetchMatches();
+            } else {
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('dashboard-section').style.display = 'none';
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const errEl = document.getElementById('auth-error');
+            
+            btn.textContent = "Signing In...";
+            btn.disabled = true;
+            errEl.style.display = 'none';
+
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            btn.textContent = "Sign In";
+            btn.disabled = false;
+
+            if (error) {
+                errEl.textContent = error.message;
+                errEl.style.display = 'block';
+            } else {
+                document.getElementById('login-form').reset();
+                checkSession();
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            checkSession();
+        });
+
         // Initialize App
         async function initApp() {
             try {
@@ -216,8 +298,7 @@
                 initNavbar();
             } catch(e) {}
 
-            await fetchPlayers();
-            await fetchMatches();
+            checkSession();
         }
 
         // ==========================================
@@ -230,15 +311,20 @@
             renderPlayersList();
         }
 
-        function renderPlayersList() {
+        function renderPlayersList(filter = '') {
             const list = document.getElementById('players-list');
-            if(allPlayers.length === 0) { list.innerHTML = '<p>No players found.</p>'; return; }
+            const filtered = allPlayers.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
             
-            list.innerHTML = allPlayers.map(p => `
+            if(filtered.length === 0) { list.innerHTML = '<p>No players found.</p>'; return; }
+            
+            list.innerHTML = filtered.map(p => `
                 <div class="list-item">
-                    <div class="list-item-info">
-                        <h3>${p.name}</h3>
-                        <p>${p.role} • ${p.category}</p>
+                    <div class="list-item-content-wrapper">
+                        <img src="${p.image_url || 'https://via.placeholder.com/40'}" class="list-item-avatar">
+                        <div class="list-item-info">
+                            <h3>${p.name}</h3>
+                            <p>${p.role} • ${p.category}</p>
+                        </div>
                     </div>
                     <div class="list-item-actions">
                         <button class="btn btn-secondary" onclick="editPlayer('${p.id}')">Edit</button>
@@ -246,6 +332,10 @@
                 </div>
             `).join('');
         }
+
+        document.getElementById('search-players').addEventListener('input', (e) => {
+            renderPlayersList(e.target.value);
+        });
 
         window.editPlayer = (id) => {
             const p = allPlayers.find(x => x.id === id);
@@ -373,15 +463,26 @@
             renderMatchesList();
         }
 
-        function renderMatchesList() {
+        function renderMatchesList(filter = '') {
             const list = document.getElementById('matches-list');
-            if(allMatches.length === 0) { list.innerHTML = '<p>No matches found.</p>'; return; }
+            const filtered = allMatches.filter(m => 
+                (m.team1_name + m.team2_name + m.tournament_name).toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if(filtered.length === 0) { list.innerHTML = '<p>No matches found.</p>'; return; }
             
-            list.innerHTML = allMatches.map(m => `
+            list.innerHTML = filtered.map(m => `
                 <div class="list-item">
-                    <div class="list-item-info">
-                        <h3>${m.team1_name} vs ${m.team2_name} <span style="font-size: 12px; color: gray;">(${m.status})</span></h3>
-                        <p>${m.tournament_name} • Match ${m.match_number}</p>
+                    <div class="list-item-content-wrapper">
+                        <div style="display: flex; align-items: center; gap: 4px; margin-right: 12px;">
+                            <img src="${m.team1_logo || 'https://via.placeholder.com/24'}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                            <span style="font-size: 12px; font-weight: bold; color: #9ca3af;">VS</span>
+                            <img src="${m.team2_logo || 'https://via.placeholder.com/24'}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                        </div>
+                        <div class="list-item-info">
+                            <h3>${m.team1_name} vs ${m.team2_name} <span style="font-size: 12px; color: ${m.status==='live'?'#ef4444':'gray'}; text-transform: uppercase;">(${m.status})</span></h3>
+                            <p>${m.tournament_name} • Match ${m.match_number}</p>
+                        </div>
                     </div>
                     <div class="list-item-actions">
                         <button class="btn btn-secondary" onclick="editMatch('${m.id}')">Edit</button>
@@ -389,6 +490,29 @@
                 </div>
             `).join('');
         }
+
+        document.getElementById('search-matches').addEventListener('input', (e) => {
+            renderMatchesList(e.target.value);
+        });
+
+        document.getElementById('insert-template-btn').addEventListener('click', () => {
+            const tmpl = {
+                "toss": "Team A won the toss and elected to bat",
+                "innings1": {
+                    "team": "Team A",
+                    "score": "0/0",
+                    "overs": "0.0",
+                    "extras": "0 (b 0, lb 0, w 0, nb 0, p 0)",
+                    "batting": [
+                        {"name": "Batter 1", "status": "not out", "runs": 0, "balls": 0, "fours": 0, "sixes": 0, "sr": 0}
+                    ],
+                    "bowling": [
+                        {"name": "Bowler 1", "overs": "0.0", "maidens": 0, "runs": 0, "wkts": 0, "econ": 0}
+                    ]
+                }
+            };
+            document.getElementById('match-scoreboard').value = JSON.stringify(tmpl, null, 2);
+        });
 
         window.editMatch = (id) => {
             const m = allMatches.find(x => x.id === id);
