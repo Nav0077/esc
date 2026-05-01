@@ -166,7 +166,7 @@ main.container {
 .matches-grid {
   display: grid;
   /* Smart responsive grid: stacks on mobile, 3 columns on desktop */
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
   gap: 24px;
 }
 
@@ -281,8 +281,8 @@ main.container {
 @media (max-width: 768px) {
     main.container { margin-top: 110px; }
 
-    .hero { padding: 50px 20px; border-radius: 16px; }
-    .hero h1 { font-size: 2.2rem; }
+    .hero { padding: 40px 16px; border-radius: 16px; margin-top: 10px; }
+    .hero h1 { font-size: 2rem; }
 
     /* Responsive Ticker Label */
     .ticker-label .label-text { display: none; }
@@ -292,8 +292,10 @@ main.container {
 }
 
 @media (max-width: 480px) {
-    .hero h1 { font-size: 1.8rem; }
+    .hero h1 { font-size: 1.6rem; }
     .match-card { padding: 16px; }
+    .container { padding: 0 12px; }
+    .section-header h2 { font-size: 1.2rem; }
 }
 
 /* Animations */
@@ -319,6 +321,12 @@ main.container {
   margin-bottom: 15px;
   flex-wrap: wrap;
   gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        justify-content: center;
+    }
 }
 
 /* Tabs */

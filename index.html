@@ -44,42 +44,98 @@
     <div id="footer-placeholder"></div>
 
    <script type="module">
-    import { initNavbar } from './js/navbar.js'; // Ensure the path to navbar.js is correct
+        import { initNavbar } from './js/navbar.js';
+        import { supabase } from "./js/supabase_client.js";
 
-    // Load Component Function
-    async function loadComponent(id, file) {
-        try {
-            const res = await fetch(file);
-            if (!res.ok) throw new Error(`Failed to load ${file}`);
-            document.getElementById(id).innerHTML = await res.text();
-        } catch (error) {
-            console.error(' Error:', error.message);
+        // Load Component Function
+        async function loadComponent(id, file) {
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = content;
+                }
+                return content;
+            } catch (error) {
+                console.error(' Error:', error.message);
+            }
         }
-    }
 
-    //  Initialize App
-    async function initApp() {
-        // 1. Load Navbar and other UI basics
-        await loadComponent('notice-placeholder', 'components/notice-ticker.html');
-        
-        // We MUST wait for the navbar to load before calling initNavbar()
-        await loadComponent('navbar-placeholder', 'components/navbar.html');
-        initNavbar(); 
+        async function fetchMatches() {
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .order('match_date', { ascending: true });
+            
+            if (error) {
+                console.error('Error fetching matches:', error);
+                return [];
+            }
+            return data;
+        }
 
-        await loadComponent('footer-placeholder', 'components/footer.html');
+        function renderMatchCard(match, template) {
+            let card = template;
+            card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/, `${match.tournament_name} • MATCH ${match.match_number}`);
+            card = card.replace('Falcons', match.team1_name);
+            card = card.replace('Strikers', match.team2_name);
+            card = card.replace('Royals', match.team1_name);
+            card = card.replace('Titans', match.team2_name);
+            card = card.replace('Spartans', match.team1_name);
+            card = card.replace('Knights', match.team2_name);
 
-        // 2. Load Match Page Content (Cards)
-        // These load in the background while the user sees the navbar
-        Promise.all([
-            loadComponent('live-card', 'components/card-live.html'),
-            loadComponent('finished-card', 'components/card-finished.html'),
-            loadComponent('upcoming-card', 'components/card-upcoming.html')
-        ]);
-    }
+            card = card.replace('145/6', match.team1_score || '-');
+            card = card.replace('Yet to bat', match.team2_score || 'Yet to bat');
+            card = card.replace('140/8', match.team1_score || '-');
+            card = card.replace('144/4', match.team2_score || '-');
+            
+            card = card.replace('(18.4)', match.team1_overs ? `(${match.team1_overs})` : '');
+            card = card.replace('(20.0)', match.team1_overs ? `(${match.team1_overs})` : '');
+            card = card.replace('(19.2)', match.team2_overs ? `(${match.team2_overs})` : '');
 
-    // Start
-    initApp();
-</script>
+            card = card.replace('Falcons elect to bat', match.summary || '');
+            card = card.replace('Titans won by 6 wickets', match.summary || '');
+            card = card.replace('Starts tomorrow at 14:00', match.summary || '');
+
+            return card;
+        }
+
+        //  Initialize App
+        async function initApp() {
+            await loadComponent('notice-placeholder', 'components/notice-ticker.html');
+            await loadComponent('navbar-placeholder', 'components/navbar.html');
+            initNavbar(); 
+            await loadComponent('footer-placeholder', 'components/footer.html');
+
+            const matches = await fetchMatches();
+            
+            const liveTemplate = await (await fetch('components/card-live.html')).text();
+            const finishedTemplate = await (await fetch('components/card-finished.html')).text();
+            const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
+
+            const liveContainer = document.getElementById('live-card');
+            const finishedContainer = document.getElementById('finished-card');
+            const upcomingContainer = document.getElementById('upcoming-card');
+
+            const liveMatch = matches.find(m => m.status === 'live');
+            const finishedMatch = matches.find(m => m.status === 'finished');
+            const upcomingMatch = matches.find(m => m.status === 'upcoming');
+
+            if (liveMatch && liveContainer) {
+                liveContainer.innerHTML = renderMatchCard(liveMatch, liveTemplate);
+            }
+            if (finishedMatch && finishedContainer) {
+                finishedContainer.innerHTML = renderMatchCard(finishedMatch, finishedTemplate);
+            }
+            if (upcomingMatch && upcomingContainer) {
+                upcomingContainer.innerHTML = renderMatchCard(upcomingMatch, upcomingTemplate);
+            }
+        }
+
+        initApp();
+    </script>
 
 </body>
 </html>

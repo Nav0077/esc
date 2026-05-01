@@ -71,6 +71,7 @@
 
     <script type="module">
       import { initNavbar } from "./js/navbar.js";
+      import { supabase } from "./js/supabase_client.js";
 
       async function loadComponent(id, file) {
         try {
@@ -87,32 +88,48 @@
         }
       }
 
+      async function fetchPlayers() {
+        const { data, error } = await supabase
+          .from('player_stats')
+          .select('*')
+          .order('name');
+        
+        if (error) {
+          console.error('Error fetching players:', error);
+          return [];
+        }
+        return data;
+      }
+
       async function initApp() {
         await loadComponent("notice-placeholder", "components/notice-ticker.html");
         await loadComponent("navbar-placeholder", "components/navbar.html");
         initNavbar();
         await loadComponent("footer-placeholder", "components/footer.html");
 
-        // Load multiple players for demonstration
         const container = document.getElementById("players-container");
         const playerCardHtml = await (await fetch("components/player_card.html")).text();
         
-        // Inject multiple cards with different categories for demo
-        const demoPlayers = [
-            { name: "A. Sharma", role: "Batsman (RHB)", cat: "batsmen", img: "https://i.pravatar.cc/150?u=1" },
-            { name: "J. Bumrah", role: "Bowler (RMF)", cat: "bowlers", img: "https://i.pravatar.cc/150?u=2" },
-            { name: "V. Kohli", role: "Batsman (RHB)", cat: "batsmen", img: "https://i.pravatar.cc/150?u=3" },
-            { name: "R. Jadeja", role: "All-Rounder", cat: "all-rounders", img: "https://i.pravatar.cc/150?u=4" }
-        ];
+        const players = await fetchPlayers();
 
-        container.innerHTML = demoPlayers.map(p => {
-            let card = playerCardHtml;
-            card = card.replace('A. Sharma', p.name);
-            card = card.replace('Batsman (RHB)', p.role);
-            card = card.replace('batsmen', p.cat);
-            card = card.replace('https://via.placeholder.com/60', p.img);
-            return card;
-        }).join('');
+        if (players.length === 0) {
+          container.innerHTML = '<p class="no-players">No players found.</p>';
+        } else {
+          container.innerHTML = players.map(p => {
+              let card = playerCardHtml;
+              card = card.replace(/data-category="[^"]*"/, `data-category="${p.category}"`);
+              card = card.replace('A. Sharma', p.name);
+              card = card.replace('Batsman (RHB)', p.role || '');
+              card = card.replace('(C)', p.tag || '');
+              card = card.replace('https://via.placeholder.com/60', p.image_url || 'https://via.placeholder.com/60');
+              card = card.replace('2,451', p.runs.toLocaleString());
+              card = card.replace('45.3', p.batting_avg);
+              card = card.replace('112*', p.highest_score);
+              card = card.replace('135.2', p.strike_rate);
+              card = card.replace('<a href="#">View Full Profile →</a>', `<a href="player-profile.html?id=${p.id}">View Full Profile →</a>`);
+              return card;
+          }).join('');
+        }
 
         initFilters();
       }

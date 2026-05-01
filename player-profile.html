@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | Player Profile</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <main class="container">
+        <div class="profile-container" id="profile-content">
+            <!-- Loading State -->
+            <div style="grid-column: 1 / -1; text-align: center; padding: 100px;">
+                <p>Loading player profile...</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module">
+        import { initNavbar } from "./js/navbar.js";
+        import { supabase } from "./js/supabase_client.js";
+
+        async function loadComponent(id, file) {
+            try {
+                const res = await fetch(file);
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) element.innerHTML = content;
+            } catch (error) {
+                console.error("Error loading component:", error);
+            }
+        }
+
+        async function initApp() {
+            await loadComponent("notice-placeholder", "components/notice-ticker.html");
+            await loadComponent("navbar-placeholder", "components/navbar.html");
+            initNavbar();
+            await loadComponent("footer-placeholder", "components/footer.html");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const playerId = urlParams.get('id');
+
+            if (!playerId) {
+                document.getElementById('profile-content').innerHTML = '<h2>Player not found</h2>';
+                return;
+            }
+
+            const { data: player, error } = await supabase
+                .from('player_stats')
+                .select('*')
+                .eq('id', playerId)
+                .single();
+
+            if (error || !player) {
+                document.getElementById('profile-content').innerHTML = '<h2>Error loading profile</h2>';
+                return;
+            }
+
+            renderProfile(player);
+        }
+
+        function renderProfile(p) {
+            const container = document.getElementById('profile-content');
+            
+            const battingTableRows = (p.batting_detailed || []).map(row => `
+                <tr>
+                    <td>${row.format}</td>
+                    <td>${row.mat}</td>
+                    <td>${row.inn}</td>
+                    <td>${row.no}</td>
+                    <td><strong>${row.runs}</strong></td>
+                    <td>${row.hs}</td>
+                    <td class="highlight-cell">${row.avg}</td>
+                    <td>${row.bf}</td>
+                    <td>${row.sr}</td>
+                    <td>${row.hundreds}</td>
+                    <td>${row.fifties}</td>
+                    <td>${row.fours}</td>
+                    <td>${row.sixes}</td>
+                </tr>
+            `).join('');
+
+            const bowlingTableRows = (p.bowling_detailed || []).map(row => `
+                <tr>
+                    <td>${row.format}</td>
+                    <td>${row.mat}</td>
+                    <td>${row.inn}</td>
+                    <td>${row.balls}</td>
+                    <td>${row.runs}</td>
+                    <td><strong>${row.wkts}</strong></td>
+                    <td>${row.bbi}</td>
+                    <td>${row.bbm}</td>
+                    <td class="highlight-cell">${row.econ}</td>
+                    <td>${row.avg}</td>
+                    <td>${row.sr}</td>
+                    <td>${row.fivew}</td>
+                    <td>${row.tenw}</td>
+                </tr>
+            `).join('');
+
+            const recentFormHtml = (p.recent_form || []).map(f => `
+                <div class="recent-form-item">
+                    <div class="opponent-info">
+                        <span class="opponent-name">vs ${f.opponent}</span>
+                        <span class="match-meta">T20 • 22 Oct</span>
+                    </div>
+                    <span class="score-badge ${f.is_not_out ? 'score-notout' : ''}">${f.runs}${f.is_not_out ? '*' : ''}</span>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="main-column">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar-wrapper">
+                                <img src="${p.image_url}" class="profile-avatar" alt="${p.name}">
+                                ${p.tag ? `<div class="captain-badge">C</div>` : ''}
+                            </div>
+                            <div class="profile-title">
+                                <h1>${p.name} <img src="https://flagcdn.com/w40/${p.nationality.toLowerCase()}.png" class="flag-icon"></h1>
+                                <div class="profile-subtitle">${p.role}</div>
+                                <div class="style-tags">
+                                    <span class="style-tag">${p.batting_style || 'N/A'}</span>
+                                    <span class="style-tag">${p.bowling_style || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-stats">
+                            <div class="stat-box highlight">
+                                <div class="form-label">TOTAL RUNS</div>
+                                <div class="stat-value">${p.runs.toLocaleString()}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="form-label">AVERAGE</div>
+                                <div class="stat-value">${p.batting_avg}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="form-label">STRIKE RATE</div>
+                                <div class="stat-value">${p.strike_rate}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="form-label">100S / 50S</div>
+                                <div class="stat-value">${(p.batting_detailed?.[0]?.hundreds || 0)} / ${(p.batting_detailed?.[0]?.fifties || 0)}</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">
+                            <i class="fa-solid fa-circle-info"></i> Player Overview
+                        </div>
+                        <div class="overview-content">
+                            ${p.bio || 'No overview available for this player.'}
+                        </div>
+
+                        <div class="section-title" style="margin-top: 40px;">
+                            Batting & Fielding Statistics
+                        </div>
+                        <div class="stats-table-wrapper">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Format</th>
+                                        <th>Mat</th>
+                                        <th>Inn</th>
+                                        <th>NO</th>
+                                        <th>Runs</th>
+                                        <th>HS</th>
+                                        <th>Avg</th>
+                                        <th>BF</th>
+                                        <th>SR</th>
+                                        <th>100s</th>
+                                        <th>50s</th>
+                                        <th>4s</th>
+                                        <th>6s</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${battingTableRows || '<tr><td colspan="13">No batting stats available</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="section-title" style="margin-top: 40px;">
+                            Bowling Statistics
+                        </div>
+                        <div class="stats-table-wrapper">
+                            <table class="stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Format</th>
+                                        <th>Mat</th>
+                                        <th>Inn</th>
+                                        <th>Balls</th>
+                                        <th>Runs</th>
+                                        <th>Wkts</th>
+                                        <th>BBI</th>
+                                        <th>BBM</th>
+                                        <th>Econ</th>
+                                        <th>Avg</th>
+                                        <th>SR</th>
+                                        <th>5W</th>
+                                        <th>10W</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${bowlingTableRows || '<tr><td colspan="13">No bowling stats available</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-column">
+                    <div class="profile-card">
+                        <div class="form-header">
+                            <div class="section-title" style="margin-bottom: 0; border: none; padding: 0;">Recent Form</div>
+                            <span class="form-label">Last 5 Innings</span>
+                        </div>
+                        <div class="recent-form-list">
+                            ${recentFormHtml || '<p>No recent form data available</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        initApp();
+    </script>
+</body>
+</html>

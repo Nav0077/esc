@@ -38,16 +38,62 @@
 
     <div id="footer-placeholder"></div>
 
-    <script>
+    <script type="module">
+        import { supabase } from "./js/supabase_client.js";
+
         // ✅ Load Component Function
         async function loadComponent(id, file) {
             try {
                 const res = await fetch(file);
                 if (!res.ok) throw new Error(`Failed to load ${file}`);
-                document.getElementById(id).innerHTML = await res.text();
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) {
+                    element.innerHTML = content;
+                }
+                return content;
             } catch (error) {
                 console.error('❌ Error:', error.message);
             }
+        }
+
+        async function fetchMatches() {
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .order('match_date', { ascending: true });
+            
+            if (error) {
+                console.error('Error fetching matches:', error);
+                return [];
+            }
+            return data;
+        }
+
+        function renderMatchCard(match, template) {
+            let card = template;
+            card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/, `${match.tournament_name} • MATCH ${match.match_number}`);
+            card = card.replace('Falcons', match.team1_name);
+            card = card.replace('Strikers', match.team2_name);
+            card = card.replace('Royals', match.team1_name);
+            card = card.replace('Titans', match.team2_name);
+            card = card.replace('Spartans', match.team1_name);
+            card = card.replace('Knights', match.team2_name);
+
+            card = card.replace('145/6', match.team1_score || '-');
+            card = card.replace('Yet to bat', match.team2_score || 'Yet to bat');
+            card = card.replace('140/8', match.team1_score || '-');
+            card = card.replace('144/4', match.team2_score || '-');
+            
+            card = card.replace('(18.4)', match.team1_overs ? `(${match.team1_overs})` : '');
+            card = card.replace('(20.0)', match.team1_overs ? `(${match.team1_overs})` : '');
+            card = card.replace('(19.2)', match.team2_overs ? `(${match.team2_overs})` : '');
+
+            card = card.replace('Falcons elect to bat', match.summary || '');
+            card = card.replace('Titans won by 6 wickets', match.summary || '');
+            card = card.replace('Starts tomorrow at 14:00', match.summary || '');
+
+            return card;
         }
 
         // ✅ Initialize App
@@ -57,12 +103,30 @@
             await loadComponent('navbar-placeholder', 'components/navbar.html');
             await loadComponent('footer-placeholder', 'components/footer.html');
 
-            // Step 2: Load cards (can load in parallel)
-            Promise.all([
-                loadComponent('live-card', 'components/card-live.html'),
-                loadComponent('finished-card', 'components/card-finished.html'),
-                loadComponent('upcoming-card', 'components/card-upcoming.html')
-            ]);
+            // Step 2: Load and Render Matches
+            const matches = await fetchMatches();
+            
+            const liveTemplate = await (await fetch('components/card-live.html')).text();
+            const finishedTemplate = await (await fetch('components/card-finished.html')).text();
+            const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
+
+            const liveContainer = document.getElementById('live-card');
+            const finishedContainer = document.getElementById('finished-card');
+            const upcomingContainer = document.getElementById('upcoming-card');
+
+            const liveMatch = matches.find(m => m.status === 'live');
+            const finishedMatch = matches.find(m => m.status === 'finished');
+            const upcomingMatch = matches.find(m => m.status === 'upcoming');
+
+            if (liveMatch && liveContainer) {
+                liveContainer.innerHTML = renderMatchCard(liveMatch, liveTemplate);
+            }
+            if (finishedMatch && finishedContainer) {
+                finishedContainer.innerHTML = renderMatchCard(finishedMatch, finishedTemplate);
+            }
+            if (upcomingMatch && upcomingContainer) {
+                upcomingContainer.innerHTML = renderMatchCard(upcomingMatch, upcomingTemplate);
+            }
 
             // Step 3: Setup interactive features
             setupHamburgerMenu();
@@ -75,43 +139,19 @@
             const navMenu = document.getElementById('nav-menu');
             const overlay = document.getElementById('nav-overlay');
 
-            if (!hamburger || !navMenu) {
-                console.error('❌ Hamburger or nav-menu not found!');
-                return;
-            }
+            if (!hamburger || !navMenu) return;
 
-            console.log('✅ Menu initialized');
-
-            // Toggle menu
             hamburger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const isOpen = navMenu.classList.toggle('show');
                 hamburger.classList.toggle('open');
                 if (overlay) overlay.classList.toggle('show');
-
-                // Prevent body scroll when menu is open
                 document.body.style.overflow = isOpen ? 'hidden' : '';
             });
 
-            // Close menu when link is clicked
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => closeMenu());
-            });
-
-            // Close menu when overlay is clicked
             if (overlay) {
-                overlay.addEventListener('click', () => closeMenu());
+                overlay.addEventListener('click', closeMenu);
             }
-
-            // Close menu on Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeMenu();
-            });
-
-            // Close menu when window is resized to desktop
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) closeMenu();
-            });
 
             function closeMenu() {
                 navMenu.classList.remove('show');
@@ -124,7 +164,6 @@
         // ✅ Highlight Current Page Link
         function setupActiveLinks() {
             const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            
             document.querySelectorAll('.nav-link').forEach(link => {
                 const href = link.getAttribute('href');
                 if (href && href.includes(currentPage)) {
@@ -133,7 +172,6 @@
             }); 
         }
 
-        // ✅ Start
         initApp();
     </script>
 
