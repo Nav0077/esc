@@ -168,11 +168,13 @@
             card = card.replace(/Falcons|Royals|Spartans/g, match.team1_name);
             card = card.replace(/145\/6|140\/8/g, match.team1_score || '-');
             card = card.replace(/\(18\.4\)|\(20\.0\)/g, match.team1_overs ? `(${match.team1_overs})` : '');
+            if (match.team1_logo) card = card.replace('https://via.placeholder.com/24', match.team1_logo);
             
             // Team 2
             card = card.replace(/Strikers|Titans|Knights/g, match.team2_name);
             card = card.replace(/Yet to bat|144\/4/g, match.team2_score || 'Yet to bat');
             card = card.replace(/\(19\.2\)/g, match.team2_overs ? `(${match.team2_overs})` : '');
+            if (match.team2_logo) card = card.replace('https://via.placeholder.com/24', match.team2_logo);
 
             // Footer summary
             card = card.replace(/Falcons elect to bat|Titans won by 6 wickets|Starts tomorrow at 14:00/g, match.summary || '');

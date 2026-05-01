@@ -77,9 +77,25 @@
                     <textarea id="player-bio" class="form-control" placeholder="Player biography..."></textarea>
                 </div>
 
-                <div style="display: flex; gap: 10px;">
+                <div class="form-group">
+                    <label>Batting Stats (JSON)</label>
+                    <textarea id="player-batting" class="form-control" style="font-family: monospace;" placeholder='[{"format": "T20", "runs": ...}]'></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Bowling Stats (JSON)</label>
+                    <textarea id="player-bowling" class="form-control" style="font-family: monospace;" placeholder='[{"format": "T20", "wkts": ...}]'></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Recent Form (JSON)</label>
+                    <textarea id="player-form-json" class="form-control" style="font-family: monospace;" placeholder='[{"opponent": "Lions", "runs": ...}]'></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <button type="submit" class="btn" id="save-player-btn">Save Player</button>
                     <button type="button" class="btn btn-secondary" id="clear-player-btn">Clear Form</button>
+                    <button type="button" class="btn btn-danger" id="delete-player-btn" style="display: none;">Delete Player</button>
                 </div>
             </form>
 
@@ -117,6 +133,14 @@
                         <label>Team 2 Name</label>
                         <input type="text" id="match-team2" class="form-control" required>
                     </div>
+                    <div class="form-group">
+                        <label>Team 1 Logo URL</label>
+                        <input type="text" id="match-team1-logo" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Team 2 Logo URL</label>
+                        <input type="text" id="match-team2-logo" class="form-control" placeholder="https://...">
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -139,9 +163,10 @@
                     <p style="font-size: 12px; color: #666; margin-top: 4px;">Paste valid JSON object to update the detailed scorecard. Leave empty if none.</p>
                 </div>
 
-                <div style="display: flex; gap: 10px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <button type="submit" class="btn" id="save-match-btn">Save Match</button>
                     <button type="button" class="btn btn-secondary" id="clear-match-btn">Clear Form</button>
+                    <button type="button" class="btn btn-danger" id="delete-match-btn" style="display: none;">Delete Match</button>
                 </div>
             </form>
 
@@ -232,6 +257,10 @@
             document.getElementById('player-bio').value = p.bio || '';
             document.getElementById('player-image-url').value = p.image_url || '';
             
+            document.getElementById('player-batting').value = p.batting_detailed ? JSON.stringify(p.batting_detailed, null, 2) : '';
+            document.getElementById('player-bowling').value = p.bowling_detailed ? JSON.stringify(p.bowling_detailed, null, 2) : '';
+            document.getElementById('player-form-json').value = p.recent_form ? JSON.stringify(p.recent_form, null, 2) : '';
+
             const preview = document.getElementById('image-preview');
             if(p.image_url) {
                 preview.src = p.image_url;
@@ -239,6 +268,7 @@
             } else {
                 preview.style.display = 'none';
             }
+            document.getElementById('delete-player-btn').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
@@ -247,6 +277,20 @@
             document.getElementById('player-id').value = '';
             document.getElementById('player-image-url').value = '';
             document.getElementById('image-preview').style.display = 'none';
+            document.getElementById('delete-player-btn').style.display = 'none';
+        });
+
+        document.getElementById('delete-player-btn').addEventListener('click', async () => {
+            const id = document.getElementById('player-id').value;
+            if(!id || !confirm('Are you sure you want to delete this player?')) return;
+            
+            const { error } = await supabase.from('player_stats').delete().eq('id', id);
+            if(error) showMessage("Failed to delete player: " + error.message, true);
+            else {
+                showMessage("Player deleted.");
+                document.getElementById('clear-player-btn').click();
+                fetchPlayers();
+            }
         });
 
         document.getElementById('player-image').addEventListener('change', async (e) => {
@@ -285,26 +329,36 @@
             e.preventDefault();
             const id = document.getElementById('player-id').value;
             
-            const payload = {
-                name: document.getElementById('player-name').value,
-                role: document.getElementById('player-role').value,
-                category: document.getElementById('player-category').value,
-                bio: document.getElementById('player-bio').value,
-                image_url: document.getElementById('player-image-url').value || 'https://via.placeholder.com/150'
+            const parseJson = (idStr) => {
+                const val = document.getElementById(idStr).value.trim();
+                if(!val) return null;
+                try { return JSON.parse(val); } catch(err) { throw new Error(`Invalid JSON in ${idStr}`); }
             };
 
-            let res;
-            if (id) {
-                res = await supabase.from('player_stats').update(payload).eq('id', id);
-            } else {
-                res = await supabase.from('player_stats').insert([payload]);
-            }
+            try {
+                const payload = {
+                    name: document.getElementById('player-name').value,
+                    role: document.getElementById('player-role').value,
+                    category: document.getElementById('player-category').value,
+                    bio: document.getElementById('player-bio').value,
+                    image_url: document.getElementById('player-image-url').value || 'https://via.placeholder.com/150',
+                    batting_detailed: parseJson('player-batting'),
+                    bowling_detailed: parseJson('player-bowling'),
+                    recent_form: parseJson('player-form-json')
+                };
 
-            if (res.error) showMessage(res.error.message, true);
-            else {
-                showMessage("Player saved successfully!");
-                document.getElementById('clear-player-btn').click();
-                fetchPlayers();
+                let res;
+                if (id) res = await supabase.from('player_stats').update(payload).eq('id', id);
+                else res = await supabase.from('player_stats').insert([payload]);
+
+                if (res.error) showMessage(res.error.message, true);
+                else {
+                    showMessage("Player saved successfully!");
+                    document.getElementById('clear-player-btn').click();
+                    fetchPlayers();
+                }
+            } catch (err) {
+                showMessage(err.message, true);
             }
         });
 
@@ -344,11 +398,14 @@
             document.getElementById('match-number').value = m.match_number || '';
             document.getElementById('match-team1').value = m.team1_name || '';
             document.getElementById('match-team2').value = m.team2_name || '';
+            document.getElementById('match-team1-logo').value = m.team1_logo || '';
+            document.getElementById('match-team2-logo').value = m.team2_logo || '';
             document.getElementById('match-status').value = m.status || 'upcoming';
             document.getElementById('match-summary').value = m.summary || '';
             
             document.getElementById('match-scoreboard').value = m.scoreboard ? JSON.stringify(m.scoreboard, null, 2) : '';
             
+            document.getElementById('delete-match-btn').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
@@ -356,6 +413,20 @@
             document.getElementById('match-form').reset();
             document.getElementById('match-id').value = '';
             document.getElementById('match-scoreboard').value = '';
+            document.getElementById('delete-match-btn').style.display = 'none';
+        });
+
+        document.getElementById('delete-match-btn').addEventListener('click', async () => {
+            const id = document.getElementById('match-id').value;
+            if(!id || !confirm('Are you sure you want to delete this match?')) return;
+            
+            const { error } = await supabase.from('matches').delete().eq('id', id);
+            if(error) showMessage("Failed to delete match: " + error.message, true);
+            else {
+                showMessage("Match deleted.");
+                document.getElementById('clear-match-btn').click();
+                fetchMatches();
+            }
         });
 
         document.getElementById('match-form').addEventListener('submit', async (e) => {
@@ -374,6 +445,8 @@
                 match_number: document.getElementById('match-number').value,
                 team1_name: document.getElementById('match-team1').value,
                 team2_name: document.getElementById('match-team2').value,
+                team1_logo: document.getElementById('match-team1-logo').value,
+                team2_logo: document.getElementById('match-team2-logo').value,
                 status: document.getElementById('match-status').value,
                 summary: document.getElementById('match-summary').value,
                 scoreboard: sbData

@@ -80,6 +80,9 @@
             card = card.replace('Spartans', match.team1_name);
             card = card.replace('Knights', match.team2_name);
 
+            if (match.team1_logo) card = card.replace('https://via.placeholder.com/24', match.team1_logo);
+            if (match.team2_logo) card = card.replace('https://via.placeholder.com/24', match.team2_logo);
+
             card = card.replace('145/6', match.team1_score || '-');
             card = card.replace('Yet to bat', match.team2_score || 'Yet to bat');
             card = card.replace('140/8', match.team1_score || '-');
