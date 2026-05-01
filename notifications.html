@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | Notices & Updates</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Dark Overlay for Mobile Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <main class="container">
+        
+        <div class="notifications-header">
+            <h1>Notices & Updates</h1>
+            <p>Stay informed with the latest announcements, match updates, and club news.</p>
+        </div>
+
+        <div class="notifications-list" id="notifications-container">
+            <div style="text-align: center; padding: 40px; color: #6b7280;">Loading updates...</div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { initNavbar } from "./js/navbar.js";
+        import { supabase } from "./js/supabase_client.js";
+
+        async function loadComponent(id, file) {
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) element.innerHTML = content;
+                return content;
+            } catch (error) {
+                console.error("Error loading component:", error);
+            }
+        }
+
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) return 'Just now';
+            const diffInMinutes = Math.floor(diffInSeconds / 60);
+            if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+            const diffInHours = Math.floor(diffInMinutes / 60);
+            if (diffInHours < 24) return `${diffInHours}h ago`;
+            const diffInDays = Math.floor(diffInHours / 24);
+            if (diffInDays < 7) return `${diffInDays}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        async function fetchNotifications() {
+            const container = document.getElementById('notifications-container');
+            const { data, error } = await supabase
+                .from('notifications')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                container.innerHTML = `<div class="empty-state">Failed to load updates. Please try again later.</div>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="empty-state">No new updates or notices at this time.</div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(n => `
+                <div class="notification-card type-${n.type}">
+                    <div class="notification-top">
+                        <h3 class="notification-title">${n.title}</h3>
+                        <span class="notification-date">${formatTimeAgo(n.created_at)}</span>
+                    </div>
+                    <p class="notification-message">${n.message.replace(/\n/g, '<br>')}</p>
+                </div>
+            `).join('');
+        }
+
+        async function initApp() {
+            await loadComponent("notice-placeholder", "components/notice-ticker.html");
+            await loadComponent("navbar-placeholder", "components/navbar.html");
+            initNavbar();
+            
+            // Set active state in navbar if needed, but notices usually doesn't have a main tab
+            
+            await loadComponent("footer-placeholder", "components/footer.html");
+
+            await fetchNotifications();
+        }
+
+        initApp();
+    </script>
+</body>
+</html>

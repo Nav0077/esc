@@ -51,8 +51,8 @@
                 <button class="admin-tab active" data-target="players-panel">Manage Players</button>
                 <button class="admin-tab" data-target="matches-panel">Manage Matches</button>
                 <button class="admin-tab" data-target="tournaments-panel">Manage Tournaments</button>
+                <button class="admin-tab" data-target="notices-panel">Manage Notices</button>
                 <button class="admin-tab" data-target="messages-panel">Inbox</button>
-                <button class="admin-tab" data-target="registrations-panel">Team Registrations</button>
             </div>
 
         <!-- ========================================== -->
@@ -214,16 +214,6 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- REGISTRATIONS PANEL -->
-        <!-- ========================================== -->
-        <div id="registrations-panel" class="admin-panel">
-            <h2>Tournament Team Registrations</h2>
-            <div class="item-list" style="margin-top: 10px; border-top: none; padding-top: 0;">
-                <div id="registrations-list">Loading registrations...</div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
         <!-- TOURNAMENTS PANEL -->
         <!-- ========================================== -->
         <div id="tournaments-panel" class="admin-panel">
@@ -267,6 +257,41 @@
             </form>
         </div>
 
+        <!-- ========================================== -->
+        <!-- NOTICES PANEL -->
+        <!-- ========================================== -->
+        <div id="notices-panel" class="admin-panel">
+            <h2>Manage Notices & Updates</h2>
+            <form id="notice-form">
+                <div class="form-group">
+                    <label>Notice Title</label>
+                    <input type="text" id="notice-title" class="form-control" required placeholder="e.g. Match Postponed">
+                </div>
+
+                <div class="form-group">
+                    <label>Notice Type (Color)</label>
+                    <select id="notice-type" class="form-control">
+                        <option value="info">Info (Blue)</option>
+                        <option value="success">Success (Green)</option>
+                        <option value="warning">Warning (Yellow)</option>
+                        <option value="danger">Danger (Red)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Message Content</label>
+                    <textarea id="notice-message" class="form-control" required style="min-height: 100px;" placeholder="Details of the announcement..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">Post Notice</button>
+            </form>
+
+            <div class="item-list" style="margin-top: 30px;">
+                <h3>Active Notices</h3>
+                <div id="notices-list">Loading notices...</div>
+            </div>
+        </div>
+
         </div> <!-- END DASHBOARD SECTION -->
 
     </main>
@@ -278,7 +303,7 @@
         let allPlayers = [];
         let allMatches = [];
         let allMessages = [];
-        let allRegistrations = [];
+        let allNotices = [];
 
         // UI Helpers
         function showMessage(msg, isError = false) {
@@ -311,8 +336,8 @@
                 await fetchPlayers();
                 await fetchMatches();
                 await fetchMessages();
-                await fetchRegistrations();
                 await fetchTournament();
+                await fetchNoticesAdmin();
             } else {
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('dashboard-section').style.display = 'none';
@@ -685,49 +710,6 @@
         };
 
         // ==========================================
-        // REGISTRATIONS LOGIC
-        // ==========================================
-        async function fetchRegistrations() {
-            const { data, error } = await supabase.from('team_registrations').select('*').order('created_at', { ascending: false });
-            if (error) { console.error(error); return; }
-            allRegistrations = data;
-            renderRegistrationsList();
-        }
-
-        function renderRegistrationsList() {
-            const list = document.getElementById('registrations-list');
-            if(allRegistrations.length === 0) { list.innerHTML = '<p>No team registrations found.</p>'; return; }
-            
-            list.innerHTML = allRegistrations.map(r => {
-                const date = new Date(r.created_at).toLocaleString();
-                return `
-                <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
-                    <div style="display: flex; justify-content: space-between; width: 100%;">
-                        <div class="list-item-info">
-                            <h3>${r.team_name}</h3>
-                            <p>Captain: <strong>${r.captain_name}</strong> • Phone: ${r.phone} • Email: ${r.email} • ${date}</p>
-                        </div>
-                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="deleteRegistration('${r.id}')">Delete</button>
-                    </div>
-                    <div style="background: #f9fafb; padding: 12px; border-radius: 6px; width: 100%; border: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
-                        <strong>Players List:</strong><br>
-                        ${r.players_list.replace(/\n/g, '<br>')}
-                        <br><br>
-                        <strong>Additional Info:</strong><br>
-                        ${r.additional_info ? r.additional_info.replace(/\n/g, '<br>') : 'None provided'}
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        window.deleteRegistration = async (id) => {
-            if(!confirm('Are you sure you want to delete this team registration?')) return;
-            const { error } = await supabase.from('team_registrations').delete().eq('id', id);
-            if(error) showMessage("Failed to delete registration: " + error.message, true);
-            else fetchRegistrations();
-        };
-
-        // ==========================================
         // TOURNAMENT SETTINGS LOGIC
         // ==========================================
         async function fetchTournament() {
@@ -787,6 +769,61 @@
             };
             document.getElementById('tourney-stats').value = JSON.stringify(tmpl, null, 2);
         });
+
+        // ==========================================
+        // NOTICES LOGIC
+        // ==========================================
+        async function fetchNoticesAdmin() {
+            const { data, error } = await supabase.from('notifications').select('*').order('created_at', { ascending: false });
+            if (error) { console.error(error); return; }
+            allNotices = data;
+            renderNoticesAdmin();
+        }
+
+        function renderNoticesAdmin() {
+            const list = document.getElementById('notices-list');
+            if(allNotices.length === 0) { list.innerHTML = '<p>No notices found.</p>'; return; }
+            
+            list.innerHTML = allNotices.map(n => {
+                const date = new Date(n.created_at).toLocaleString();
+                return `
+                <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <div class="list-item-info">
+                            <h3><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${n.type==='info'?'#3b82f6':n.type==='success'?'#10b981':n.type==='warning'?'#f59e0b':'#ef4444'}; margin-right:6px;"></span>${n.title}</h3>
+                            <p>${date}</p>
+                        </div>
+                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="deleteNotice('${n.id}')">Delete</button>
+                    </div>
+                    <div style="background: #f9fafb; padding: 12px; border-radius: 6px; width: 100%; border: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
+                        ${n.message.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        document.getElementById('notice-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('notice-title').value,
+                message: document.getElementById('notice-message').value,
+                type: document.getElementById('notice-type').value
+            };
+            const { error } = await supabase.from('notifications').insert([payload]);
+            if (error) showMessage(error.message, true);
+            else {
+                showMessage("Notice posted successfully!");
+                document.getElementById('notice-form').reset();
+                fetchNoticesAdmin();
+            }
+        });
+
+        window.deleteNotice = async (id) => {
+            if(!confirm('Are you sure you want to delete this notice?')) return;
+            const { error } = await supabase.from('notifications').delete().eq('id', id);
+            if(error) showMessage("Failed to delete notice: " + error.message, true);
+            else fetchNoticesAdmin();
+        };
 
         initApp();
     </script>
