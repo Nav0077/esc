@@ -50,6 +50,7 @@
             <div class="admin-tabs">
                 <button class="admin-tab active" data-target="players-panel">Manage Players</button>
                 <button class="admin-tab" data-target="matches-panel">Manage Matches & Scoreboards</button>
+                <button class="admin-tab" data-target="messages-panel">Inbox</button>
             </div>
 
         <!-- ========================================== -->
@@ -200,6 +201,16 @@
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- MESSAGES PANEL -->
+        <!-- ========================================== -->
+        <div id="messages-panel" class="admin-panel">
+            <h2>Contact Messages</h2>
+            <div class="item-list" style="margin-top: 10px; border-top: none; padding-top: 0;">
+                <div id="messages-list">Loading messages...</div>
+            </div>
+        </div>
+
         </div> <!-- END DASHBOARD SECTION -->
 
     </main>
@@ -210,6 +221,7 @@
         // Global State
         let allPlayers = [];
         let allMatches = [];
+        let allMessages = [];
 
         // UI Helpers
         function showMessage(msg, isError = false) {
@@ -241,6 +253,7 @@
                 document.getElementById('dashboard-section').style.display = 'block';
                 await fetchPlayers();
                 await fetchMatches();
+                await fetchMessages();
             } else {
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('dashboard-section').style.display = 'none';
@@ -572,6 +585,45 @@
                 fetchMatches();
             }
         });
+
+        // ==========================================
+        // MESSAGES LOGIC
+        // ==========================================
+        async function fetchMessages() {
+            const { data, error } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+            if (error) { console.error(error); return; }
+            allMessages = data;
+            renderMessagesList();
+        }
+
+        function renderMessagesList() {
+            const list = document.getElementById('messages-list');
+            if(allMessages.length === 0) { list.innerHTML = '<p>No messages found.</p>'; return; }
+            
+            list.innerHTML = allMessages.map(m => {
+                const date = new Date(m.created_at).toLocaleString();
+                return `
+                <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <div class="list-item-info">
+                            <h3>${m.subject}</h3>
+                            <p>From: <strong>${m.first_name} ${m.last_name}</strong> (${m.email}) • ${date}</p>
+                        </div>
+                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="deleteMessage('${m.id}')">Delete</button>
+                    </div>
+                    <div style="background: #f9fafb; padding: 12px; border-radius: 6px; width: 100%; border: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
+                        ${m.message.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        window.deleteMessage = async (id) => {
+            if(!confirm('Are you sure you want to delete this message?')) return;
+            const { error } = await supabase.from('contact_messages').delete().eq('id', id);
+            if(error) showMessage("Failed to delete message: " + error.message, true);
+            else fetchMessages();
+        };
 
         initApp();
     </script>
