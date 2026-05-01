@@ -23,17 +23,19 @@
 
     <main class="container">
 
-        <!-- Tournament Header -->
-        <div class="tourney-header">
-            <div class="tourney-title">T20 Elite Cup 2024</div>
-            <div class="tourney-meta">Oct 12 - Nov 30 • Kathmandu, Nepal</div>
-        </div>
+        <div id="tournament-data-container" style="display: none;">
+            <!-- Tournament Header -->
+            <div class="tourney-header">
+                <div class="tourney-title" id="t-title">Loading...</div>
+                <div class="tourney-meta" id="t-meta">Loading...</div>
+            </div>
 
-        <!-- Navigation Tabs -->
-        <div class="tourney-nav">
-            <button class="tourney-tab active" data-target="matches-panel">Matches</button>
-            <button class="tourney-tab" data-target="standings-panel">Points Table</button>
-            <button class="tourney-tab" data-target="stats-panel">Stats</button>
+            <!-- Navigation Tabs -->
+            <div class="tourney-nav">
+                <button class="tourney-tab active" data-target="matches-panel">Matches</button>
+                <button class="tourney-tab" data-target="standings-panel">Points Table</button>
+                <button class="tourney-tab" data-target="stats-panel">Stats</button>
+            </div>
         </div>
 
         <!-- ========================================== -->
@@ -66,63 +68,8 @@
                             <th class="num">NRR</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="team-name-cell">
-                                    <img src="https://via.placeholder.com/24" alt="Falcons"> Falcons
-                                </div>
-                            </td>
-                            <td class="num">5</td>
-                            <td class="num">4</td>
-                            <td class="num">1</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num" style="font-weight: 700;">8</td>
-                            <td class="num">+1.245</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="team-name-cell">
-                                    <img src="https://via.placeholder.com/24" alt="Titans"> Titans
-                                </div>
-                            </td>
-                            <td class="num">5</td>
-                            <td class="num">3</td>
-                            <td class="num">2</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num" style="font-weight: 700;">6</td>
-                            <td class="num">+0.850</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="team-name-cell">
-                                    <img src="https://via.placeholder.com/24" alt="Strikers"> Strikers
-                                </div>
-                            </td>
-                            <td class="num">5</td>
-                            <td class="num">3</td>
-                            <td class="num">2</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num" style="font-weight: 700;">6</td>
-                            <td class="num">-0.120</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="team-name-cell">
-                                    <img src="https://via.placeholder.com/24" alt="Warriors"> Warriors
-                                </div>
-                            </td>
-                            <td class="num">5</td>
-                            <td class="num">2</td>
-                            <td class="num">3</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num hide-mobile">0</td>
-                            <td class="num" style="font-weight: 700;">4</td>
-                            <td class="num">-0.500</td>
-                        </tr>
+                    <tbody id="standings-body">
+                        <!-- Rendered via JS -->
                     </tbody>
                 </table>
             </div>
@@ -136,79 +83,15 @@
             
             <div class="stats-grid">
                 <!-- Most Runs Widget -->
-                <div class="stat-widget">
+                <div class="stat-widget" id="runs-widget">
                     <div class="stat-widget-header">Most Runs</div>
-                    
-                    <div class="stat-list-item">
-                        <div class="stat-player">
-                            <img src="https://via.placeholder.com/40" alt="Player">
-                            <div class="stat-player-info">
-                                <h4>V. Kohli</h4>
-                                <p>Falcons • 5 Matches</p>
-                            </div>
-                        </div>
-                        <div class="stat-value">314</div>
-                    </div>
-                    
-                    <div class="stat-list-item">
-                        <div class="stat-player">
-                            <img src="https://via.placeholder.com/40" alt="Player">
-                            <div class="stat-player-info">
-                                <h4>S. Dhawan</h4>
-                                <p>Warriors • 5 Matches</p>
-                            </div>
-                        </div>
-                        <div class="stat-value">285</div>
-                    </div>
-
-                    <div class="stat-list-item">
-                        <div class="stat-player">
-                            <img src="https://via.placeholder.com/40" alt="Player">
-                            <div class="stat-player-info">
-                                <h4>R. Sharma</h4>
-                                <p>Titans • 5 Matches</p>
-                            </div>
-                        </div>
-                        <div class="stat-value">250</div>
-                    </div>
+                    <div id="runs-list"></div>
                 </div>
 
                 <!-- Most Wickets Widget -->
-                <div class="stat-widget">
+                <div class="stat-widget" id="wickets-widget">
                     <div class="stat-widget-header">Most Wickets</div>
-                    
-                    <div class="stat-list-item">
-                        <div class="stat-player">
-                            <img src="https://via.placeholder.com/40" alt="Player">
-                            <div class="stat-player-info">
-                                <h4>N. Basnet</h4>
-                                <p>Falcons • 5 Matches</p>
-                            </div>
-                        </div>
-                        <div class="stat-value">12</div>
-                    </div>
-                    
-                    <div class="stat-list-item">
-                        <div class="stat-player">
-                            <img src="https://via.placeholder.com/40" alt="Player">
-                            <div class="stat-player-info">
-                                <h4>Y. Chahal</h4>
-                                <p>Warriors • 5 Matches</p>
-                            </div>
-                        </div>
-                        <div class="stat-value">10</div>
-                    </div>
-
-                    <div class="stat-list-item">
-                        <div class="stat-player">
-                            <img src="https://via.placeholder.com/40" alt="Player">
-                            <div class="stat-player-info">
-                                <h4>T. Boult</h4>
-                                <p>Strikers • 5 Matches</p>
-                            </div>
-                        </div>
-                        <div class="stat-value">9</div>
-                    </div>
+                    <div id="wickets-list"></div>
                 </div>
             </div>
         </div>
@@ -307,6 +190,74 @@
             grid.innerHTML = html;
         }
 
+        async function loadTournamentData() {
+            const { data, error } = await supabase.from('tournaments').select('*').limit(1).single();
+            if(error || !data) {
+                console.error("No tournament found");
+                return;
+            }
+
+            document.getElementById('tournament-data-container').style.display = 'block';
+            document.getElementById('t-title').textContent = data.name;
+            document.getElementById('t-meta').textContent = `${data.dates} • ${data.location}`;
+
+            // Render Points Table
+            if(data.points_table) {
+                let html = '';
+                data.points_table.forEach(team => {
+                    html += `
+                        <tr>
+                            <td>
+                                <div class="team-name-cell">
+                                    <img src="${team.logo || 'https://via.placeholder.com/24'}" alt="${team.team}"> ${team.team}
+                                </div>
+                            </td>
+                            <td class="num">${team.mat}</td>
+                            <td class="num">${team.won}</td>
+                            <td class="num">${team.lost}</td>
+                            <td class="num hide-mobile">${team.tied}</td>
+                            <td class="num hide-mobile">${team.nr}</td>
+                            <td class="num" style="font-weight: 700;">${team.pts}</td>
+                            <td class="num">${team.nrr}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('standings-body').innerHTML = html;
+            }
+
+            // Render Stats
+            if(data.top_stats) {
+                if(data.top_stats.most_runs) {
+                    document.getElementById('runs-list').innerHTML = data.top_stats.most_runs.map(p => `
+                        <div class="stat-list-item">
+                            <div class="stat-player">
+                                <img src="https://via.placeholder.com/40" alt="Player">
+                                <div class="stat-player-info">
+                                    <h4>${p.name}</h4>
+                                    <p>${p.team}</p>
+                                </div>
+                            </div>
+                            <div class="stat-value">${p.value}</div>
+                        </div>
+                    `).join('');
+                }
+                if(data.top_stats.most_wickets) {
+                    document.getElementById('wickets-list').innerHTML = data.top_stats.most_wickets.map(p => `
+                        <div class="stat-list-item">
+                            <div class="stat-player">
+                                <img src="https://via.placeholder.com/40" alt="Player">
+                                <div class="stat-player-info">
+                                    <h4>${p.name}</h4>
+                                    <p>${p.team}</p>
+                                </div>
+                            </div>
+                            <div class="stat-value">${p.value}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
         async function initApp() {
             await loadComponent("notice-placeholder", "components/notice-ticker.html");
             await loadComponent("navbar-placeholder", "components/navbar.html");
@@ -319,6 +270,7 @@
 
             await loadComponent("footer-placeholder", "components/footer.html");
 
+            await loadTournamentData();
             await loadMatches();
         }
 

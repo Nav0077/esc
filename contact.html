@@ -28,6 +28,11 @@
             <p>Have questions about our tournaments, want to join the club, or need support? We'd love to hear from you.</p>
         </div>
 
+        <div class="contact-tabs" style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px; overflow-x: auto;">
+            <button class="contact-tab active" data-target="contact-panel" style="padding: 10px 20px; font-weight: 600; border: none; background: #e5e7eb; border-radius: 6px; cursor: pointer;">General Contact</button>
+            <button class="contact-tab" data-target="register-panel" style="padding: 10px 20px; font-weight: 600; border: none; background: #e5e7eb; border-radius: 6px; cursor: pointer;">Register Team for Tournament</button>
+        </div>
+
         <section class="contact-wrapper">
             <!-- Contact Info -->
             <div class="contact-info">
@@ -91,6 +96,50 @@
                     <button type="submit" class="btn" id="contact-submit-btn">Send Message</button>
                 </form>
             </div>
+        </section>
+
+        <!-- Team Registration Form (Initially Hidden) -->
+        <section id="register-panel" class="contact-form" style="display: none; max-width: 800px; margin: 0 auto 60px;">
+            <h3 style="margin-top: 0; margin-bottom: 24px; font-size: 20px; text-align: center;">Tournament Team Registration</h3>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 30px;">Fill out this form to register your team for our upcoming tournaments. Our management will contact the captain directly.</p>
+            
+            <form id="register-form">
+                <div id="register-status" style="display:none; padding: 12px; margin-bottom: 20px; border-radius: 6px; font-weight: 500; font-size: 14px;"></div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Team Name</label>
+                        <input type="text" id="reg-team-name" class="form-control" required placeholder="e.g. Kathmandu Kings">
+                    </div>
+                    <div class="form-group">
+                        <label>Captain's Full Name</label>
+                        <input type="text" id="reg-captain-name" class="form-control" required placeholder="John Doe">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Captain's Phone Number</label>
+                        <input type="tel" id="reg-phone" class="form-control" required placeholder="+977 ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="reg-email" class="form-control" required placeholder="john@example.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Players List (Minimum 11 Players)</label>
+                    <textarea id="reg-players" class="form-control" required placeholder="1. Player Name (Role)&#10;2. Player Name (Role)&#10;..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Information / Achievements (Optional)</label>
+                    <textarea id="reg-info" class="form-control" style="min-height: 80px;" placeholder="Tell us about your team's history..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" id="reg-submit-btn">Submit Registration</button>
+            </form>
         </section>
 
     </main>
@@ -165,6 +214,74 @@
             }
 
             btn.textContent = "Send Message";
+            btn.disabled = false;
+        });
+
+        // Tab Navigation Logic
+        document.querySelectorAll('.contact-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                // Reset styling
+                document.querySelectorAll('.contact-tab').forEach(t => {
+                    t.style.background = '#e5e7eb';
+                    t.style.color = 'black';
+                });
+                document.querySelector('.contact-wrapper').style.display = 'none';
+                document.getElementById('register-panel').style.display = 'none';
+                
+                // Set active
+                e.target.style.background = '#22c55e';
+                e.target.style.color = 'white';
+                
+                const target = e.target.getAttribute('data-target');
+                if(target === 'contact-panel') {
+                    document.querySelector('.contact-wrapper').style.display = 'grid';
+                } else {
+                    document.getElementById(target).style.display = 'block';
+                }
+            });
+        });
+
+        // Initialize first tab active style
+        document.querySelector('.contact-tab.active').style.background = '#22c55e';
+        document.querySelector('.contact-tab.active').style.color = 'white';
+
+        // Handle Team Registration Form Submission
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('reg-submit-btn');
+            const statusEl = document.getElementById('register-status');
+            
+            btn.textContent = "Submitting...";
+            btn.disabled = true;
+            statusEl.style.display = 'none';
+
+            const payload = {
+                team_name: document.getElementById('reg-team-name').value,
+                captain_name: document.getElementById('reg-captain-name').value,
+                phone: document.getElementById('reg-phone').value,
+                email: document.getElementById('reg-email').value,
+                players_list: document.getElementById('reg-players').value,
+                additional_info: document.getElementById('reg-info').value
+            };
+
+            const { error } = await supabase.from('team_registrations').insert([payload]);
+
+            if (error) {
+                statusEl.textContent = "Error submitting registration: " + error.message;
+                statusEl.style.background = "#fef2f2";
+                statusEl.style.color = "#ef4444";
+                statusEl.style.border = "1px solid #fecaca";
+                statusEl.style.display = "block";
+            } else {
+                statusEl.textContent = "Registration submitted successfully! We will contact you soon.";
+                statusEl.style.background = "#f0fdf4";
+                statusEl.style.color = "#16a34a";
+                statusEl.style.border = "1px solid #bbf7d0";
+                statusEl.style.display = "block";
+                document.getElementById('register-form').reset();
+            }
+
+            btn.textContent = "Submit Registration";
             btn.disabled = false;
         });
 
