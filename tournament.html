@@ -93,7 +93,7 @@
             card = card.replace('Titans won by 6 wickets', match.summary || '');
             card = card.replace('Starts tomorrow at 14:00', match.summary || '');
 
-            return card;
+            return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
         }
 
         // ✅ Initialize App

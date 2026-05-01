@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | Full Scoreboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/scoreboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Dark Overlay for Mobile Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <main class="container">
+        <div id="scoreboard-container" class="scoreboard-container" style="display: none;">
+            <!-- Header -->
+            <div class="scoreboard-header">
+                <h1 id="match-title">Loading Match...</h1>
+                <div class="toss-info" id="match-toss"></div>
+            </div>
+
+            <!-- Innings 1 -->
+            <div class="innings-section" id="innings1-container">
+                <div class="innings-header">
+                    <h2 id="innings1-team">Team 1 Innings</h2>
+                    <div class="innings-score" id="innings1-score">0/0 (0.0)</div>
+                </div>
+                
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Batter</th>
+                            <th></th>
+                            <th class="num">R</th>
+                            <th class="num">B</th>
+                            <th class="num">4s</th>
+                            <th class="num">6s</th>
+                            <th class="num">SR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="innings1-batting"></tbody>
+                </table>
+
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Bowler</th>
+                            <th class="num">O</th>
+                            <th class="num">M</th>
+                            <th class="num">R</th>
+                            <th class="num">W</th>
+                            <th class="num">Econ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="innings1-bowling"></tbody>
+                </table>
+            </div>
+
+            <!-- Innings 2 -->
+            <div class="innings-section" id="innings2-container" style="display: none;">
+                <div class="innings-header">
+                    <h2 id="innings2-team">Team 2 Innings</h2>
+                    <div class="innings-score" id="innings2-score">0/0 (0.0)</div>
+                </div>
+                
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Batter</th>
+                            <th></th>
+                            <th class="num">R</th>
+                            <th class="num">B</th>
+                            <th class="num">4s</th>
+                            <th class="num">6s</th>
+                            <th class="num">SR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="innings2-batting"></tbody>
+                </table>
+
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Bowler</th>
+                            <th class="num">O</th>
+                            <th class="num">M</th>
+                            <th class="num">R</th>
+                            <th class="num">W</th>
+                            <th class="num">Econ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="innings2-bowling"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="loading-state" style="text-align: center; padding: 100px;">
+            <p>Loading scoreboard...</p>
+        </div>
+        <div id="error-state" style="display: none; text-align: center; padding: 100px; color: red;">
+            <p>Failed to load scoreboard or match not found.</p>
+        </div>
+        <div id="no-data-state" style="display: none; text-align: center; padding: 100px;">
+            <p>Scoreboard data is not available for this match yet.</p>
+        </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module">
+        import { initNavbar } from "./js/navbar.js";
+        import { supabase } from "./js/supabase_client.js";
+
+        async function loadComponent(id, file) {
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) element.innerHTML = content;
+                return content;
+            } catch (error) {
+                console.error("Error loading component:", error);
+            }
+        }
+
+        function renderBattingRows(battingArray) {
+            if (!battingArray || battingArray.length === 0) return '<tr><td colspan="7">No batting data</td></tr>';
+            return battingArray.map(b => `
+                <tr>
+                    <td><span class="player-name">${b.name}</span></td>
+                    <td><span class="dismissal">${b.status}</span></td>
+                    <td class="num" style="font-weight: 600;">${b.runs}</td>
+                    <td class="num">${b.balls}</td>
+                    <td class="num">${b.fours}</td>
+                    <td class="num">${b.sixes}</td>
+                    <td class="num">${b.sr}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBowlingRows(bowlingArray) {
+            if (!bowlingArray || bowlingArray.length === 0) return '<tr><td colspan="6">No bowling data</td></tr>';
+            return bowlingArray.map(b => `
+                <tr>
+                    <td><span class="player-name">${b.name}</span></td>
+                    <td class="num">${b.overs}</td>
+                    <td class="num">${b.maidens}</td>
+                    <td class="num">${b.runs}</td>
+                    <td class="num" style="font-weight: 600;">${b.wkts}</td>
+                    <td class="num">${b.econ}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadScoreboard() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const matchId = urlParams.get('id');
+
+            if (!matchId) {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('error-state').style.display = 'block';
+                return;
+            }
+
+            const { data, error } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('id', matchId)
+                .single();
+
+            document.getElementById('loading-state').style.display = 'none';
+
+            if (error || !data) {
+                document.getElementById('error-state').style.display = 'block';
+                return;
+            }
+
+            if (!data.scoreboard) {
+                document.getElementById('no-data-state').style.display = 'block';
+                return;
+            }
+
+            const sb = data.scoreboard;
+
+            // Header
+            document.getElementById('match-title').textContent = `${data.team1_name} vs ${data.team2_name} - ${data.tournament_name}`;
+            document.getElementById('match-toss').textContent = sb.toss || '';
+
+            // Innings 1
+            if (sb.innings1) {
+                document.getElementById('innings1-team').textContent = `${sb.innings1.team} Innings`;
+                document.getElementById('innings1-score').textContent = `${sb.innings1.score} (${sb.innings1.overs} ov)`;
+                document.getElementById('innings1-batting').innerHTML = renderBattingRows(sb.innings1.batting);
+                document.getElementById('innings1-bowling').innerHTML = renderBowlingRows(sb.innings1.bowling);
+            }
+
+            // Innings 2
+            if (sb.innings2 && sb.innings2.batting && (sb.innings2.batting.length > 0 || sb.innings2.bowling.length > 0)) {
+                document.getElementById('innings2-container').style.display = 'block';
+                document.getElementById('innings2-team').textContent = `${sb.innings2.team} Innings`;
+                document.getElementById('innings2-score').textContent = `${sb.innings2.score} (${sb.innings2.overs} ov)`;
+                document.getElementById('innings2-batting').innerHTML = renderBattingRows(sb.innings2.batting);
+                document.getElementById('innings2-bowling').innerHTML = renderBowlingRows(sb.innings2.bowling);
+            }
+
+            document.getElementById('scoreboard-container').style.display = 'block';
+        }
+
+        async function initApp() {
+            await loadComponent("notice-placeholder", "components/notice-ticker.html");
+            await loadComponent("navbar-placeholder", "components/navbar.html");
+            initNavbar();
+            await loadComponent("footer-placeholder", "components/footer.html");
+            
+            await loadScoreboard();
+        }
+
+        initApp();
+    </script>
+</body>
+</html>

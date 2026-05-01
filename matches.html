@@ -177,7 +177,7 @@
             // Footer summary
             card = card.replace(/Falcons elect to bat|Titans won by 6 wickets|Starts tomorrow at 14:00/g, match.summary || '');
 
-            return card;
+            return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
         }
 
         function displayMatches(filter) {
