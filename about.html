@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | About Us</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/about-contact.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Dark Overlay for Mobile Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <main class="container">
+        
+        <div class="page-header">
+            <h1>About Elite Social Club</h1>
+            <p>We are a community-driven cricket organization dedicated to elevating the local sports experience through technology and passion.</p>
+        </div>
+
+        <section class="about-grid">
+            <div class="about-content">
+                <h2>Our Mission</h2>
+                <p>Elite Social Club was founded with a simple goal: to bring professional-level sports management and analytics to grassroots and local cricket leagues.</p>
+                <p>We believe that every player deserves to have their performance tracked, their achievements celebrated, and their games broadcasted to fans and family. By integrating cutting-edge data platforms with our passion for the game, we provide a premium environment for competitive sports.</p>
+                <p>From live scorecards to detailed player profiles, we are transforming the way local cricket is played and experienced.</p>
+            </div>
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cricket Stadium">
+            </div>
+        </section>
+
+        <section class="values-grid">
+            <div class="value-card">
+                <h3>Passion</h3>
+                <p>We love cricket. It's more than just a game; it's a community that brings people together from all walks of life.</p>
+            </div>
+            <div class="value-card">
+                <h3>Innovation</h3>
+                <p>We use modern web technologies to deliver real-time data, live tracking, and comprehensive statistical analysis.</p>
+            </div>
+            <div class="value-card">
+                <h3>Integrity</h3>
+                <p>Fair play is at the core of everything we do. We maintain strict standards for all our tournaments and matches.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { initNavbar } from "./js/navbar.js";
+
+        async function loadComponent(id, file) {
+            try {
+                const res = await fetch(file);
+                if (!res.ok) throw new Error(`Failed to load ${file}`);
+                const content = await res.text();
+                const element = document.getElementById(id);
+                if (element) element.innerHTML = content;
+                return content;
+            } catch (error) {
+                console.error("Error loading component:", error);
+            }
+        }
+
+        async function initApp() {
+            await loadComponent("notice-placeholder", "components/notice-ticker.html");
+            await loadComponent("navbar-placeholder", "components/navbar.html");
+            initNavbar();
+            
+            // Set active state in navbar
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(l => l.classList.remove('active'));
+            const aboutLink = Array.from(links).find(l => l.getAttribute('href') === '/about.html');
+            if (aboutLink) aboutLink.classList.add('active');
+
+            await loadComponent("footer-placeholder", "components/footer.html");
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
