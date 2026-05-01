@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite Social Club | Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Notice Bar -->
+    <div id="notice-placeholder"></div>
+
+    <!-- Navbar -->
+    <div id="navbar-placeholder"></div>
+
+    <!-- Dark Overlay for Mobile Menu -->
+    <div class="nav-overlay" id="nav-overlay"></div>
+
+    <main class="admin-container">
+        <div class="admin-header">
+            <h1>Site Administration</h1>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>Security Notice:</strong> Currently, this admin panel relies on public Row Level Security. Anyone with this URL can modify data. Please configure Supabase Auth to secure this panel before going to production.
+        </div>
+
+        <div id="status-message" style="display: none;" class="alert alert-success"></div>
+
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-target="players-panel">Manage Players</button>
+            <button class="admin-tab" data-target="matches-panel">Manage Matches & Scoreboards</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PLAYERS PANEL -->
+        <!-- ========================================== -->
+        <div id="players-panel" class="admin-panel active">
+            <h2>Add / Edit Player</h2>
+            <form id="player-form">
+                <input type="hidden" id="player-id">
+                
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="player-name" class="form-control" required placeholder="e.g. V. Kohli">
+                </div>
+
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="text" id="player-role" class="form-control" required placeholder="e.g. Batsman (RHB)">
+                </div>
+
+                <div class="form-group">
+                    <label>Category (Dropdown)</label>
+                    <select id="player-category" class="form-control">
+                        <option value="batsmen">Batsmen</option>
+                        <option value="bowlers">Bowlers</option>
+                        <option value="all-rounders">All-Rounders</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Profile Image Upload</label>
+                    <input type="file" id="player-image" class="form-control" accept="image/*">
+                    <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload an image or leave blank to keep existing. Image will be uploaded to Supabase Storage.</p>
+                    <img id="image-preview" class="image-preview" style="display: none;">
+                    <input type="hidden" id="player-image-url">
+                </div>
+
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="player-bio" class="form-control" placeholder="Player biography..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn" id="save-player-btn">Save Player</button>
+                    <button type="button" class="btn btn-secondary" id="clear-player-btn">Clear Form</button>
+                </div>
+            </form>
+
+            <div class="item-list">
+                <h3>Existing Players</h3>
+                <div id="players-list">Loading players...</div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MATCHES PANEL -->
+        <!-- ========================================== -->
+        <div id="matches-panel" class="admin-panel">
+            <h2>Add / Edit Match</h2>
+            <form id="match-form">
+                <input type="hidden" id="match-id">
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>Tournament Name</label>
+                        <input type="text" id="match-tournament" class="form-control" required placeholder="e.g. T20 Elite Cup">
+                    </div>
+                    <div class="form-group">
+                        <label>Match Number</label>
+                        <input type="number" id="match-number" class="form-control" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>Team 1 Name</label>
+                        <input type="text" id="match-team1" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Team 2 Name</label>
+                        <input type="text" id="match-team2" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="match-status" class="form-control">
+                        <option value="upcoming">Upcoming</option>
+                        <option value="live">Live</option>
+                        <option value="finished">Finished</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Summary / Toss Result</label>
+                    <input type="text" id="match-summary" class="form-control" placeholder="e.g. Falcons won by 5 wickets">
+                </div>
+
+                <div class="form-group">
+                    <label>Scoreboard JSON (Advanced)</label>
+                    <textarea id="match-scoreboard" class="form-control" style="font-family: monospace; min-height: 200px;" placeholder='{"innings1": {...}, "innings2": {...}}'></textarea>
+                    <p style="font-size: 12px; color: #666; margin-top: 4px;">Paste valid JSON object to update the detailed scorecard. Leave empty if none.</p>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn" id="save-match-btn">Save Match</button>
+                    <button type="button" class="btn btn-secondary" id="clear-match-btn">Clear Form</button>
+                </div>
+            </form>
+
+            <div class="item-list">
+                <h3>Existing Matches</h3>
+                <div id="matches-list">Loading matches...</div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script type="module">
+        import { initNavbar } from "./js/navbar.js";
+        import { supabase } from "./js/supabase_client.js";
+
+        // Global State
+        let allPlayers = [];
+        let allMatches = [];
+
+        // UI Helpers
+        function showMessage(msg, isError = false) {
+            const el = document.getElementById('status-message');
+            el.textContent = msg;
+            el.className = isError ? 'alert alert-warning' : 'alert alert-success';
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 3000);
+        }
+
+        // Tab Switching
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+                
+                e.target.classList.add('active');
+                document.getElementById(e.target.getAttribute('data-target')).classList.add('active');
+            });
+        });
+
+        // Initialize App
+        async function initApp() {
+            try {
+                const navRes = await fetch("components/navbar.html");
+                document.getElementById("navbar-placeholder").innerHTML = await navRes.text();
+                initNavbar();
+            } catch(e) {}
+
+            await fetchPlayers();
+            await fetchMatches();
+        }
+
+        // ==========================================
+        // PLAYERS LOGIC
+        // ==========================================
+        async function fetchPlayers() {
+            const { data, error } = await supabase.from('player_stats').select('*').order('name');
+            if (error) { console.error(error); return; }
+            allPlayers = data;
+            renderPlayersList();
+        }
+
+        function renderPlayersList() {
+            const list = document.getElementById('players-list');
+            if(allPlayers.length === 0) { list.innerHTML = '<p>No players found.</p>'; return; }
+            
+            list.innerHTML = allPlayers.map(p => `
+                <div class="list-item">
+                    <div class="list-item-info">
+                        <h3>${p.name}</h3>
+                        <p>${p.role} • ${p.category}</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="editPlayer('${p.id}')">Edit</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.editPlayer = (id) => {
+            const p = allPlayers.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('player-id').value = p.id;
+            document.getElementById('player-name').value = p.name || '';
+            document.getElementById('player-role').value = p.role || '';
+            document.getElementById('player-category').value = p.category || 'batsmen';
+            document.getElementById('player-bio').value = p.bio || '';
+            document.getElementById('player-image-url').value = p.image_url || '';
+            
+            const preview = document.getElementById('image-preview');
+            if(p.image_url) {
+                preview.src = p.image_url;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        document.getElementById('clear-player-btn').addEventListener('click', () => {
+            document.getElementById('player-form').reset();
+            document.getElementById('player-id').value = '';
+            document.getElementById('player-image-url').value = '';
+            document.getElementById('image-preview').style.display = 'none';
+        });
+
+        document.getElementById('player-image').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+
+            const btn = document.getElementById('save-player-btn');
+            btn.textContent = "Uploading Image...";
+            btn.disabled = true;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `public/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+
+            if (uploadError) {
+                showMessage("Image upload failed: " + uploadError.message, true);
+                btn.textContent = "Save Player";
+                btn.disabled = false;
+                return;
+            }
+
+            const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+            
+            document.getElementById('player-image-url').value = data.publicUrl;
+            document.getElementById('image-preview').src = data.publicUrl;
+            document.getElementById('image-preview').style.display = 'block';
+
+            btn.textContent = "Save Player";
+            btn.disabled = false;
+            showMessage("Image uploaded successfully!");
+        });
+
+        document.getElementById('player-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('player-id').value;
+            
+            const payload = {
+                name: document.getElementById('player-name').value,
+                role: document.getElementById('player-role').value,
+                category: document.getElementById('player-category').value,
+                bio: document.getElementById('player-bio').value,
+                image_url: document.getElementById('player-image-url').value || 'https://via.placeholder.com/150'
+            };
+
+            let res;
+            if (id) {
+                res = await supabase.from('player_stats').update(payload).eq('id', id);
+            } else {
+                res = await supabase.from('player_stats').insert([payload]);
+            }
+
+            if (res.error) showMessage(res.error.message, true);
+            else {
+                showMessage("Player saved successfully!");
+                document.getElementById('clear-player-btn').click();
+                fetchPlayers();
+            }
+        });
+
+
+        // ==========================================
+        // MATCHES LOGIC
+        // ==========================================
+        async function fetchMatches() {
+            const { data, error } = await supabase.from('matches').select('*').order('match_date', { ascending: false });
+            if (error) { console.error(error); return; }
+            allMatches = data;
+            renderMatchesList();
+        }
+
+        function renderMatchesList() {
+            const list = document.getElementById('matches-list');
+            if(allMatches.length === 0) { list.innerHTML = '<p>No matches found.</p>'; return; }
+            
+            list.innerHTML = allMatches.map(m => `
+                <div class="list-item">
+                    <div class="list-item-info">
+                        <h3>${m.team1_name} vs ${m.team2_name} <span style="font-size: 12px; color: gray;">(${m.status})</span></h3>
+                        <p>${m.tournament_name} • Match ${m.match_number}</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="editMatch('${m.id}')">Edit</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.editMatch = (id) => {
+            const m = allMatches.find(x => x.id === id);
+            if(!m) return;
+            document.getElementById('match-id').value = m.id;
+            document.getElementById('match-tournament').value = m.tournament_name || '';
+            document.getElementById('match-number').value = m.match_number || '';
+            document.getElementById('match-team1').value = m.team1_name || '';
+            document.getElementById('match-team2').value = m.team2_name || '';
+            document.getElementById('match-status').value = m.status || 'upcoming';
+            document.getElementById('match-summary').value = m.summary || '';
+            
+            document.getElementById('match-scoreboard').value = m.scoreboard ? JSON.stringify(m.scoreboard, null, 2) : '';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        document.getElementById('clear-match-btn').addEventListener('click', () => {
+            document.getElementById('match-form').reset();
+            document.getElementById('match-id').value = '';
+            document.getElementById('match-scoreboard').value = '';
+        });
+
+        document.getElementById('match-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('match-id').value;
+            
+            let sbData = null;
+            const sbStr = document.getElementById('match-scoreboard').value.trim();
+            if (sbStr) {
+                try { sbData = JSON.parse(sbStr); } 
+                catch(err) { alert("Invalid JSON in Scoreboard field!"); return; }
+            }
+
+            const payload = {
+                tournament_name: document.getElementById('match-tournament').value,
+                match_number: document.getElementById('match-number').value,
+                team1_name: document.getElementById('match-team1').value,
+                team2_name: document.getElementById('match-team2').value,
+                status: document.getElementById('match-status').value,
+                summary: document.getElementById('match-summary').value,
+                scoreboard: sbData
+            };
+
+            let res;
+            if (id) {
+                res = await supabase.from('matches').update(payload).eq('id', id);
+            } else {
+                res = await supabase.from('matches').insert([payload]);
+            }
+
+            if (res.error) showMessage(res.error.message, true);
+            else {
+                showMessage("Match saved successfully!");
+                document.getElementById('clear-match-btn').click();
+                fetchMatches();
+            }
+        });
+
+        initApp();
+    </script>
+</body>
+</html>
