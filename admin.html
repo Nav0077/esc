@@ -83,6 +83,66 @@
                     </select>
                 </div>
 
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nationality (ISO Code)</label>
+                        <input type="text" id="player-nationality" class="form-control" placeholder="e.g. IN, NP, AU">
+                    </div>
+                    <div class="form-group">
+                        <label>Tag / Special Title</label>
+                        <input type="text" id="player-tag" class="form-control" placeholder="e.g. Captain">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Batting Style</label>
+                        <input type="text" id="player-batting-style" class="form-control" placeholder="e.g. Right Handed Bat">
+                    </div>
+                    <div class="form-group">
+                        <label>Bowling Style</label>
+                        <input type="text" id="player-bowling-style" class="form-control" placeholder="e.g. Right-arm fast">
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group">
+                        <label>Matches</label>
+                        <input type="number" id="player-matches-total" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Runs</label>
+                        <input type="number" id="player-runs-total" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Wkts</label>
+                        <input type="number" id="player-wickets-total" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Highest Score</label>
+                        <input type="text" id="player-hs-total" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group">
+                        <label>Batting Avg</label>
+                        <input type="number" step="0.01" id="player-batting-avg-total" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Strike Rate</label>
+                        <input type="number" step="0.01" id="player-sr-total" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Bowling Avg</label>
+                        <input type="number" step="0.01" id="player-bowling-avg-total" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Best Bowling</label>
+                        <input type="text" id="player-bb-total" class="form-control" placeholder="e.g. 5/12">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Profile Image Upload</label>
                     <input type="file" id="player-image" class="form-control" accept="image/*">
@@ -97,17 +157,26 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Batting Stats (JSON)</label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Batting Stats (JSON)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="tmpl-batting-btn">Insert Template</button>
+                    </label>
                     <textarea id="player-batting" class="form-control" style="font-family: monospace;" placeholder='[{"format": "T20", "runs": ...}]'></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>Bowling Stats (JSON)</label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Bowling Stats (JSON)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="tmpl-bowling-btn">Insert Template</button>
+                    </label>
                     <textarea id="player-bowling" class="form-control" style="font-family: monospace;" placeholder='[{"format": "T20", "wkts": ...}]'></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>Recent Form (JSON)</label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Recent Form (JSON)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="tmpl-form-btn">Insert Template</button>
+                    </label>
                     <textarea id="player-form-json" class="form-control" style="font-family: monospace;" placeholder='[{"opponent": "Lions", "runs": ...}]'></textarea>
                 </div>
 
@@ -657,6 +726,18 @@
             document.getElementById('player-category').value = p.category || 'batsmen';
             document.getElementById('player-bio').value = p.bio || '';
             document.getElementById('player-image-url').value = p.image_url || '';
+            document.getElementById('player-nationality').value = p.nationality || 'IN';
+            document.getElementById('player-tag').value = p.tag || '';
+            document.getElementById('player-batting-style').value = p.batting_style || '';
+            document.getElementById('player-bowling-style').value = p.bowling_style || '';
+            document.getElementById('player-matches-total').value = p.matches || 0;
+            document.getElementById('player-runs-total').value = p.runs || 0;
+            document.getElementById('player-wickets-total').value = p.wickets || 0;
+            document.getElementById('player-hs-total').value = p.highest_score || '';
+            document.getElementById('player-batting-avg-total').value = p.batting_avg || 0;
+            document.getElementById('player-sr-total').value = p.strike_rate || 0;
+            document.getElementById('player-bowling-avg-total').value = p.bowling_avg || 0;
+            document.getElementById('player-bb-total').value = p.best_bowling || '';
             
             document.getElementById('player-batting').value = p.batting_detailed ? JSON.stringify(p.batting_detailed, null, 2) : '';
             document.getElementById('player-bowling').value = p.bowling_detailed ? JSON.stringify(p.bowling_detailed, null, 2) : '';
@@ -742,6 +823,18 @@
                     role: document.getElementById('player-role').value,
                     category: document.getElementById('player-category').value,
                     bio: document.getElementById('player-bio').value,
+                    nationality: document.getElementById('player-nationality').value || 'IN',
+                    tag: document.getElementById('player-tag').value,
+                    batting_style: document.getElementById('player-batting-style').value,
+                    bowling_style: document.getElementById('player-bowling-style').value,
+                    matches: parseInt(document.getElementById('player-matches-total').value) || 0,
+                    runs: parseInt(document.getElementById('player-runs-total').value) || 0,
+                    wickets: parseInt(document.getElementById('player-wickets-total').value) || 0,
+                    highest_score: document.getElementById('player-hs-total').value,
+                    batting_avg: parseFloat(document.getElementById('player-batting-avg-total').value) || 0,
+                    strike_rate: parseFloat(document.getElementById('player-sr-total').value) || 0,
+                    bowling_avg: parseFloat(document.getElementById('player-bowling-avg-total').value) || 0,
+                    best_bowling: document.getElementById('player-bb-total').value,
                     image_url: document.getElementById('player-image-url').value || 'https://via.placeholder.com/150',
                     batting_detailed: parseJson('player-batting'),
                     bowling_detailed: parseJson('player-bowling'),
@@ -761,6 +854,30 @@
             } catch (err) {
                 showMessage(err.message, true);
             }
+        });
+
+
+        // Player Templates
+        document.getElementById('tmpl-batting-btn').addEventListener('click', () => {
+            const tmpl = [{
+                "format": "T20", "mat": 0, "inn": 0, "no": 0, "runs": 0, "hs": 0, "avg": 0.0, "bf": 0, "sr": 0.0, "hundreds": 0, "fifties": 0, "fours": 0, "sixes": 0
+            }];
+            document.getElementById('player-batting').value = JSON.stringify(tmpl, null, 2);
+        });
+
+        document.getElementById('tmpl-bowling-btn').addEventListener('click', () => {
+            const tmpl = [{
+                "format": "T20", "mat": 0, "inn": 0, "balls": 0, "runs": 0, "wkts": 0, "bbi": "0/0", "bbm": "0/0", "econ": 0.0, "avg": 0.0, "sr": 0.0, "fivew": 0, "tenw": 0
+            }];
+            document.getElementById('player-bowling').value = JSON.stringify(tmpl, null, 2);
+        });
+
+        document.getElementById('tmpl-form-btn').addEventListener('click', () => {
+            const tmpl = [
+                { "opponent": "Team X", "runs": 0, "is_not_out": false },
+                { "opponent": "Team Y", "runs": 0, "is_not_out": true }
+            ];
+            document.getElementById('player-form-json').value = JSON.stringify(tmpl, null, 2);
         });
 
 
