@@ -479,3 +479,70 @@ body {
   font-weight: bold;
   font-size: 13px;
 }
+
+/* Player Card Responsive */
+@media (max-width: 768px) {
+  .players-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .players-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .card-top {
+    padding: 10px;
+    flex-direction: column;
+    text-align: center;
+    border-left: none;
+    border-top: 4px solid #2ecc71;
+  }
+  
+  .player-img {
+    margin: 0 auto 10px auto;
+  }
+  
+  .player-info h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  
+  .role {
+    font-size: 10px;
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+  
+  .tag {
+    position: static;
+    display: inline-block;
+    font-size: 10px;
+    margin-top: 5px;
+  }
+  
+  .card-stats {
+    padding: 8px;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  
+  .card-stats p {
+    font-size: 10px;
+  }
+  
+  .card-stats h4 {
+    font-size: 13px;
+    margin: 3px 0 5px;
+  }
+  
+  .card-footer {
+    padding: 8px;
+  }
+  
+  .card-footer a {
+    font-size: 11px;
+  }
+}
