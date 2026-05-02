@@ -105,10 +105,9 @@
             const runRateStr = isNaN(rr) ? '0.00' : rr;
 
             return `
-            <div class="innings-section">
                 <div class="innings-header">
                     <h2>${inningsData.team} Innings</h2>
-                    <div class="innings-score">${inningsData.score} (${inningsData.overs} Ov)</div>
+                    <div class="innings-score">${inningsData.score} <span style="font-size: 14px; font-weight: normal; color: #555;">(${inningsData.overs} Ov)</span></div>
                 </div>
                 
                 <table class="score-table">
@@ -162,7 +161,6 @@
                         ${renderBowlingRows(inningsData.bowling)}
                     </tbody>
                 </table>
-            </div>
             `;
         }
 
@@ -202,20 +200,37 @@
             // Priority: Summary -> Toss
             document.getElementById('match-status-text').textContent = data.summary || sb.toss || '';
 
-            // Render Innings
+            // Render Innings with Tabs
+            let tabsHtml = '<div class="innings-tabs">';
             let inningsHtml = '';
             
-            // In Cricbuzz, usually Innings 2 is shown at the top if it's currently going on, 
-            // but for simplicity we show Innings 1 then Innings 2.
-            if (sb.innings1) {
-                inningsHtml += generateInningsHTML(sb.innings1);
+            // Determine active tab. Usually Innings 2 is active if it exists
+            const hasInn2 = sb.innings2 && sb.innings2.team && (sb.innings2.batting.length > 0 || sb.innings2.bowling.length > 0 || sb.innings2.score);
+            
+            if (sb.innings1 && sb.innings1.team) {
+                const isActive = !hasInn2;
+                tabsHtml += `<button class="innings-tab ${isActive ? 'active' : ''}" onclick="window.switchInnings('inn1', event)">${sb.innings1.team} Innings</button>`;
+                inningsHtml += `<div id="inn1-content" class="innings-section ${isActive ? 'active' : ''}">` + generateInningsHTML(sb.innings1) + `</div>`;
             }
-            if (sb.innings2 && (sb.innings2.batting.length > 0 || sb.innings2.bowling.length > 0)) {
-                inningsHtml += generateInningsHTML(sb.innings2);
+            if (hasInn2) {
+                const isActive = true;
+                tabsHtml += `<button class="innings-tab ${isActive ? 'active' : ''}" onclick="window.switchInnings('inn2', event)">${sb.innings2.team} Innings</button>`;
+                inningsHtml += `<div id="inn2-content" class="innings-section ${isActive ? 'active' : ''}">` + generateInningsHTML(sb.innings2) + `</div>`;
             }
+            
+            tabsHtml += '</div>';
 
-            document.getElementById('innings-wrapper').innerHTML = inningsHtml;
+            document.getElementById('innings-wrapper').innerHTML = tabsHtml + inningsHtml;
             document.getElementById('scoreboard-container').style.display = 'block';
+            
+            // Global function to switch tabs
+            window.switchInnings = function(id, event) {
+                document.querySelectorAll('.innings-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.innings-section').forEach(s => s.classList.remove('active'));
+                
+                event.currentTarget.classList.add('active');
+                document.getElementById(id + '-content').classList.add('active');
+            };
         }
 
         async function initApp() {

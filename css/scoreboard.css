@@ -7,7 +7,7 @@
     margin: 20px auto;
     background: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     overflow: hidden;
     font-family: 'Inter', sans-serif;
 }
@@ -15,40 +15,82 @@
 /* Match Header info */
 .match-header-info {
     padding: 16px 20px;
-    border-bottom: 1px solid #e5e7eb;
+    background: #009270; /* Cricbuzz Green */
+    color: white;
+    border-bottom: 1px solid #007a5e;
 }
 
 .match-header-info h1 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
-    color: #222;
-    margin-bottom: 6px;
+    color: white;
+    margin-bottom: 8px;
 }
 
 .match-header-info .match-status {
     font-size: 14px;
-    color: #cb202d; /* Cricbuzz red for live/result */
+    color: #ffd200; /* Yellow highlight for live/status */
     font-weight: 600;
+}
+
+/* Innings Tabs */
+.innings-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.innings-tab {
+    flex: 1;
+    text-align: center;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.innings-tab:hover {
+    background: #f1f1f1;
+    color: #009270;
+}
+
+.innings-tab.active {
+    color: #009270;
+    border-bottom: 3px solid #009270;
+    background: white;
 }
 
 /* Innings Container */
 .innings-section {
-    margin-bottom: 20px;
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.innings-section.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .innings-header {
     background: #f1f1f1;
-    padding: 10px 20px;
+    padding: 12px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #e5e7eb;
     border-bottom: 1px solid #e5e7eb;
 }
 
 .innings-header h2 {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     color: #222;
     margin: 0;
 }
@@ -71,9 +113,11 @@
     padding: 12px 20px;
     background: #ffffff;
     color: #666;
-    font-weight: 500;
+    font-weight: 600;
     font-size: 13px;
     border-bottom: 1px solid #e5e7eb;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .score-table th.num, .score-table td.num {
@@ -115,7 +159,7 @@
 }
 
 .dismissal {
-    color: #444;
+    color: #555;
     font-size: 13px;
 }
 
@@ -144,6 +188,7 @@
     padding: 12px 20px;
     font-size: 13px;
     border-bottom: 1px solid #e5e7eb;
+    background: #fff;
 }
 
 .innings-footer-info .label {
@@ -177,5 +222,10 @@
 
     .match-header-info h1 {
         font-size: 16px;
+    }
+
+    .innings-tab {
+        padding: 10px 10px;
+        font-size: 13px;
     }
 }

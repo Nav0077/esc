@@ -180,12 +180,75 @@
                 </div>
 
                 <div class="form-group">
+                <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Scoreboard JSON (Advanced)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="insert-template-btn">Insert Template</button>
+                        Scoreboard Data (Visual Editor)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-json-btn">Toggle JSON View</button>
                     </label>
-                    <textarea id="match-scoreboard" class="form-control" style="font-family: monospace; min-height: 200px;" placeholder='{"innings1": {...}, "innings2": {...}}'></textarea>
-                    <p style="font-size: 12px; color: #666; margin-top: 4px;">Paste valid JSON object to update the detailed scorecard. Leave empty if none.</p>
+                    
+                    <div id="visual-editor-container" style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 5px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                            <button type="button" class="btn btn-secondary v-tab-btn active" data-vtab="v-toss" style="padding: 5px 10px; font-size: 13px;">General</button>
+                            <button type="button" class="btn btn-secondary v-tab-btn" data-vtab="v-inn1" style="padding: 5px 10px; font-size: 13px;">Innings 1</button>
+                            <button type="button" class="btn btn-secondary v-tab-btn" data-vtab="v-inn2" style="padding: 5px 10px; font-size: 13px;">Innings 2</button>
+                        </div>
+
+                        <!-- General Tab -->
+                        <div id="v-toss" class="v-panel active">
+                            <label>Toss Result</label>
+                            <input type="text" id="v-toss-input" class="form-control" placeholder="e.g. Team A won the toss and elected to bat">
+                        </div>
+
+                        <!-- Innings 1 Tab -->
+                        <div id="v-inn1" class="v-panel" style="display: none;">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Team</label><input type="text" id="v-inn1-team" class="form-control"></div>
+                                <div class="form-group"><label>Score</label><input type="text" id="v-inn1-score" class="form-control" placeholder="150/4"></div>
+                                <div class="form-group"><label>Overs</label><input type="text" id="v-inn1-overs" class="form-control" placeholder="20.0"></div>
+                                <div class="form-group"><label>Extras</label><input type="text" id="v-inn1-extras" class="form-control" placeholder="0 (b 0, lb 0, w 0, nb 0)"></div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <h4 style="margin-bottom: 8px; font-size: 14px;">Batting</h4>
+                                <div id="v-inn1-batting" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBatsmanRow('inn1')">+ Add Batsman</button>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <h4 style="margin-bottom: 8px; font-size: 14px;">Bowling</h4>
+                                <div id="v-inn1-bowling" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBowlerRow('inn1')">+ Add Bowler</button>
+                            </div>
+                        </div>
+
+                        <!-- Innings 2 Tab -->
+                        <div id="v-inn2" class="v-panel" style="display: none;">
+                            <div class="form-grid">
+                                <div class="form-group"><label>Team</label><input type="text" id="v-inn2-team" class="form-control"></div>
+                                <div class="form-group"><label>Score</label><input type="text" id="v-inn2-score" class="form-control" placeholder="150/4"></div>
+                                <div class="form-group"><label>Overs</label><input type="text" id="v-inn2-overs" class="form-control" placeholder="20.0"></div>
+                                <div class="form-group"><label>Extras</label><input type="text" id="v-inn2-extras" class="form-control" placeholder="0 (b 0, lb 0, w 0, nb 0)"></div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <h4 style="margin-bottom: 8px; font-size: 14px;">Batting</h4>
+                                <div id="v-inn2-batting" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBatsmanRow('inn2')">+ Add Batsman</button>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <h4 style="margin-bottom: 8px; font-size: 14px;">Bowling</h4>
+                                <div id="v-inn2-bowling" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
+                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBowlerRow('inn2')">+ Add Bowler</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button type="button" class="btn" style="background-color: #10b981;" onclick="window.syncVisualToJSON()">Apply Changes to JSON</button>
+                        </div>
+                    </div>
+
+                    <textarea id="match-scoreboard" class="form-control" style="font-family: monospace; min-height: 200px; margin-top: 10px; display: none;" placeholder='{"innings1": {...}, "innings2": {...}}'></textarea>
                 </div>
 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -325,6 +388,174 @@
                 document.getElementById(e.target.getAttribute('data-target')).classList.add('active');
             });
         });
+
+        // Visual Editor Tab Switching
+        document.querySelectorAll('.v-tab-btn').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const target = e.target.getAttribute('data-vtab');
+                document.querySelectorAll('.v-tab-btn').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.v-panel').forEach(p => p.style.display = 'none');
+                
+                e.target.classList.add('active');
+                document.getElementById(target).style.display = 'block';
+            });
+        });
+
+        // Toggle JSON View
+        document.getElementById('toggle-json-btn').addEventListener('click', () => {
+            const ta = document.getElementById('match-scoreboard');
+            if (ta.style.display === 'none') {
+                ta.style.display = 'block';
+                document.getElementById('visual-editor-container').style.display = 'none';
+            } else {
+                ta.style.display = 'none';
+                document.getElementById('visual-editor-container').style.display = 'block';
+                window.syncJSONToVisual();
+            }
+        });
+
+        // Visual Editor Logic
+        window.addBatsmanRow = (innings) => {
+            const container = document.getElementById(`v-${innings}-batting`);
+            const div = document.createElement('div');
+            div.style.cssText = "display: flex; gap: 5px; align-items: center;";
+            div.innerHTML = `
+                <input type="text" class="form-control bat-name" placeholder="Name" style="flex:2;">
+                <input type="text" class="form-control bat-status" placeholder="Status" style="flex:2;">
+                <input type="number" class="form-control bat-r" placeholder="R" style="flex:1;">
+                <input type="number" class="form-control bat-b" placeholder="B" style="flex:1;">
+                <input type="number" class="form-control bat-4s" placeholder="4s" style="flex:1;">
+                <input type="number" class="form-control bat-6s" placeholder="6s" style="flex:1;">
+                <input type="number" class="form-control bat-sr" placeholder="SR" step="0.01" style="flex:1;">
+                <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.addBowlerRow = (innings) => {
+            const container = document.getElementById(`v-${innings}-bowling`);
+            const div = document.createElement('div');
+            div.style.cssText = "display: flex; gap: 5px; align-items: center;";
+            div.innerHTML = `
+                <input type="text" class="form-control bowl-name" placeholder="Name" style="flex:2;">
+                <input type="number" class="form-control bowl-o" placeholder="O" step="0.1" style="flex:1;">
+                <input type="number" class="form-control bowl-m" placeholder="M" style="flex:1;">
+                <input type="number" class="form-control bowl-r" placeholder="R" style="flex:1;">
+                <input type="number" class="form-control bowl-w" placeholder="W" style="flex:1;">
+                <input type="number" class="form-control bowl-eco" placeholder="ECO" step="0.01" style="flex:1;">
+                <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.syncJSONToVisual = () => {
+            try {
+                const ta = document.getElementById('match-scoreboard').value;
+                if (!ta) {
+                    // clear visual
+                    document.getElementById('v-toss-input').value = '';
+                    ['inn1', 'inn2'].forEach(i => {
+                        document.getElementById(`v-${i}-team`).value = '';
+                        document.getElementById(`v-${i}-score`).value = '';
+                        document.getElementById(`v-${i}-overs`).value = '';
+                        document.getElementById(`v-${i}-extras`).value = '';
+                        document.getElementById(`v-${i}-batting`).innerHTML = '';
+                        document.getElementById(`v-${i}-bowling`).innerHTML = '';
+                    });
+                    return;
+                }
+                const data = JSON.parse(ta);
+                document.getElementById('v-toss-input').value = data.toss || '';
+                
+                ['inn1', 'inn2'].forEach((inningsKey, idx) => {
+                    const innData = data[`innings${idx+1}`];
+                    const i = inningsKey;
+                    if (innData) {
+                        document.getElementById(`v-${i}-team`).value = innData.team || '';
+                        document.getElementById(`v-${i}-score`).value = innData.score || '';
+                        document.getElementById(`v-${i}-overs`).value = innData.overs || '';
+                        document.getElementById(`v-${i}-extras`).value = innData.extras || '';
+                        
+                        document.getElementById(`v-${i}-batting`).innerHTML = '';
+                        (innData.batting || []).forEach(b => {
+                            window.addBatsmanRow(i);
+                            const last = document.getElementById(`v-${i}-batting`).lastElementChild;
+                            last.querySelector('.bat-name').value = b.name || '';
+                            last.querySelector('.bat-status').value = b.status || '';
+                            last.querySelector('.bat-r').value = b.runs ?? '';
+                            last.querySelector('.bat-b').value = b.balls ?? '';
+                            last.querySelector('.bat-4s').value = b.fours ?? '';
+                            last.querySelector('.bat-6s').value = b.sixes ?? '';
+                            last.querySelector('.bat-sr').value = b.sr ?? '';
+                        });
+
+                        document.getElementById(`v-${i}-bowling`).innerHTML = '';
+                        (innData.bowling || []).forEach(b => {
+                            window.addBowlerRow(i);
+                            const last = document.getElementById(`v-${i}-bowling`).lastElementChild;
+                            last.querySelector('.bowl-name').value = b.name || '';
+                            last.querySelector('.bowl-o').value = b.overs ?? '';
+                            last.querySelector('.bowl-m').value = b.maidens ?? '';
+                            last.querySelector('.bowl-r').value = b.runs ?? '';
+                            last.querySelector('.bowl-w').value = b.wkts ?? '';
+                            last.querySelector('.bowl-eco').value = b.econ ?? '';
+                        });
+                    } else {
+                        document.getElementById(`v-${i}-team`).value = '';
+                        document.getElementById(`v-${i}-score`).value = '';
+                        document.getElementById(`v-${i}-overs`).value = '';
+                        document.getElementById(`v-${i}-extras`).value = '';
+                        document.getElementById(`v-${i}-batting`).innerHTML = '';
+                        document.getElementById(`v-${i}-bowling`).innerHTML = '';
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to sync JSON to visual editor", e);
+            }
+        };
+
+        window.syncVisualToJSON = () => {
+            const data = {
+                toss: document.getElementById('v-toss-input').value,
+            };
+
+            ['inn1', 'inn2'].forEach((inningsKey, idx) => {
+                const i = inningsKey;
+                const teamName = document.getElementById(`v-${i}-team`).value;
+                if (!teamName) return; // Skip if no team name
+
+                const batting = Array.from(document.getElementById(`v-${i}-batting`).children).map(row => ({
+                    name: row.querySelector('.bat-name').value,
+                    status: row.querySelector('.bat-status').value,
+                    runs: parseInt(row.querySelector('.bat-r').value) || 0,
+                    balls: parseInt(row.querySelector('.bat-b').value) || 0,
+                    fours: parseInt(row.querySelector('.bat-4s').value) || 0,
+                    sixes: parseInt(row.querySelector('.bat-6s').value) || 0,
+                    sr: parseFloat(row.querySelector('.bat-sr').value) || 0
+                })).filter(b => b.name);
+
+                const bowling = Array.from(document.getElementById(`v-${i}-bowling`).children).map(row => ({
+                    name: row.querySelector('.bowl-name').value,
+                    overs: row.querySelector('.bowl-o').value || "0",
+                    maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
+                    runs: parseInt(row.querySelector('.bowl-r').value) || 0,
+                    wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
+                    econ: parseFloat(row.querySelector('.bowl-eco').value) || 0
+                })).filter(b => b.name);
+
+                data[`innings${idx+1}`] = {
+                    team: teamName,
+                    score: document.getElementById(`v-${i}-score`).value,
+                    overs: document.getElementById(`v-${i}-overs`).value,
+                    extras: document.getElementById(`v-${i}-extras`).value,
+                    batting: batting,
+                    bowling: bowling
+                };
+            });
+
+            document.getElementById('match-scoreboard').value = JSON.stringify(data, null, 2);
+            showMessage("Visual changes applied to JSON data!");
+        };
 
         // ==========================================
         // AUTHENTICATION LOGIC
@@ -592,6 +823,7 @@
                 }
             };
             document.getElementById('match-scoreboard').value = JSON.stringify(tmpl, null, 2);
+            if (typeof window.syncJSONToVisual === 'function') window.syncJSONToVisual();
         });
 
         window.editMatch = (id) => {
@@ -608,6 +840,7 @@
             document.getElementById('match-summary').value = m.summary || '';
             
             document.getElementById('match-scoreboard').value = m.scoreboard ? JSON.stringify(m.scoreboard, null, 2) : '';
+            if (typeof window.syncJSONToVisual === 'function') window.syncJSONToVisual();
             
             document.getElementById('delete-match-btn').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -617,6 +850,7 @@
             document.getElementById('match-form').reset();
             document.getElementById('match-id').value = '';
             document.getElementById('match-scoreboard').value = '';
+            if (typeof window.syncJSONToVisual === 'function') window.syncJSONToVisual();
             document.getElementById('delete-match-btn').style.display = 'none';
         });
 
@@ -638,10 +872,15 @@
             const id = document.getElementById('match-id').value;
             
             let sbData = null;
+            // Ensure visual editor changes are synced before saving
+            if (typeof window.syncVisualToJSON === 'function') {
+                window.syncVisualToJSON();
+            }
+
             const sbStr = document.getElementById('match-scoreboard').value.trim();
             if (sbStr) {
                 try { sbData = JSON.parse(sbStr); } 
-                catch(err) { alert("Invalid JSON in Scoreboard field!"); return; }
+                catch(err) { alert("Invalid JSON in Scoreboard field! Please check your inputs."); return; }
             }
 
             const payload = {
