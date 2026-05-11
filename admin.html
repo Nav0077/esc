@@ -802,7 +802,7 @@
                         </div>
                     </div>
                     <div class="list-item-actions">
-                        <button class="btn btn-secondary" onclick="editPlayer('${p.id}')">Edit</button>
+                        <button class="btn btn-secondary" onclick="window.editPlayer('${p.id}')">Edit</button>
                     </div>
                 </div>
             `).join('');
@@ -1012,7 +1012,7 @@
                         </div>
                     </div>
                     <div class="list-item-actions">
-                        <button class="btn btn-secondary" onclick="editMatch('${m.id}')">Edit</button>
+                        <button class="btn btn-secondary" onclick="window.editMatch('${m.id}')">Edit</button>
                     </div>
                 </div>
             `).join('');
@@ -1186,7 +1186,7 @@
                             <h3>${m.subject}</h3>
                             <p>From: <strong>${m.first_name} ${m.last_name}</strong> (${m.email}) • ${date}</p>
                         </div>
-                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="deleteMessage('${m.id}')">Delete</button>
+                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="window.deleteMessage('${m.id}')">Delete</button>
                     </div>
                     <div style="background: #f9fafb; padding: 12px; border-radius: 6px; width: 100%; border: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
                         ${m.message.replace(/\n/g, '<br>')}
@@ -1310,7 +1310,7 @@
                             <h3><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${n.type==='info'?'#3b82f6':n.type==='success'?'#10b981':n.type==='warning'?'#f59e0b':'#ef4444'}; margin-right:6px;"></span>${n.title}</h3>
                             <p>${date}</p>
                         </div>
-                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="deleteNotice('${n.id}')">Delete</button>
+                        <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="window.deleteNotice('${n.id}')">Delete</button>
                     </div>
                     <div style="background: #f9fafb; padding: 12px; border-radius: 6px; width: 100%; border: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
                         ${n.message.replace(/\n/g, '<br>')}
