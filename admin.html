@@ -488,10 +488,13 @@
                     <textarea id="tourney-archives" class="form-control" style="font-family: monospace; min-height: 100px; display: none;"></textarea>
                 </div>
 
-                <div class="form-group" id="tourney-matches-section" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <label>Matches in this Tournament</label>
-                    <div id="tourney-matches-list" style="background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid #e5e7eb; margin-top: 5px;">
-                        Loading matches...
+                <div class="form-group" id="tourney-matches-section" style="display: none; margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label style="margin: 0; font-size: 16px; font-weight: 700;">Tournament Matches</label>
+                        <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 5px 12px;" id="add-match-to-tourney-btn">+ Add Match</button>
+                    </div>
+                    <div id="tourney-matches-list">
+                        <!-- Match Table will be injected here -->
                     </div>
                 </div>
 
@@ -1386,26 +1389,63 @@
 
         async function fetchTourneyMatches(tourneyName) {
             const container = document.getElementById('tourney-matches-list');
-            container.innerHTML = "Loading matches...";
+            container.innerHTML = "<p style='font-size: 13px; color: gray;'>Loading matches...</p>";
             
             const { data, error } = await supabase
                 .from('matches')
-                .select('id, match_number, team1_name, team2_name, status')
+                .select('id, match_number, team1_name, team2_name, status, summary')
                 .eq('tournament_name', tourneyName)
                 .order('match_number', { ascending: true });
                 
             if(error || !data || data.length === 0) {
-                container.innerHTML = "<p style='color: gray; font-size: 13px;'>No matches found for this tournament.</p>";
+                container.innerHTML = "<div style='text-align: center; padding: 20px; background: #f9fafb; border: 1px dashed #ccc; border-radius: 6px; color: gray; font-size: 13px;'>No matches found for this tournament. Click '+ Add Match' to create one.</div>";
                 return;
             }
             
-            container.innerHTML = data.map(m => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 13px;">
-                    <span><strong>#${m.match_number}</strong>: ${m.team1_name} vs ${m.team2_name} (${m.status})</span>
-                    <button type="button" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="window.editMatch('${m.id}')">Edit Scoreboard</button>
-                </div>
-            `).join('');
+            container.innerHTML = `
+                <table class="admin-table" style="font-size: 13px;">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Teams</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(m => `
+                            <tr>
+                                <td>${m.match_number}</td>
+                                <td><strong>${m.team1_name}</strong> vs <strong>${m.team2_name}</strong></td>
+                                <td><span class="status-badge ${m.status}">${m.status}</span></td>
+                                <td>
+                                    <button type="button" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="window.editMatch('${m.id}')">Scorecard</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
         }
+
+        document.getElementById('add-match-to-tourney-btn').addEventListener('click', () => {
+            const tourneyName = document.getElementById('tourney-name').value;
+            if(!tourneyName) { alert("Please save the tournament first."); return; }
+            
+            // Switch to matches tab
+            document.querySelector('[data-target="matches-panel"]').click();
+            
+            // Clear match form
+            document.getElementById('match-form').reset();
+            document.getElementById('match-id').value = '';
+            document.getElementById('match-tournament').value = tourneyName;
+            
+            // Reset scoreboard visual editor
+            document.getElementById('match-scoreboard').value = '{}';
+            window.syncScoreboardJSONToVisual();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         document.getElementById('clear-tourney-btn').addEventListener('click', () => {
             document.getElementById('tournament-form').reset();
