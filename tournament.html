@@ -185,7 +185,10 @@
 
         async function loadTournamentList() {
             document.getElementById('tournament-list-container').style.display = 'block';
-            const { data, error } = await supabase.from('tournaments').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabase
+                .from('tournaments')
+                .select('id, name, dates, status, category')
+                .order('created_at', { ascending: false });
             
             document.getElementById('loading-list').style.display = 'none';
 
@@ -227,13 +230,30 @@
 
         async function loadTournamentDetail(id) {
             document.getElementById('tournament-detail-container').style.display = 'block';
-            const { data, error } = await supabase.from('tournaments').select('*').eq('id', id).single();
             
-            if(error || !data) {
+            // Start all data fetching in parallel
+            const detailPromises = [
+                supabase.from('tournaments').select('id, name, dates, location, banner_url, points_table, top_stats, archives').eq('id', id).single(),
+                fetch('components/card-live.html').then(r => r.text()),
+                fetch('components/card-finished.html').then(r => r.text()),
+                fetch('components/card-upcoming.html').then(r => r.text())
+            ];
+
+            const [tourneyRes, liveT, finishedT, upcomingT] = await Promise.all(detailPromises);
+            const data = tourneyRes.data;
+
+            if(tourneyRes.error || !data) {
                 console.error("Tournament not found");
                 document.getElementById('t-title').textContent = "Tournament Not Found";
                 return;
             }
+
+            // Now fetch matches for this tournament
+            const matchesPromise = supabase
+                .from('matches')
+                .select('id, tournament_name, match_number, team1_name, team2_name, team1_logo, team2_logo, team1_score, team2_score, team1_overs, team2_overs, summary, status')
+                .eq('tournament_name', data.name)
+                .order('match_date', { ascending: false });
 
             document.title = `${data.name} | Elite Social Club`;
             document.getElementById('t-title').textContent = data.name;
@@ -244,26 +264,22 @@
 
             // Render Points Table
             if(data.points_table) {
-                let html = '';
-                data.points_table.forEach(team => {
-                    html += `
-                        <tr>
-                            <td>
-                                <div class="team-name-cell">
-                                    <img src="${team.logo || 'https://via.placeholder.com/24'}" alt="${team.team}"> ${team.team}
-                                </div>
-                            </td>
-                            <td class="num">${team.mat}</td>
-                            <td class="num">${team.won}</td>
-                            <td class="num">${team.lost}</td>
-                            <td class="num hide-mobile">${team.tied}</td>
-                            <td class="num hide-mobile">${team.nr}</td>
-                            <td class="num" style="font-weight: 700;">${team.pts}</td>
-                            <td class="num">${team.nrr}</td>
-                        </tr>
-                    `;
-                });
-                document.getElementById('standings-body').innerHTML = html;
+                document.getElementById('standings-body').innerHTML = data.points_table.map(team => `
+                    <tr>
+                        <td>
+                            <div class="team-name-cell">
+                                <img src="${team.logo || 'https://via.placeholder.com/24'}" alt="${team.team}"> ${team.team}
+                            </div>
+                        </td>
+                        <td class="num">${team.mat}</td>
+                        <td class="num">${team.won}</td>
+                        <td class="num">${team.lost}</td>
+                        <td class="num hide-mobile">${team.tied}</td>
+                        <td class="num hide-mobile">${team.nr}</td>
+                        <td class="num" style="font-weight: 700;">${team.pts}</td>
+                        <td class="num">${team.nrr}</td>
+                    </tr>
+                `).join('');
             }
 
             // Render Stats
@@ -313,47 +329,31 @@
                 document.getElementById('archive-list').innerHTML = '<p style="color: #6b7280; grid-column: 1/-1;">No archive data available for this tournament.</p>';
             }
 
-            // Load Matches for this tournament
-            const { data: matches, error: mError } = await supabase
-                .from('matches')
-                .select('*')
-                .eq('tournament_name', data.name)
-                .order('match_date', { ascending: false });
-            
+            const { data: matches, error: mError } = await matchesPromise;
             document.getElementById('loading-matches').style.display = 'none';
 
             if (!mError && matches && matches.length > 0) {
-                const liveTemplate = await (await fetch('components/card-live.html')).text();
-                const finishedTemplate = await (await fetch('components/card-finished.html')).text();
-                const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
-
                 const grid = document.getElementById('all-matches-grid');
-                let html = '';
-
-                matches.forEach(match => {
-                    let tmpl = upcomingTemplate;
-                    if(match.status === 'live') tmpl = liveTemplate;
-                    if(match.status === 'finished') tmpl = finishedTemplate;
-                    html += renderMatchCard(match, tmpl);
-                });
-
-                grid.innerHTML = html;
+                grid.innerHTML = matches.map(match => {
+                    let tmpl = upcomingT;
+                    if(match.status === 'live') tmpl = liveT;
+                    else if(match.status === 'finished') tmpl = finishedT;
+                    return renderMatchCard(match, tmpl);
+                }).join('');
             } else {
                 document.getElementById('all-matches-grid').innerHTML = '<p>No matches found for this tournament.</p>';
             }
         }
 
         async function initApp() {
-            await loadComponent("notice-placeholder", "components/notice-ticker.html");
-            await loadComponent("navbar-placeholder", "components/navbar.html");
-            initNavbar();
-            
-            const links = document.querySelectorAll('.nav-link');
-            links.forEach(l => l.classList.remove('active'));
-            const tourneyLink = Array.from(links).find(l => l.getAttribute('href') === 'tournament.html');
-            if (tourneyLink) tourneyLink.classList.add('active');
+            const componentPromises = [
+                loadComponent("notice-placeholder", "components/notice-ticker.html"),
+                loadComponent("navbar-placeholder", "components/navbar.html"),
+                loadComponent("footer-placeholder", "components/footer.html")
+            ];
 
-            await loadComponent("footer-placeholder", "components/footer.html");
+            await Promise.all(componentPromises);
+            initNavbar();
 
             if (tournamentId) {
                 await loadTournamentDetail(tournamentId);

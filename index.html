@@ -70,10 +70,58 @@
             }
         }
 
+        // Parallel fetching of components and data
+        async function initApp() {
+            // 1. Start loading essential components in parallel
+            const componentPromises = [
+                loadComponent('notice-placeholder', 'components/notice-ticker.html'),
+                loadComponent('navbar-placeholder', 'components/navbar.html'),
+                loadComponent('footer-placeholder', 'components/footer.html'),
+                loadComponent('popup-placeholder', 'components/promo-popup.html')
+            ];
+
+            // 2. Start fetching data and match templates in parallel
+            const dataPromises = [
+                fetchMatches(),
+                fetch('components/card-live.html').then(r => r.text()),
+                fetch('components/card-finished.html').then(r => r.text()),
+                fetch('components/card-upcoming.html').then(r => r.text()),
+                // Fetch the latest active popup
+                supabase.from('popups').select('id, title, image_urls, link_url, display_frequency').eq('is_active', true).order('created_at', { ascending: false }).limit(1)
+            ];
+
+            // Wait for essential UI components
+            await Promise.all(componentPromises);
+            initNavbar();
+
+            // Wait for data and templates
+            const [matches, liveTemplate, finishedTemplate, upcomingTemplate, popupRes] = await Promise.all(dataPromises);
+
+            // 3. Render Match Cards
+            const liveContainer = document.getElementById('live-card');
+            const finishedContainer = document.getElementById('finished-card');
+            const upcomingContainer = document.getElementById('upcoming-card');
+
+            const liveMatch = matches.find(m => m.status === 'live');
+            const finishedMatch = matches.find(m => m.status === 'finished');
+            const upcomingMatch = matches.find(m => m.status === 'upcoming');
+
+            if (liveMatch && liveContainer) liveContainer.innerHTML = renderMatchCard(liveMatch, liveTemplate);
+            if (finishedMatch && finishedContainer) finishedContainer.innerHTML = renderMatchCard(finishedMatch, finishedTemplate);
+            if (upcomingMatch && upcomingContainer) upcomingContainer.innerHTML = renderMatchCard(upcomingMatch, upcomingTemplate);
+
+            // 4. Initialize Promo Popup
+            if (popupRes.data && popupRes.data.length > 0) {
+                if (window.initPromoPopup) {
+                    window.initPromoPopup(popupRes.data[0]);
+                }
+            }
+        }
+
         async function fetchMatches() {
             const { data, error } = await supabase
                 .from('matches')
-                .select('*')
+                .select('id, tournament_name, match_number, team1_name, team2_name, team1_logo, team2_logo, team1_score, team2_score, team1_overs, team2_overs, summary, status')
                 .order('match_date', { ascending: true });
             
             if (error) {
@@ -104,53 +152,6 @@
             });
 
             return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
-        }
-
-        //  Initialize App
-        async function initApp() {
-            await loadComponent('notice-placeholder', 'components/notice-ticker.html');
-            await loadComponent('navbar-placeholder', 'components/navbar.html');
-            initNavbar(); 
-            await loadComponent('footer-placeholder', 'components/footer.html');
-
-            const matches = await fetchMatches();
-            
-            const liveTemplate = await (await fetch('components/card-live.html')).text();
-            const finishedTemplate = await (await fetch('components/card-finished.html')).text();
-            const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
-
-            const liveContainer = document.getElementById('live-card');
-            const finishedContainer = document.getElementById('finished-card');
-            const upcomingContainer = document.getElementById('upcoming-card');
-
-            const liveMatch = matches.find(m => m.status === 'live');
-            const finishedMatch = matches.find(m => m.status === 'finished');
-            const upcomingMatch = matches.find(m => m.status === 'upcoming');
-
-            if (liveMatch && liveContainer) {
-                liveContainer.innerHTML = renderMatchCard(liveMatch, liveTemplate);
-            }
-            if (finishedMatch && finishedContainer) {
-                finishedContainer.innerHTML = renderMatchCard(finishedMatch, finishedTemplate);
-            }
-            if (upcomingMatch && upcomingContainer) {
-                upcomingContainer.innerHTML = renderMatchCard(upcomingMatch, upcomingTemplate);
-            }
-
-            // Handle Promo Popup
-            await loadComponent('popup-placeholder', 'components/promo-popup.html');
-            const { data: popups, error: popupError } = await supabase
-                .from('popups')
-                .select('*')
-                .eq('is_active', true)
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (!popupError && popups && popups.length > 0) {
-                if (window.initPromoPopup) {
-                    window.initPromoPopup(popups[0]);
-                }
-            }
         }
 
         initApp();

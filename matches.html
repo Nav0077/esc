@@ -144,7 +144,7 @@
         async function fetchMatches() {
             const { data, error } = await supabase
                 .from('matches')
-                .select('*')
+                .select('id, tournament_name, match_number, team1_name, team2_name, team1_logo, team2_logo, team1_score, team2_score, team1_overs, team2_overs, summary, status')
                 .order('match_date', { ascending: true });
             
             if (error) {
@@ -193,27 +193,35 @@
                 return;
             }
 
-            // We need the templates from window or fetch them once
             grid.innerHTML = filteredMatches.map(m => renderMatchCard(m, window.matchTemplates)).join('');
         }
 
         async function initApp() {
-            await loadComponent("notice-placeholder", "components/notice-ticker.html");
-            await loadComponent("navbar-placeholder", "components/navbar.html");
-            initNavbar();
-            await loadComponent("footer-placeholder", "components/footer.html");
+            const componentPromises = [
+                loadComponent("notice-placeholder", "components/notice-ticker.html"),
+                loadComponent("navbar-placeholder", "components/navbar.html"),
+                loadComponent("footer-placeholder", "components/footer.html")
+            ];
 
-            // Fetch templates
+            const dataPromises = [
+                fetchMatches(),
+                fetch('components/card-live.html').then(r => r.text()),
+                fetch('components/card-finished.html').then(r => r.text()),
+                fetch('components/card-upcoming.html').then(r => r.text())
+            ];
+
+            await Promise.all(componentPromises);
+            initNavbar();
+
+            const [matches, liveT, finishedT, upcomingT] = await Promise.all(dataPromises);
+            
             window.matchTemplates = {
-                live: await (await fetch('components/card-live.html')).text(),
-                finished: await (await fetch('components/card-finished.html')).text(),
-                upcoming: await (await fetch('components/card-upcoming.html')).text()
+                live: liveT,
+                finished: finishedT,
+                upcoming: upcomingT
             };
 
-            // Fetch matches
-            allMatches = await fetchMatches();
-            
-            // Initial render
+            allMatches = matches;
             displayMatches('all');
 
             // Setup filters

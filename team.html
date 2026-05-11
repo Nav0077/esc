@@ -92,7 +92,7 @@
       async function fetchPlayers() {
         const { data, error } = await supabase
           .from('player_stats')
-          .select('*')
+          .select('id, name, role, category, tag, image_url, runs, batting_avg, highest_score, strike_rate')
           .order('name');
         
         if (error) {
@@ -103,14 +103,22 @@
       }
 
       async function initApp() {
-        await loadComponent("notice-placeholder", "components/notice-ticker.html");
-        await loadComponent("navbar-placeholder", "components/navbar.html");
-        initNavbar();
-        await loadComponent("footer-placeholder", "components/footer.html");
+        const componentPromises = [
+            loadComponent("notice-placeholder", "components/notice-ticker.html"),
+            loadComponent("navbar-placeholder", "components/navbar.html"),
+            loadComponent("footer-placeholder", "components/footer.html")
+        ];
 
+        const dataPromises = [
+            fetchPlayers(),
+            fetch("components/player_card.html").then(r => r.text())
+        ];
+
+        await Promise.all(componentPromises);
+        initNavbar();
+
+        const [players, playerCardHtml] = await Promise.all(dataPromises);
         const container = document.getElementById("players-container");
-        const playerCardHtml = await (await fetch("components/player_card.html")).text();
-        const players = await fetchPlayers();
 
         if (players.length === 0) {
           container.innerHTML = '<p class="no-players">No players found.</p>';
@@ -178,6 +186,3 @@
     </script>
   </body>
 </html>
-
-
-
