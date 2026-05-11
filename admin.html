@@ -207,8 +207,10 @@
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Tournament Name</label>
-                        <input type="text" id="match-tournament" class="form-control" required placeholder="e.g. T20 Elite Cup">
+                        <label>Select Tournament</label>
+                        <select id="match-tournament" class="form-control" required>
+                            <option value="">-- Select Tournament --</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Match Number</label>
@@ -465,7 +467,13 @@
                 </div>
 
                 <button type="submit" class="btn">Save Tournament Settings</button>
+                <button type="button" class="btn btn-secondary" id="clear-tourney-btn" style="margin-top: 10px;">Create New Tournament</button>
             </form>
+
+            <div class="item-list" style="margin-top: 30px;">
+                <h3>Existing Tournaments</h3>
+                <div id="tournaments-list">Loading tournaments...</div>
+            </div>
         </div>
 
         <!-- ========================================== -->
@@ -569,6 +577,7 @@
         let allMessages = [];
         let allNotices = [];
         let allPopups = [];
+        let allTournaments = [];
 
         // UI Helpers
         function showMessage(msg, isError = false) {
@@ -1081,9 +1090,6 @@
             renderMatchesList(e.target.value);
         });
 
-        // Scoreboard template insertion is handled via the visual editor.
-        // No separate template button needed since the visual editor provides the UI.
-
         window.editMatch = (id) => {
             const m = allMatches.find(x => x.id === id);
             if(!m) return;
@@ -1093,7 +1099,7 @@
 
             document.getElementById('match-id').value = m.id;
             document.getElementById('match-tournament').value = m.tournament_name || '';
-            document.getElementById('match-number').value = m.match_number || '';
+            document.getElementById('match-number').value = m.match_number || 0;
             document.getElementById('match-team1').value = m.team1_name || '';
             document.getElementById('match-team2').value = m.team2_name || '';
             document.getElementById('match-team1-logo').value = m.team1_logo || '';
@@ -1129,7 +1135,6 @@
             }
         });
 
-        // Handle Team Logo Uploads
         async function handleLogoUpload(inputId, targetInputId) {
             const fileInput = document.getElementById(inputId);
             const targetInput = document.getElementById(targetInputId);
@@ -1156,38 +1161,27 @@
             e.preventDefault();
             const id = document.getElementById('match-id').value;
             
-            let sbData = null;
-            // Ensure visual editor changes are synced before saving
+            let scoreData = null;
             if (typeof window.syncVisualToJSON === 'function') {
                 window.syncVisualToJSON();
             }
 
             const sbStr = document.getElementById('match-scoreboard').value.trim();
             if (sbStr) {
-                try { sbData = JSON.parse(sbStr); } 
-                catch(err) { alert("Invalid JSON in Scoreboard field! Please check your inputs."); return; }
+                try { scoreData = JSON.parse(sbStr); } 
+                catch(err) { alert("Invalid JSON in Scoreboard field!"); return; }
             }
-
-            // Sync top-level score columns from Visual Editor fields
-            const team1Score = document.getElementById('v-inn1-score')?.value || '';
-            const team1Overs = document.getElementById('v-inn1-overs')?.value || '';
-            const team2Score = document.getElementById('v-inn2-score')?.value || '';
-            const team2Overs = document.getElementById('v-inn2-overs')?.value || '';
 
             const payload = {
                 tournament_name: document.getElementById('match-tournament').value,
-                match_number: document.getElementById('match-number').value,
+                match_number: parseInt(document.getElementById('match-number').value),
                 team1_name: document.getElementById('match-team1').value,
                 team2_name: document.getElementById('match-team2').value,
                 team1_logo: document.getElementById('match-team1-logo').value,
                 team2_logo: document.getElementById('match-team2-logo').value,
-                team1_score: team1Score,
-                team1_overs: team1Overs,
-                team2_score: team2Score,
-                team2_overs: team2Overs,
                 status: document.getElementById('match-status').value,
                 summary: document.getElementById('match-summary').value,
-                scoreboard: sbData
+                scoreboard: scoreData
             };
 
             let res;
@@ -1248,8 +1242,46 @@
         // TOURNAMENT SETTINGS LOGIC
         // ==========================================
         async function fetchTournament() {
-            // Find current tournament by ID if possible, otherwise first
-            const { data, error } = await supabase.from('tournaments').select('*').limit(1).single();
+            const { data, error } = await supabase.from('tournaments').select('*').order('created_at', { ascending: false });
+            if (error) { console.error(error); return; }
+            allTournaments = data;
+            renderTournamentsList();
+            populateTournamentsDropdown();
+            
+            // If no tournament is being edited, maybe load the first one by default if it's the first fetch
+            if (!document.getElementById('tourney-id').value && data.length > 0) {
+                // Optional: load first one
+                // window.editTournament(data[0].id);
+            }
+        }
+
+        function renderTournamentsList() {
+            const list = document.getElementById('tournaments-list');
+            if(allTournaments.length === 0) { list.innerHTML = '<p>No tournaments found.</p>'; return; }
+            
+            list.innerHTML = allTournaments.map(t => `
+                <div class="list-item">
+                    <div class="list-item-info">
+                        <h3>${t.name} <span style="font-size: 12px; color: gray;">(${t.status})</span></h3>
+                        <p>${t.dates || 'No dates'} • ${t.category}</p>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="window.editTournament('${t.id}')">Edit</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function populateTournamentsDropdown() {
+            const select = document.getElementById('match-tournament');
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">-- Select Tournament --</option>' + 
+                allTournaments.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+            select.value = currentVal;
+        }
+
+        window.editTournament = (id) => {
+            const data = allTournaments.find(t => t.id === id);
             if(data) {
                 document.getElementById('tourney-id').value = data.id;
                 document.getElementById('tourney-name').value = data.name;
@@ -1271,8 +1303,20 @@
 
                 // Sync Visual Editors
                 window.syncTourneyJSONToVisual();
+                
+                // Scroll to form
+                document.getElementById('tournament-form').scrollIntoView({ behavior: 'smooth' });
             }
         }
+
+        document.getElementById('clear-tourney-btn').addEventListener('click', () => {
+            document.getElementById('tournament-form').reset();
+            document.getElementById('tourney-id').value = '';
+            document.getElementById('tourney-pts').value = '[]';
+            document.getElementById('tourney-stats').value = '{"most_runs":[], "most_wickets":[]}';
+            document.getElementById('tourney-archives').value = '[]';
+            window.syncTourneyJSONToVisual();
+        });
 
         // Handle Banner Upload
         document.getElementById('tourney-banner-file').addEventListener('change', async (e) => {
