@@ -686,6 +686,7 @@
         let allNotices = [];
         let allPopups = [];
         let allTournaments = [];
+        let clubInfo = null;
 
         // UI Helpers
         function showMessage(msg, isError = false) {
@@ -905,7 +906,8 @@
                 fetchMessages(),
                 fetchTournament(),
                 fetchNoticesAdmin(),
-                fetchPopupsAdmin()
+                fetchPopupsAdmin(),
+                loadClubInfo()
             ]);
         }
 
@@ -2141,6 +2143,36 @@
             document.getElementById('popup-images-preview').innerHTML = '';
             document.getElementById('delete-popup-btn').style.display = 'none';
         });
+
+        // ==========================================
+        // CLUB INFO LOGIC
+        // ==========================================
+        async function loadClubInfo() {
+            const { data, error } = await supabase.from('club_info').select('*').eq('id', 1).single();
+            if (data) {
+                clubInfo = data;
+                if (document.getElementById('club-founder')) {
+                    document.getElementById('club-founder').value = data.founder || '';
+                    document.getElementById('club-coach').value = data.coach || '';
+                    document.getElementById('club-co-coach').value = data.co_coach || '';
+                }
+            }
+        }
+
+        if (document.getElementById('club-form')) {
+            document.getElementById('club-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const payload = {
+                    founder: document.getElementById('club-founder').value,
+                    coach: document.getElementById('club-coach').value,
+                    co_coach: document.getElementById('club-co-coach').value,
+                    updated_at: new Date()
+                };
+                const { error } = await supabase.from('club_info').update(payload).eq('id', 1);
+                if (error) alert(error.message);
+                else alert("Club info updated successfully!");
+            });
+        }
 
         initApp();
     </script>
