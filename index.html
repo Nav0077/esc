@@ -58,7 +58,10 @@
                 const content = await res.text();
                 const element = document.getElementById(id);
                 if (element) {
-                    element.innerHTML = content;
+                    element.innerHTML = ''; 
+                    const range = document.createRange();
+                    const fragment = range.createContextualFragment(content);
+                    element.appendChild(fragment);
                 }
                 return content;
             } catch (error) {
@@ -160,5 +163,3 @@
 
 </body>
 </html>
-
-
