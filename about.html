@@ -82,12 +82,6 @@
             await loadComponent("notice-placeholder", "components/notice-ticker.html");
             await loadComponent("navbar-placeholder", "components/navbar.html");
             initNavbar();
-            
-            // Set active state in navbar
-            const links = document.querySelectorAll('.nav-link');
-            links.forEach(l => l.classList.remove('active'));
-            const aboutLink = Array.from(links).find(l => l.getAttribute('href') === '/about.html');
-            if (aboutLink) aboutLink.classList.add('active');
 
             await loadComponent("footer-placeholder", "components/footer.html");
         }

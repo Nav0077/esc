@@ -56,9 +56,9 @@
         <!-- ========================================== -->
         <div id="tournament-detail-container" style="display: none;">
             <!-- Tournament Header -->
-            <div class="tourney-header">
-                <div class="tourney-title" id="t-title">Loading...</div>
-                <div class="tourney-meta" id="t-meta">Loading...</div>
+            <div class="tourney-header" id="t-header-bg" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('https://via.placeholder.com/1200x300'); background-size: cover; background-position: center; color: white; padding: 60px 40px; border-radius: 12px; margin-bottom: 30px;">
+                <div class="tourney-title" id="t-title" style="font-size: 32px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Loading...</div>
+                <div class="tourney-meta" id="t-meta" style="font-size: 16px; opacity: 0.9; margin-top: 8px;">Loading...</div>
             </div>
 
             <!-- Navigation Tabs -->
@@ -162,29 +162,23 @@
 
         function renderMatchCard(match, template) {
             let card = template;
-            card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/, `${match.tournament_name} • MATCH ${match.match_number}`);
-            
-            // Helper to escape regex special chars
-            const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            
-            card = card.replace(new RegExp(escapeRegExp('Falcons'), 'g'), match.team1_name);
-            card = card.replace(new RegExp(escapeRegExp('Strikers'), 'g'), match.team2_name);
-            card = card.replace(new RegExp(escapeRegExp('Royals'), 'g'), match.team1_name);
-            card = card.replace(new RegExp(escapeRegExp('Titans'), 'g'), match.team2_name);
-            card = card.replace(new RegExp(escapeRegExp('Spartans'), 'g'), match.team1_name);
-            card = card.replace(new RegExp(escapeRegExp('Knights'), 'g'), match.team2_name);
+            const replacements = {
+                '{{TOURNAMENT_NAME}}': match.tournament_name || 'Tournament',
+                '{{MATCH_NUMBER}}': match.match_number || '',
+                '{{TEAM1_NAME}}': match.team1_name || 'Team 1',
+                '{{TEAM2_NAME}}': match.team2_name || 'Team 2',
+                '{{TEAM1_LOGO}}': match.team1_logo || 'https://via.placeholder.com/24',
+                '{{TEAM2_LOGO}}': match.team2_logo || 'https://via.placeholder.com/24',
+                '{{TEAM1_SCORE}}': match.team1_score || '-',
+                '{{TEAM2_SCORE}}': match.team2_score || 'Yet to bat',
+                '{{TEAM1_OVERS}}': match.team1_overs ? `(${match.team1_overs})` : '',
+                '{{TEAM2_OVERS}}': match.team2_overs ? `(${match.team2_overs})` : '',
+                '{{SUMMARY}}': match.summary || ''
+            };
 
-            if (match.team1_logo) card = card.replace('https://via.placeholder.com/24', match.team1_logo);
-            if (match.team2_logo) card = card.replace('https://via.placeholder.com/24', match.team2_logo);
-
-            card = card.replace('145/6', match.team1_score || '-');
-            card = card.replace('Yet to bat', match.team2_score || 'Yet to bat');
-            card = card.replace('140/8', match.team1_score || '-');
-            card = card.replace('144/4', match.team2_score || '-');
-            
-            card = card.replace(/\(18.4\)|\(20.0\)|\(19.2\)/g, match.team1_overs ? `(${match.team1_overs})` : '');
-
-            card = card.replace(/Falcons elect to bat|Titans won by 6 wickets|Starts tomorrow at 14:00/g, match.summary || '');
+            Object.keys(replacements).forEach(key => {
+                card = card.split(key).join(replacements[key]);
+            });
 
             return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
         }
@@ -244,6 +238,9 @@
             document.title = `${data.name} | Elite Social Club`;
             document.getElementById('t-title').textContent = data.name;
             document.getElementById('t-meta').textContent = `${data.dates || ''} • ${data.location || ''}`;
+            if(data.banner_url) {
+                document.getElementById('t-header-bg').style.backgroundImage = `linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url('${data.banner_url}')`;
+            }
 
             // Render Points Table
             if(data.points_table) {

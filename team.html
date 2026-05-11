@@ -110,7 +110,6 @@
 
         const container = document.getElementById("players-container");
         const playerCardHtml = await (await fetch("components/player_card.html")).text();
-        
         const players = await fetchPlayers();
 
         if (players.length === 0) {
@@ -118,16 +117,21 @@
         } else {
           container.innerHTML = players.map(p => {
               let card = playerCardHtml;
-              card = card.replace(/data-category="[^"]*"/, `data-category="${p.category}"`);
-              card = card.replace('A. Sharma', p.name);
-              card = card.replace('Batsman (RHB)', p.role || '');
-              card = card.replace('(C)', p.tag || '');
-              card = card.replace('https://via.placeholder.com/60', p.image_url || 'https://via.placeholder.com/60');
-              card = card.replace('2,451', p.runs.toLocaleString());
-              card = card.replace('45.3', p.batting_avg);
-              card = card.replace('112*', p.highest_score);
-              card = card.replace('135.2', p.strike_rate);
-              card = card.replace('<a href="#">View Full Profile →</a>', `<a href="player-profile.html?id=${p.id}">View Full Profile →</a>`);
+              const replacements = {
+                  '{{ID}}': p.id,
+                  '{{CATEGORY}}': p.category || 'all-rounders',
+                  '{{NAME}}': p.name || 'Unknown',
+                  '{{ROLE}}': p.role || 'Player',
+                  '{{TAG}}': p.tag || '',
+                  '{{IMAGE_URL}}': p.image_url || 'https://via.placeholder.com/150',
+                  '{{RUNS}}': (p.runs || 0).toLocaleString(),
+                  '{{AVG}}': p.batting_avg || '-',
+                  '{{HS}}': p.highest_score || '-',
+                  '{{SR}}': p.strike_rate || '-'
+              };
+              Object.keys(replacements).forEach(key => {
+                  card = card.split(key).join(replacements[key]);
+              });
               return card;
           }).join('');
         }

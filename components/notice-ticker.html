@@ -1,4 +1,4 @@
-<div class="notice-ticker">
+<div class="notice-ticker" id="notice-ticker-app" style="display: none;">
     <div class="ticker-container">
         <!-- Fixed Label -->
         <div class="ticker-label">
@@ -8,12 +8,38 @@
         
         <!-- Scrolling Content -->
         <div class="ticker-content">
-            <div class="ticker-text">
-                🚧 Notice: The site is under development ⚙️. Some features may not work properly or may be unavailable. Thanks for your patience 🙏
-                <!-- Duplicate the text for a seamless loop if it's short -->
-                &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; 
-                🏆 Elite Social Club: Your premier destination for cricket analytics.
+            <div class="ticker-text" id="ticker-text">
+                Loading latest updates...
             </div>
         </div>
     </div>
 </div>
+
+<script type="module">
+    import { supabase } from '../js/supabase_client.js';
+
+    async function initTicker() {
+        try {
+            const { data, error } = await supabase
+                .from('notifications')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (!error && data && data.length > 0) {
+                const notice = data[0];
+                const textEl = document.getElementById('ticker-text');
+                const tickerApp = document.getElementById('notice-ticker-app');
+                
+                if (textEl && tickerApp) {
+                    textEl.innerHTML = `<strong>${notice.title}:</strong> ${notice.message} &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; 🏆 Elite Social Club: Your premier destination for cricket analytics.`;
+                    tickerApp.style.display = 'block';
+                }
+            }
+        } catch (err) {
+            console.error("Ticker Error:", err);
+        }
+    }
+
+    initTicker();
+</script>

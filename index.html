@@ -85,29 +85,23 @@
 
         function renderMatchCard(match, template) {
             let card = template;
-            card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/, `${match.tournament_name} • MATCH ${match.match_number}`);
-            card = card.replace('Falcons', match.team1_name);
-            card = card.replace('Strikers', match.team2_name);
-            card = card.replace('Royals', match.team1_name);
-            card = card.replace('Titans', match.team2_name);
-            card = card.replace('Spartans', match.team1_name);
-            card = card.replace('Knights', match.team2_name);
+            const replacements = {
+                '{{TOURNAMENT_NAME}}': match.tournament_name || 'Tournament',
+                '{{MATCH_NUMBER}}': match.match_number || '',
+                '{{TEAM1_NAME}}': match.team1_name || 'Team 1',
+                '{{TEAM2_NAME}}': match.team2_name || 'Team 2',
+                '{{TEAM1_LOGO}}': match.team1_logo || 'https://via.placeholder.com/24',
+                '{{TEAM2_LOGO}}': match.team2_logo || 'https://via.placeholder.com/24',
+                '{{TEAM1_SCORE}}': match.team1_score || '-',
+                '{{TEAM2_SCORE}}': match.team2_score || 'Yet to bat',
+                '{{TEAM1_OVERS}}': match.team1_overs ? `(${match.team1_overs})` : '',
+                '{{TEAM2_OVERS}}': match.team2_overs ? `(${match.team2_overs})` : '',
+                '{{SUMMARY}}': match.summary || ''
+            };
 
-            if (match.team1_logo) card = card.replace('https://via.placeholder.com/24', match.team1_logo);
-            if (match.team2_logo) card = card.replace('https://via.placeholder.com/24', match.team2_logo);
-
-            card = card.replace('145/6', match.team1_score || '-');
-            card = card.replace('Yet to bat', match.team2_score || 'Yet to bat');
-            card = card.replace('140/8', match.team1_score || '-');
-            card = card.replace('144/4', match.team2_score || '-');
-            
-            card = card.replace('(18.4)', match.team1_overs ? `(${match.team1_overs})` : '');
-            card = card.replace('(20.0)', match.team1_overs ? `(${match.team1_overs})` : '');
-            card = card.replace('(19.2)', match.team2_overs ? `(${match.team2_overs})` : '');
-
-            card = card.replace('Falcons elect to bat', match.summary || '');
-            card = card.replace('Titans won by 6 wickets', match.summary || '');
-            card = card.replace('Starts tomorrow at 14:00', match.summary || '');
+            Object.keys(replacements).forEach(key => {
+                card = card.split(key).join(replacements[key]);
+            });
 
             return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
         }
