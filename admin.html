@@ -53,6 +53,7 @@
                 <button class="admin-tab" data-target="matches-panel">Manage Matches</button>
                 <button class="admin-tab" data-target="tournaments-panel">Manage Tournaments</button>
                 <button class="admin-tab" data-target="notices-panel">Manage Notices</button>
+                <button class="admin-tab" data-target="popups-panel">Manage Popups</button>
                 <button class="admin-tab" data-target="messages-panel">Inbox</button>
             </div>
 
@@ -425,6 +426,59 @@
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- POPUPS PANEL -->
+        <!-- ========================================== -->
+        <div id="popups-panel" class="admin-panel">
+            <h2>Manage Promotional Popups</h2>
+            <form id="popup-form">
+                <input type="hidden" id="popup-id">
+                
+                <div class="form-group">
+                    <label>Popup Title (Admin only)</label>
+                    <input type="text" id="popup-title" class="form-control" required placeholder="e.g. New Year Special">
+                </div>
+
+                <div class="form-group">
+                    <label>Promo Images (Multi-upload supported)</label>
+                    <input type="file" id="popup-images" class="form-control" accept="image/*" multiple>
+                    <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload one or more images. They will be displayed in the popup.</p>
+                    <div id="popup-images-preview" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;"></div>
+                    <input type="hidden" id="popup-image-urls">
+                </div>
+
+                <div class="form-group">
+                    <label>Action Link URL (Optional)</label>
+                    <input type="url" id="popup-link" class="form-control" placeholder="https://...">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Display Frequency</label>
+                        <select id="popup-frequency" class="form-control">
+                            <option value="once_per_session">Once per session</option>
+                            <option value="every_load">On every page load</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; gap: 8px; padding-bottom: 5px;">
+                        <input type="checkbox" id="popup-active" checked style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="popup-active" style="margin-bottom: 0; cursor: pointer;">Is Active</label>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="submit" class="btn" id="save-popup-btn">Save Popup</button>
+                    <button type="button" class="btn btn-secondary" id="clear-popup-btn">Clear Form</button>
+                    <button type="button" class="btn btn-danger" id="delete-popup-btn" style="display: none;">Delete Popup</button>
+                </div>
+            </form>
+
+            <div class="item-list" style="margin-top: 30px;">
+                <h3>Existing Popups</h3>
+                <div id="popups-list">Loading popups...</div>
+            </div>
+        </div>
+
         </div> <!-- END DASHBOARD SECTION -->
 
     </main>
@@ -437,6 +491,7 @@
         let allMatches = [];
         let allMessages = [];
         let allNotices = [];
+        let allPopups = [];
 
         // UI Helpers
         function showMessage(msg, isError = false) {
@@ -639,6 +694,7 @@
                 await fetchMessages();
                 await fetchTournament();
                 await fetchNoticesAdmin();
+                await fetchPopupsAdmin();
             } else {
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('dashboard-section').style.display = 'none';
@@ -1181,6 +1237,177 @@
             if(error) showMessage("Failed to delete notice: " + error.message, true);
             else fetchNoticesAdmin();
         };
+
+        // ==========================================
+        // POPUPS LOGIC
+        // ==========================================
+        async function fetchPopupsAdmin() {
+            const { data, error } = await supabase.from('popups').select('*').order('created_at', { ascending: false });
+            if (error) { console.error(error); return; }
+            allPopups = data;
+            renderPopupsAdmin();
+        }
+
+        function renderPopupsAdmin() {
+            const list = document.getElementById('popups-list');
+            if(allPopups.length === 0) { list.innerHTML = '<p>No popups found.</p>'; return; }
+            
+            list.innerHTML = allPopups.map(p => {
+                const date = new Date(p.created_at).toLocaleString();
+                const imagesHtml = (p.image_urls || []).map(url => `<img src="${url}" style="height: 40px; border-radius: 4px; border: 1px solid #ddd;">`).join('');
+                return `
+                <div class="list-item">
+                    <div class="list-item-content-wrapper">
+                        <div style="display: flex; gap: 4px; margin-right: 12px; max-width: 150px; overflow: hidden;">
+                            ${imagesHtml}
+                        </div>
+                        <div class="list-item-info">
+                            <h3>${p.title} <span style="font-size: 11px; color: ${p.is_active?'#10b981':'#ef4444'}; text-transform: uppercase;">(${p.is_active?'Active':'Inactive'})</span></h3>
+                            <p>${p.display_frequency.replace(/_/g, ' ')} • ${date}</p>
+                        </div>
+                    </div>
+                    <div class="list-item-actions">
+                        <button class="btn btn-secondary" onclick="editPopup('${p.id}')">Edit</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        document.getElementById('popup-images').addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if(!files.length) return;
+
+            const btn = document.getElementById('save-popup-btn');
+            const preview = document.getElementById('popup-images-preview');
+            const urlsInput = document.getElementById('popup-image-urls');
+            
+            btn.textContent = "Uploading...";
+            btn.disabled = true;
+
+            const currentUrls = urlsInput.value ? urlsInput.value.split(',') : [];
+            const newUrls = [];
+
+            for (const file of files) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `popups/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage.from('promos').upload(filePath, file);
+
+                if (uploadError) {
+                    showMessage("Upload failed for " + file.name + ": " + uploadError.message, true);
+                    continue;
+                }
+
+                const { data } = supabase.storage.from('promos').getPublicUrl(filePath);
+                newUrls.push(data.publicUrl);
+            }
+
+            const finalUrls = [...currentUrls, ...newUrls];
+            urlsInput.value = finalUrls.join(',');
+            
+            // Render previews
+            preview.innerHTML = finalUrls.map((url, idx) => `
+                <div style="position: relative;">
+                    <img src="${url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
+                    <button type="button" onclick="removePopupImage(${idx})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                </div>
+            `).join('');
+
+            btn.textContent = "Save Popup";
+            btn.disabled = false;
+        });
+
+        window.removePopupImage = (idx) => {
+            const urlsInput = document.getElementById('popup-image-urls');
+            const preview = document.getElementById('popup-images-preview');
+            let urls = urlsInput.value.split(',');
+            urls.splice(idx, 1);
+            urlsInput.value = urls.join(',');
+            
+            preview.innerHTML = urls.map((url, i) => `
+                <div style="position: relative;">
+                    <img src="${url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
+                    <button type="button" onclick="removePopupImage(${i})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                </div>
+            `).join('');
+        };
+
+        window.editPopup = (id) => {
+            const p = allPopups.find(x => x.id === id);
+            if(!p) return;
+            
+            document.getElementById('popup-id').value = p.id;
+            document.getElementById('popup-title').value = p.title || '';
+            document.getElementById('popup-link').value = p.link_url || '';
+            document.getElementById('popup-frequency').value = p.display_frequency || 'once_per_session';
+            document.getElementById('popup-active').checked = p.is_active;
+            
+            const urls = p.image_urls || [];
+            document.getElementById('popup-image-urls').value = urls.join(',');
+            
+            const preview = document.getElementById('popup-images-preview');
+            preview.innerHTML = urls.map((url, idx) => `
+                <div style="position: relative;">
+                    <img src="${url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
+                    <button type="button" onclick="removePopupImage(${idx})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                </div>
+            `).join('');
+
+            document.getElementById('delete-popup-btn').style.display = 'inline-block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        document.getElementById('clear-popup-btn').addEventListener('click', () => {
+            document.getElementById('popup-form').reset();
+            document.getElementById('popup-id').value = '';
+            document.getElementById('popup-image-urls').value = '';
+            document.getElementById('popup-images-preview').innerHTML = '';
+            document.getElementById('delete-popup-btn').style.display = 'none';
+        });
+
+        document.getElementById('popup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('popup-id').value;
+            const urls = document.getElementById('popup-image-urls').value.split(',').filter(u => u.trim() !== '');
+            
+            if(urls.length === 0) {
+                alert("Please upload at least one image.");
+                return;
+            }
+
+            const payload = {
+                title: document.getElementById('popup-title').value,
+                image_urls: urls,
+                link_url: document.getElementById('popup-link').value,
+                display_frequency: document.getElementById('popup-frequency').value,
+                is_active: document.getElementById('popup-active').checked
+            };
+
+            let res;
+            if(id) res = await supabase.from('popups').update(payload).eq('id', id);
+            else res = await supabase.from('popups').insert([payload]);
+
+            if (res.error) showMessage(res.error.message, true);
+            else {
+                showMessage("Popup saved successfully!");
+                document.getElementById('clear-popup-btn').click();
+                fetchPopupsAdmin();
+            }
+        });
+
+        window.deletePopup = async () => {
+            const id = document.getElementById('popup-id').value;
+            if(!id || !confirm('Are you sure you want to delete this popup?')) return;
+            const { error } = await supabase.from('popups').delete().eq('id', id);
+            if(error) showMessage("Failed to delete popup: " + error.message, true);
+            else {
+                showMessage("Popup deleted.");
+                document.getElementById('clear-popup-btn').click();
+                fetchPopupsAdmin();
+            }
+        };
+        document.getElementById('delete-popup-btn').onclick = window.deletePopup;
 
         initApp();
     </script>

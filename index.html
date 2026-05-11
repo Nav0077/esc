@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/popup.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -43,6 +44,7 @@
     </main>
 
     <div id="footer-placeholder"></div>
+    <div id="popup-placeholder"></div>
 
    <script type="module">
         import { initNavbar } from './js/navbar.js';
@@ -135,6 +137,21 @@
             }
             if (upcomingMatch && upcomingContainer) {
                 upcomingContainer.innerHTML = renderMatchCard(upcomingMatch, upcomingTemplate);
+            }
+
+            // Handle Promo Popup
+            await loadComponent('popup-placeholder', 'components/promo-popup.html');
+            const { data: popups, error: popupError } = await supabase
+                .from('popups')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (!popupError && popups && popups.length > 0) {
+                if (window.initPromoPopup) {
+                    window.initPromoPopup(popups[0]);
+                }
             }
         }
 

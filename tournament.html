@@ -24,7 +24,37 @@
 
     <main class="container">
 
-        <div id="tournament-data-container" style="display: none;">
+        <!-- ========================================== -->
+        <!-- LIST VIEW (CATEGORIZED TOURNAMENTS) -->
+        <!-- ========================================== -->
+        <div id="tournament-list-container" style="display: none; margin-top: 40px;">
+            <h1 style="margin-bottom: 30px; font-weight: 800; color: #111827;">Cricket Series</h1>
+            
+            <div id="international-section" class="series-category-section" style="display: none;">
+                <h2 class="category-title">International</h2>
+                <div class="series-list" id="international-list"></div>
+            </div>
+
+            <div id="domestic-section" class="series-category-section" style="display: none;">
+                <h2 class="category-title">Domestic</h2>
+                <div class="series-list" id="domestic-list"></div>
+            </div>
+
+            <div id="league-section" class="series-category-section" style="display: none;">
+                <h2 class="category-title">League</h2>
+                <div class="series-list" id="league-list"></div>
+            </div>
+
+            <div id="loading-list" style="text-align: center; padding: 60px; color: #6b7280;">
+                <div class="spinner"></div>
+                <p>Loading series...</p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- DETAIL VIEW (TOURNAMENT DATA) -->
+        <!-- ========================================== -->
+        <div id="tournament-detail-container" style="display: none;">
             <!-- Tournament Header -->
             <div class="tourney-header">
                 <div class="tourney-title" id="t-title">Loading...</div>
@@ -36,63 +66,61 @@
                 <button class="tourney-tab active" data-target="matches-panel">Matches</button>
                 <button class="tourney-tab" data-target="standings-panel">Points Table</button>
                 <button class="tourney-tab" data-target="stats-panel">Stats</button>
+                <button class="tourney-tab" data-target="archive-panel">Archives</button>
             </div>
-        </div>
 
-        <!-- ========================================== -->
-        <!-- MATCHES PANEL -->
-        <!-- ========================================== -->
-        <div id="matches-panel" class="tourney-panel active">
-            <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Tournament Matches</h2>
-            <div class="matches-grid" id="all-matches-grid">
-                <!-- Matches will be dynamically loaded here -->
-            </div>
-            <div id="loading-matches" style="text-align: center; padding: 40px; color: #6b7280;">Loading matches...</div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- STANDINGS PANEL -->
-        <!-- ========================================== -->
-        <div id="standings-panel" class="tourney-panel">
-            <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Points Table</h2>
-            <div style="overflow-x: auto;">
-                <table class="standings-table">
-                    <thead>
-                        <tr>
-                            <th>Teams</th>
-                            <th class="num">Mat</th>
-                            <th class="num">Won</th>
-                            <th class="num">Lost</th>
-                            <th class="num hide-mobile">Tied</th>
-                            <th class="num hide-mobile">NR</th>
-                            <th class="num">Pts</th>
-                            <th class="num">NRR</th>
-                        </tr>
-                    </thead>
-                    <tbody id="standings-body">
-                        <!-- Rendered via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- STATS PANEL -->
-        <!-- ========================================== -->
-        <div id="stats-panel" class="tourney-panel">
-            <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Tournament Stats</h2>
-            
-            <div class="stats-grid">
-                <!-- Most Runs Widget -->
-                <div class="stat-widget" id="runs-widget">
-                    <div class="stat-widget-header">Most Runs</div>
-                    <div id="runs-list"></div>
+            <!-- MATCHES PANEL -->
+            <div id="matches-panel" class="tourney-panel active">
+                <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Tournament Matches</h2>
+                <div class="matches-grid" id="all-matches-grid">
+                    <!-- Matches will be dynamically loaded here -->
                 </div>
+                <div id="loading-matches" style="text-align: center; padding: 40px; color: #6b7280;">Loading matches...</div>
+            </div>
 
-                <!-- Most Wickets Widget -->
-                <div class="stat-widget" id="wickets-widget">
-                    <div class="stat-widget-header">Most Wickets</div>
-                    <div id="wickets-list"></div>
+            <!-- STANDINGS PANEL -->
+            <div id="standings-panel" class="tourney-panel">
+                <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Points Table</h2>
+                <div style="overflow-x: auto;">
+                    <table class="standings-table">
+                        <thead>
+                            <tr>
+                                <th>Teams</th>
+                                <th class="num">Mat</th>
+                                <th class="num">Won</th>
+                                <th class="num">Lost</th>
+                                <th class="num hide-mobile">Tied</th>
+                                <th class="num hide-mobile">NR</th>
+                                <th class="num">Pts</th>
+                                <th class="num">NRR</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standings-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- STATS PANEL -->
+            <div id="stats-panel" class="tourney-panel">
+                <h2 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">Tournament Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-widget" id="runs-widget">
+                        <div class="stat-widget-header">Most Runs</div>
+                        <div id="runs-list"></div>
+                    </div>
+                    <div class="stat-widget" id="wickets-widget">
+                        <div class="stat-widget-header">Most Wickets</div>
+                        <div id="wickets-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARCHIVE PANEL -->
+            <div id="archive-panel" class="tourney-panel">
+                <h2 style="margin-top: 0; margin-bottom: 8px; font-size: 20px;">Previous Year Stats & Archives</h2>
+                <p style="color: #6b7280; margin-bottom: 24px;">Explore historical data and winners from previous seasons.</p>
+                <div class="archive-grid" id="archive-list">
+                    <!-- Rendered via JS -->
                 </div>
             </div>
         </div>
@@ -105,6 +133,9 @@
         import { initNavbar } from "./js/navbar.js";
         import { supabase } from "./js/supabase_client.js";
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const tournamentId = urlParams.get('id');
+
         // UI Tabs Logic
         document.querySelectorAll('.tourney-tab').forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -116,7 +147,6 @@
             });
         });
 
-        // Load HTML Components
         async function loadComponent(id, file) {
             try {
                 const res = await fetch(file);
@@ -134,12 +164,15 @@
             let card = template;
             card = card.replace(/T20 CUP • MATCH 14|LEAGUE A • MATCH 12|T20 CUP • MATCH 15/, `${match.tournament_name} • MATCH ${match.match_number}`);
             
-            card = card.replace('Falcons', match.team1_name);
-            card = card.replace('Strikers', match.team2_name);
-            card = card.replace('Royals', match.team1_name);
-            card = card.replace('Titans', match.team2_name);
-            card = card.replace('Spartans', match.team1_name);
-            card = card.replace('Knights', match.team2_name);
+            // Helper to escape regex special chars
+            const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            
+            card = card.replace(new RegExp(escapeRegExp('Falcons'), 'g'), match.team1_name);
+            card = card.replace(new RegExp(escapeRegExp('Strikers'), 'g'), match.team2_name);
+            card = card.replace(new RegExp(escapeRegExp('Royals'), 'g'), match.team1_name);
+            card = card.replace(new RegExp(escapeRegExp('Titans'), 'g'), match.team2_name);
+            card = card.replace(new RegExp(escapeRegExp('Spartans'), 'g'), match.team1_name);
+            card = card.replace(new RegExp(escapeRegExp('Knights'), 'g'), match.team2_name);
 
             if (match.team1_logo) card = card.replace('https://via.placeholder.com/24', match.team1_logo);
             if (match.team2_logo) card = card.replace('https://via.placeholder.com/24', match.team2_logo);
@@ -149,58 +182,68 @@
             card = card.replace('140/8', match.team1_score || '-');
             card = card.replace('144/4', match.team2_score || '-');
             
-            card = card.replace('(18.4)', match.team1_overs ? `(${match.team1_overs})` : '');
-            card = card.replace('(20.0)', match.team1_overs ? `(${match.team1_overs})` : '');
-            card = card.replace('(19.2)', match.team2_overs ? `(${match.team2_overs})` : '');
+            card = card.replace(/\(18.4\)|\(20.0\)|\(19.2\)/g, match.team1_overs ? `(${match.team1_overs})` : '');
 
-            card = card.replace('Falcons elect to bat', match.summary || '');
-            card = card.replace('Titans won by 6 wickets', match.summary || '');
-            card = card.replace('Starts tomorrow at 14:00', match.summary || '');
+            card = card.replace(/Falcons elect to bat|Titans won by 6 wickets|Starts tomorrow at 14:00/g, match.summary || '');
 
             return `<a href="scoreboard.html?id=${match.id}" style="text-decoration: none; color: inherit; display: block;">${card}</a>`;
         }
 
-        async function loadMatches() {
-            const { data, error } = await supabase
-                .from('matches')
-                .select('*')
-                .order('match_date', { ascending: false });
+        async function loadTournamentList() {
+            document.getElementById('tournament-list-container').style.display = 'block';
+            const { data, error } = await supabase.from('tournaments').select('*').order('created_at', { ascending: false });
             
-            document.getElementById('loading-matches').style.display = 'none';
+            document.getElementById('loading-list').style.display = 'none';
 
-            if (error || !data || data.length === 0) {
-                document.getElementById('all-matches-grid').innerHTML = '<p>No matches found.</p>';
+            if (error || !data) {
+                console.error("Error loading tournaments:", error);
                 return;
             }
 
-            const liveTemplate = await (await fetch('components/card-live.html')).text();
-            const finishedTemplate = await (await fetch('components/card-finished.html')).text();
-            const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
+            const categories = {
+                'International': document.getElementById('international-list'),
+                'Domestic': document.getElementById('domestic-list'),
+                'League': document.getElementById('league-list')
+            };
 
-            const grid = document.getElementById('all-matches-grid');
-            let html = '';
+            const sections = {
+                'International': document.getElementById('international-section'),
+                'Domestic': document.getElementById('domestic-section'),
+                'League': document.getElementById('league-section')
+            };
 
-            data.forEach(match => {
-                let tmpl = upcomingTemplate;
-                if(match.status === 'live') tmpl = liveTemplate;
-                if(match.status === 'finished') tmpl = finishedTemplate;
-                
-                html += renderMatchCard(match, tmpl);
+            data.forEach(t => {
+                const cat = t.category || 'League';
+                if (categories[cat]) {
+                    sections[cat].style.display = 'block';
+                    const item = document.createElement('a');
+                    item.href = `tournament.html?id=${t.id}`;
+                    item.className = 'series-item';
+                    item.innerHTML = `
+                        <div class="series-info-main">
+                            <div class="series-name">${t.name}</div>
+                            <div class="series-dates">${t.dates || 'Dates TBA'}</div>
+                        </div>
+                        <div class="series-status-badge status-${t.status || 'upcoming'}">${t.status || 'upcoming'}</div>
+                    `;
+                    categories[cat].appendChild(item);
+                }
             });
-
-            grid.innerHTML = html;
         }
 
-        async function loadTournamentData() {
-            const { data, error } = await supabase.from('tournaments').select('*').limit(1).single();
+        async function loadTournamentDetail(id) {
+            document.getElementById('tournament-detail-container').style.display = 'block';
+            const { data, error } = await supabase.from('tournaments').select('*').eq('id', id).single();
+            
             if(error || !data) {
-                console.error("No tournament found");
+                console.error("Tournament not found");
+                document.getElementById('t-title').textContent = "Tournament Not Found";
                 return;
             }
 
-            document.getElementById('tournament-data-container').style.display = 'block';
+            document.title = `${data.name} | Elite Social Club`;
             document.getElementById('t-title').textContent = data.name;
-            document.getElementById('t-meta').textContent = `${data.dates} • ${data.location}`;
+            document.getElementById('t-meta').textContent = `${data.dates || ''} • ${data.location || ''}`;
 
             // Render Points Table
             if(data.points_table) {
@@ -257,6 +300,50 @@
                     `).join('');
                 }
             }
+
+            // Render Archives
+            if(data.archives && data.archives.length > 0) {
+                document.getElementById('archive-list').innerHTML = data.archives.map(a => `
+                    <div class="archive-card">
+                        <div class="archive-year">${a.year}</div>
+                        <div class="archive-details">
+                            <p><strong>Winner:</strong> ${a.winner}</p>
+                            <p><strong>Runner up:</strong> ${a.runner_up}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('archive-list').innerHTML = '<p style="color: #6b7280; grid-column: 1/-1;">No archive data available for this tournament.</p>';
+            }
+
+            // Load Matches for this tournament
+            const { data: matches, error: mError } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('tournament_name', data.name)
+                .order('match_date', { ascending: false });
+            
+            document.getElementById('loading-matches').style.display = 'none';
+
+            if (!mError && matches && matches.length > 0) {
+                const liveTemplate = await (await fetch('components/card-live.html')).text();
+                const finishedTemplate = await (await fetch('components/card-finished.html')).text();
+                const upcomingTemplate = await (await fetch('components/card-upcoming.html')).text();
+
+                const grid = document.getElementById('all-matches-grid');
+                let html = '';
+
+                matches.forEach(match => {
+                    let tmpl = upcomingTemplate;
+                    if(match.status === 'live') tmpl = liveTemplate;
+                    if(match.status === 'finished') tmpl = finishedTemplate;
+                    html += renderMatchCard(match, tmpl);
+                });
+
+                grid.innerHTML = html;
+            } else {
+                document.getElementById('all-matches-grid').innerHTML = '<p>No matches found for this tournament.</p>';
+            }
         }
 
         async function initApp() {
@@ -266,13 +353,16 @@
             
             const links = document.querySelectorAll('.nav-link');
             links.forEach(l => l.classList.remove('active'));
-            const tourneyLink = Array.from(links).find(l => l.getAttribute('href') === '/tournament.html');
+            const tourneyLink = Array.from(links).find(l => l.getAttribute('href') === 'tournament.html');
             if (tourneyLink) tourneyLink.classList.add('active');
 
             await loadComponent("footer-placeholder", "components/footer.html");
 
-            await loadTournamentData();
-            await loadMatches();
+            if (tournamentId) {
+                await loadTournamentDetail(tournamentId);
+            } else {
+                await loadTournamentList();
+            }
         }
 
         initApp();
