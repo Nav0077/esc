@@ -815,6 +815,10 @@
         window.editPlayer = (id) => {
             const p = allPlayers.find(x => x.id === id);
             if(!p) return;
+
+            // Switch to players tab
+            document.querySelector('[data-target="players-panel"]').click();
+
             document.getElementById('player-id').value = p.id;
             document.getElementById('player-name').value = p.name || '';
             document.getElementById('player-role').value = p.role || '';
@@ -1041,6 +1045,10 @@
         window.editMatch = (id) => {
             const m = allMatches.find(x => x.id === id);
             if(!m) return;
+
+            // Switch to matches tab
+            document.querySelector('[data-target="matches-panel"]').click();
+
             document.getElementById('match-id').value = m.id;
             document.getElementById('match-tournament').value = m.tournament_name || '';
             document.getElementById('match-number').value = m.match_number || '';
@@ -1429,6 +1437,9 @@
             const p = allPopups.find(x => x.id === id);
             if(!p) return;
             
+            // Switch to popups tab
+            document.querySelector('[data-target="popups-panel"]').click();
+
             document.getElementById('popup-id').value = p.id;
             document.getElementById('popup-title').value = p.title || '';
             document.getElementById('popup-link').value = p.link_url || '';
