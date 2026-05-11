@@ -54,6 +54,7 @@
                 <button class="admin-tab" data-target="tournaments-panel">Manage Tournaments</button>
                 <button class="admin-tab" data-target="notices-panel">Manage Notices</button>
                 <button class="admin-tab" data-target="popups-panel">Manage Popups</button>
+                <button class="admin-tab" data-target="club-panel">Club Info</button>
                 <button class="admin-tab" data-target="messages-panel">Inbox</button>
             </div>
 
@@ -599,6 +600,30 @@
         </div>
 
         </div> <!-- END DASHBOARD SECTION -->
+
+        <!-- ========================================== -->
+        <!-- CLUB INFO PANEL -->
+        <!-- ========================================== -->
+        <div id="club-panel" class="admin-panel">
+            <h2>Management Team & Club Info</h2>
+            <form id="club-form">
+                <div class="form-group">
+                    <label>Founder Name</label>
+                    <input type="text" id="club-founder" class="form-control" placeholder="e.g. Navraj Basnet">
+                </div>
+                <div class="form-group">
+                    <label>Head Coach</label>
+                    <input type="text" id="club-coach" class="form-control" placeholder="e.g. John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Co-Coach / Assistant Coach</label>
+                    <input type="text" id="club-co-coach" class="form-control" placeholder="e.g. Jane Smith">
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn">Update Club Info</button>
+                </div>
+            </form>
+        </div>
 
     </main>
 
