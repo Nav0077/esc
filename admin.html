@@ -488,8 +488,17 @@
                     <textarea id="tourney-archives" class="form-control" style="font-family: monospace; min-height: 100px; display: none;"></textarea>
                 </div>
 
-                <button type="submit" class="btn">Save Tournament Settings</button>
-                <button type="button" class="btn btn-secondary" id="clear-tourney-btn" style="margin-top: 10px;">Create New Tournament</button>
+                <div class="form-group" id="tourney-matches-section" style="display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                    <label>Matches in this Tournament</label>
+                    <div id="tourney-matches-list" style="background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid #e5e7eb; margin-top: 5px;">
+                        Loading matches...
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn">Save Tournament Settings</button>
+                    <button type="button" class="btn btn-secondary" id="clear-tourney-btn">Create New Tournament</button>
+                </div>
             </form>
 
             <div class="item-list" style="margin-top: 30px;">
@@ -1366,9 +1375,36 @@
                 // Sync Visual Editors
                 window.syncTourneyJSONToVisual();
                 
+                // Show Matches Section
+                document.getElementById('tourney-matches-section').style.display = 'block';
+                fetchTourneyMatches(data.name);
+
                 // Scroll to form
                 document.getElementById('tournament-form').scrollIntoView({ behavior: 'smooth' });
             }
+        }
+
+        async function fetchTourneyMatches(tourneyName) {
+            const container = document.getElementById('tourney-matches-list');
+            container.innerHTML = "Loading matches...";
+            
+            const { data, error } = await supabase
+                .from('matches')
+                .select('id, match_number, team1_name, team2_name, status')
+                .eq('tournament_name', tourneyName)
+                .order('match_number', { ascending: true });
+                
+            if(error || !data || data.length === 0) {
+                container.innerHTML = "<p style='color: gray; font-size: 13px;'>No matches found for this tournament.</p>";
+                return;
+            }
+            
+            container.innerHTML = data.map(m => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; font-size: 13px;">
+                    <span><strong>#${m.match_number}</strong>: ${m.team1_name} vs ${m.team2_name} (${m.status})</span>
+                    <button type="button" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="window.editMatch('${m.id}')">Edit Scoreboard</button>
+                </div>
+            `).join('');
         }
 
         document.getElementById('clear-tourney-btn').addEventListener('click', () => {
