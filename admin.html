@@ -396,19 +396,72 @@
                 </div>
 
                 <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Points Table JSON
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="insert-pts-btn">Insert Template</button>
-                    </label>
-                    <textarea id="tourney-pts" class="form-control" style="font-family: monospace; min-height: 150px;"></textarea>
+                    <label>Description</label>
+                    <textarea id="tourney-description" class="form-control" placeholder="Short description of the tournament..." style="min-height: 80px;"></textarea>
                 </div>
 
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Top Stats JSON (Most Runs/Wickets)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="insert-stats-btn">Insert Template</button>
+                        Points Table
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-pts-json-btn">Toggle JSON View</button>
                     </label>
-                    <textarea id="tourney-stats" class="form-control" style="font-family: monospace; min-height: 150px;"></textarea>
+                    
+                    <div id="pts-visual-editor" class="visual-editor-box">
+                        <table class="admin-table" id="pts-table-body">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Mat</th>
+                                    <th>Won</th>
+                                    <th>Lost</th>
+                                    <th>Pts</th>
+                                    <th>NRR</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be injected here -->
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPtsRow()">+ Add Team</button>
+                    </div>
+                    <textarea id="tourney-pts" class="form-control" style="font-family: monospace; min-height: 150px; display: none;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Top Performers (Stats)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-stats-json-btn">Toggle JSON View</button>
+                    </label>
+
+                    <div id="stats-visual-editor" class="visual-editor-box">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Most Runs</label>
+                                <div id="v-stats-runs"></div>
+                                <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;" onclick="window.addStatsRow('runs')">+ Add Player</button>
+                            </div>
+                            <div class="form-group">
+                                <label>Most Wickets</label>
+                                <div id="v-stats-wickets"></div>
+                                <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;" onclick="window.addStatsRow('wickets')">+ Add Player</button>
+                            </div>
+                        </div>
+                    </div>
+                    <textarea id="tourney-stats" class="form-control" style="font-family: monospace; min-height: 150px; display: none;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Archives (Historical Data)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-archives-json-btn">Toggle JSON View</button>
+                    </label>
+
+                    <div id="archives-visual-editor" class="visual-editor-box">
+                        <div id="v-archives-list"></div>
+                        <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;" onclick="window.addArchiveRow()">+ Add History Entry</button>
+                    </div>
+                    <textarea id="tourney-archives" class="form-control" style="font-family: monospace; min-height: 100px; display: none;"></textarea>
                 </div>
 
                 <button type="submit" class="btn">Save Tournament Settings</button>
@@ -1205,8 +1258,19 @@
                 document.getElementById('tourney-banner').value = data.banner_url || '';
                 document.getElementById('tourney-category').value = data.category || 'League';
                 document.getElementById('tourney-status').value = data.status || 'upcoming';
-                document.getElementById('tourney-pts').value = data.points_table ? JSON.stringify(data.points_table, null, 2) : '';
-                document.getElementById('tourney-stats').value = data.top_stats ? JSON.stringify(data.top_stats, null, 2) : '';
+                document.getElementById('tourney-description').value = data.description || '';
+                
+                const pts = data.points_table || [];
+                document.getElementById('tourney-pts').value = JSON.stringify(pts, null, 2);
+                
+                const stats = data.top_stats || { most_runs: [], most_wickets: [] };
+                document.getElementById('tourney-stats').value = JSON.stringify(stats, null, 2);
+
+                const archives = data.archives || [];
+                document.getElementById('tourney-archives').value = JSON.stringify(archives, null, 2);
+
+                // Sync Visual Editors
+                window.syncTourneyJSONToVisual();
             }
         }
 
@@ -1226,30 +1290,209 @@
             showMessage("Banner uploaded!");
         });
 
+        // Tournament Toggles
+        document.getElementById('toggle-pts-json-btn').addEventListener('click', () => {
+            const ta = document.getElementById('tourney-pts');
+            const vis = document.getElementById('pts-visual-editor');
+            if(ta.style.display === 'none') {
+                ta.style.display = 'block'; vis.style.display = 'none';
+            } else {
+                ta.style.display = 'none'; vis.style.display = 'block';
+                window.syncTourneyJSONToVisual();
+            }
+        });
+
+        document.getElementById('toggle-stats-json-btn').addEventListener('click', () => {
+            const ta = document.getElementById('tourney-stats');
+            const vis = document.getElementById('stats-visual-editor');
+            if(ta.style.display === 'none') {
+                ta.style.display = 'block'; vis.style.display = 'none';
+            } else {
+                ta.style.display = 'none'; vis.style.display = 'block';
+                window.syncTourneyJSONToVisual();
+            }
+        });
+
+        document.getElementById('toggle-archives-json-btn').addEventListener('click', () => {
+            const ta = document.getElementById('tourney-archives');
+            const vis = document.getElementById('archives-visual-editor');
+            if(ta.style.display === 'none') {
+                ta.style.display = 'block'; vis.style.display = 'none';
+            } else {
+                ta.style.display = 'none'; vis.style.display = 'block';
+                window.syncTourneyJSONToVisual();
+            }
+        });
+
+        window.addPtsRow = () => {
+            const tbody = document.querySelector('#pts-table-body tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="form-control p-team" placeholder="Team"></td>
+                <td><input type="number" class="form-control p-mat" value="0"></td>
+                <td><input type="number" class="form-control p-won" value="0"></td>
+                <td><input type="number" class="form-control p-lost" value="0"></td>
+                <td><input type="number" class="form-control p-pts" value="0"></td>
+                <td><input type="text" class="form-control p-nrr" value="0.000"></td>
+                <td><button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.parentElement.remove()">X</button></td>
+            `;
+            tbody.appendChild(tr);
+        };
+
+        window.addStatsRow = (type) => {
+            const container = document.getElementById(`v-stats-${type}`);
+            const div = document.createElement('div');
+            div.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px;";
+            div.innerHTML = `
+                <input type="text" class="form-control s-name" placeholder="Name" style="flex:2;">
+                <input type="text" class="form-control s-team" placeholder="Team" style="flex:1.5;">
+                <input type="number" class="form-control s-val" placeholder="Val" style="flex:1;">
+                <button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.addArchiveRow = () => {
+            const container = document.getElementById('v-archives-list');
+            const div = document.createElement('div');
+            div.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px;";
+            div.innerHTML = `
+                <input type="text" class="form-control a-year" placeholder="Year" style="flex:1;">
+                <input type="text" class="form-control a-winner" placeholder="Winner" style="flex:2;">
+                <input type="text" class="form-control a-runner" placeholder="Runner Up" style="flex:2;">
+                <button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.syncTourneyJSONToVisual = () => {
+            try {
+                // Points Table
+                const ptsRaw = document.getElementById('tourney-pts').value;
+                const pts = ptsRaw ? JSON.parse(ptsRaw) : [];
+                const ptsBody = document.querySelector('#pts-table-body tbody');
+                if(ptsBody) {
+                    ptsBody.innerHTML = '';
+                    pts.forEach(p => {
+                        window.addPtsRow();
+                        const last = ptsBody.lastElementChild;
+                        last.querySelector('.p-team').value = p.team || '';
+                        last.querySelector('.p-mat').value = p.mat || 0;
+                        last.querySelector('.p-won').value = p.won || 0;
+                        last.querySelector('.p-lost').value = p.lost || 0;
+                        last.querySelector('.p-pts').value = p.pts || 0;
+                        last.querySelector('.p-nrr').value = p.nrr || '0.000';
+                    });
+                }
+
+                // Stats
+                const statsRaw = document.getElementById('tourney-stats').value;
+                const stats = statsRaw ? JSON.parse(statsRaw) : { most_runs: [], most_wickets: [] };
+                ['runs', 'wickets'].forEach(type => {
+                    const container = document.getElementById(`v-stats-${type}`);
+                    if(container) {
+                        container.innerHTML = '';
+                        const data = type === 'runs' ? (stats.most_runs || []) : (stats.most_wickets || []);
+                        data.forEach(s => {
+                            window.addStatsRow(type);
+                            const last = container.lastElementChild;
+                            last.querySelector('.s-name').value = s.name || '';
+                            last.querySelector('.s-team').value = s.team || '';
+                            last.querySelector('.s-val').value = s.value || 0;
+                        });
+                    }
+                });
+
+                // Archives
+                const archRaw = document.getElementById('tourney-archives').value;
+                const arch = archRaw ? JSON.parse(archRaw) : [];
+                const archContainer = document.getElementById('v-archives-list');
+                if(archContainer) {
+                    archContainer.innerHTML = '';
+                    arch.forEach(a => {
+                        window.addArchiveRow();
+                        const last = archContainer.lastElementChild;
+                        last.querySelector('.a-year').value = a.year || '';
+                        last.querySelector('.a-winner').value = a.winner || '';
+                        last.querySelector('.a-runner').value = a.runner_up || '';
+                    });
+                }
+            } catch(e) { console.warn("Sync error:", e); }
+        };
+
+        function getTourneyVisualData() {
+            // Points Table
+            const pts = [];
+            document.querySelectorAll('#pts-table-body tbody tr').forEach(tr => {
+                pts.push({
+                    team: tr.querySelector('.p-team').value,
+                    mat: parseInt(tr.querySelector('.p-mat').value) || 0,
+                    won: parseInt(tr.querySelector('.p-won').value) || 0,
+                    lost: parseInt(tr.querySelector('.p-lost').value) || 0,
+                    pts: parseInt(tr.querySelector('.p-pts').value) || 0,
+                    nrr: tr.querySelector('.p-nrr').value || '0.000'
+                });
+            });
+
+            // Stats
+            const stats = { most_runs: [], most_wickets: [] };
+            ['runs', 'wickets'].forEach(type => {
+                document.querySelectorAll(`#v-stats-${type} > div`).forEach(div => {
+                    const item = {
+                        name: div.querySelector('.s-name').value,
+                        team: div.querySelector('.s-team').value,
+                        value: parseInt(div.querySelector('.s-val').value) || 0
+                    };
+                    if(type === 'runs') stats.most_runs.push(item);
+                    else stats.most_wickets.push(item);
+                });
+            });
+
+            // Archives
+            const archives = [];
+            document.querySelectorAll('#v-archives-list > div').forEach(div => {
+                archives.push({
+                    year: div.querySelector('.a-year').value,
+                    winner: div.querySelector('.a-winner').value,
+                    runner_up: div.querySelector('.a-runner').value
+                });
+            });
+
+            return { pts, stats, archives };
+        }
+
         document.getElementById('tournament-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('tourney-id').value;
             
-            let ptsData = null, statsData = null;
-            try { 
-                const p = document.getElementById('tourney-pts').value.trim();
-                if(p) ptsData = JSON.parse(p); 
-            } catch(e) { alert("Invalid JSON in Points Table!"); return; }
-            
-            try { 
-                const s = document.getElementById('tourney-stats').value.trim();
-                if(s) statsData = JSON.parse(s); 
-            } catch(e) { alert("Invalid JSON in Stats!"); return; }
+            // Sync from visual if visible
+            let ptsData, statsData, archData;
+            const ptsVisVisible = document.getElementById('pts-visual-editor').style.display !== 'none';
+            const statsVisVisible = document.getElementById('stats-visual-editor').style.display !== 'none';
+            const archVisVisible = document.getElementById('archives-visual-editor').style.display !== 'none';
+
+            if(ptsVisVisible || statsVisVisible || archVisVisible) {
+                const vis = getTourneyVisualData();
+                ptsData = vis.pts;
+                statsData = vis.stats;
+                archData = vis.archives;
+            } else {
+                try { ptsData = JSON.parse(document.getElementById('tourney-pts').value || '[]'); } catch(e) { alert("Invalid Points JSON"); return; }
+                try { statsData = JSON.parse(document.getElementById('tourney-stats').value || '{"most_runs":[], "most_wickets":[]}'); } catch(e) { alert("Invalid Stats JSON"); return; }
+                try { archData = JSON.parse(document.getElementById('tourney-archives').value || '[]'); } catch(e) { alert("Invalid Archives JSON"); return; }
+            }
 
             const payload = {
                 name: document.getElementById('tourney-name').value,
                 dates: document.getElementById('tourney-dates').value,
                 location: document.getElementById('tourney-location').value,
+                description: document.getElementById('tourney-description').value,
                 banner_url: document.getElementById('tourney-banner').value,
                 category: document.getElementById('tourney-category').value,
                 status: document.getElementById('tourney-status').value,
                 points_table: ptsData,
-                top_stats: statsData
+                top_stats: statsData,
+                archives: archData
             };
 
             let res;
@@ -1258,19 +1501,19 @@
 
             if (res.error) showMessage(res.error.message, true);
             else {
-                showMessage("Tournament Settings saved successfully!");
+                showMessage("Tournament saved successfully!");
                 fetchTournament();
             }
         });
 
-        document.getElementById('insert-pts-btn').addEventListener('click', () => {
+        document.getElementById('insert-pts-btn')?.addEventListener('click', () => {
             const tmpl = [
                 { "team": "Falcons", "mat": 5, "won": 4, "lost": 1, "tied": 0, "nr": 0, "pts": 8, "nrr": "+1.245", "logo": "" }
             ];
             document.getElementById('tourney-pts').value = JSON.stringify(tmpl, null, 2);
         });
 
-        document.getElementById('insert-stats-btn').addEventListener('click', () => {
+        document.getElementById('insert-stats-btn')?.addEventListener('click', () => {
             const tmpl = {
                 "most_runs": [{ "name": "Player 1", "team": "Team A", "value": 300 }],
                 "most_wickets": [{ "name": "Player 2", "team": "Team B", "value": 10 }]
