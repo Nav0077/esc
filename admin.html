@@ -702,17 +702,40 @@
         // ==========================================
         // AUTHENTICATION LOGIC
         // ==========================================
+        let isInitialAuth = true;
+        
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+                if (isInitialAuth || event === 'SIGNED_IN') {
+                    refreshAllData();
+                    isInitialAuth = false;
+                }
+            } else {
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('dashboard-section').style.display = 'none';
+                isInitialAuth = false;
+            }
+        });
+
+        async function refreshAllData() {
+            await Promise.all([
+                fetchPlayers(),
+                fetchMatches(),
+                fetchMessages(),
+                fetchTournament(),
+                fetchNoticesAdmin(),
+                fetchPopupsAdmin()
+            ]);
+        }
+
         async function checkSession() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
                 document.getElementById('auth-section').style.display = 'none';
                 document.getElementById('dashboard-section').style.display = 'block';
-                await fetchPlayers();
-                await fetchMatches();
-                await fetchMessages();
-                await fetchTournament();
-                await fetchNoticesAdmin();
-                await fetchPopupsAdmin();
+                refreshAllData();
             } else {
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('dashboard-section').style.display = 'none';
@@ -741,13 +764,11 @@
                 errEl.style.display = 'block';
             } else {
                 document.getElementById('login-form').reset();
-                checkSession();
             }
         });
 
         document.getElementById('logout-btn').addEventListener('click', async () => {
             await supabase.auth.signOut();
-            checkSession();
         });
 
         // Initialize App
@@ -1349,7 +1370,7 @@
         }
 
         document.getElementById('popup-images').addEventListener('change', async (e) => {
-            const files = e.target.files;
+            const files = Array.from(e.target.files);
             if(!files.length) return;
 
             const btn = document.getElementById('save-popup-btn');
@@ -1359,12 +1380,12 @@
             btn.textContent = "Uploading...";
             btn.disabled = true;
 
-            const currentUrls = urlsInput.value ? urlsInput.value.split(',') : [];
+            const currentUrls = urlsInput.value ? urlsInput.value.split(',').filter(u => u.trim()) : [];
             const newUrls = [];
 
             for (const file of files) {
                 const fileExt = file.name.split('.').pop();
-                const fileName = `${Math.random()}.${fileExt}`;
+                const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
                 const filePath = `popups/${fileName}`;
 
                 const { error: uploadError } = await supabase.storage.from('promos').upload(filePath, file);
@@ -1380,32 +1401,28 @@
 
             const finalUrls = [...currentUrls, ...newUrls];
             urlsInput.value = finalUrls.join(',');
-            
-            // Render previews
-            preview.innerHTML = finalUrls.map((url, idx) => `
-                <div style="position: relative;">
-                    <img src="${url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
-                    <button type="button" onclick="removePopupImage(${idx})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
-                </div>
-            `).join('');
+            renderPopupPreviews(finalUrls);
 
             btn.textContent = "Save Popup";
             btn.disabled = false;
         });
 
-        window.removePopupImage = (idx) => {
-            const urlsInput = document.getElementById('popup-image-urls');
+        function renderPopupPreviews(urls) {
             const preview = document.getElementById('popup-images-preview');
-            let urls = urlsInput.value.split(',');
-            urls.splice(idx, 1);
-            urlsInput.value = urls.join(',');
-            
-            preview.innerHTML = urls.map((url, i) => `
+            preview.innerHTML = urls.map((url, idx) => `
                 <div style="position: relative;">
                     <img src="${url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
-                    <button type="button" onclick="removePopupImage(${i})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
+                    <button type="button" onclick="window.removePopupImage(${idx})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
                 </div>
             `).join('');
+        }
+
+        window.removePopupImage = (idx) => {
+            const urlsInput = document.getElementById('popup-image-urls');
+            let urls = urlsInput.value.split(',').filter(u => u.trim());
+            urls.splice(idx, 1);
+            urlsInput.value = urls.join(',');
+            renderPopupPreviews(urls);
         };
 
         window.editPopup = (id) => {
@@ -1420,14 +1437,7 @@
             
             const urls = p.image_urls || [];
             document.getElementById('popup-image-urls').value = urls.join(',');
-            
-            const preview = document.getElementById('popup-images-preview');
-            preview.innerHTML = urls.map((url, idx) => `
-                <div style="position: relative;">
-                    <img src="${url}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
-                    <button type="button" onclick="removePopupImage(${idx})" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center;">&times;</button>
-                </div>
-            `).join('');
+            renderPopupPreviews(urls);
 
             document.getElementById('delete-popup-btn').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1476,7 +1486,6 @@
             }
         });
 
-        // Attach event listeners
         document.getElementById('clear-popup-btn').addEventListener('click', () => {
             document.getElementById('popup-form').reset();
             document.getElementById('popup-id').value = '';
