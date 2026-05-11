@@ -1266,7 +1266,7 @@
                         </div>
                     </div>
                     <div class="list-item-actions">
-                        <button class="btn btn-secondary" onclick="editPopup('${p.id}')">Edit</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.editPopup('${p.id}')">Edit</button>
                     </div>
                 </div>
             `}).join('');
@@ -1357,13 +1357,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        document.getElementById('clear-popup-btn').addEventListener('click', () => {
-            document.getElementById('popup-form').reset();
-            document.getElementById('popup-id').value = '';
-            document.getElementById('popup-image-urls').value = '';
-            document.getElementById('popup-images-preview').innerHTML = '';
-            document.getElementById('delete-popup-btn').style.display = 'none';
-        });
 
         document.getElementById('popup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1406,7 +1399,16 @@
                 fetchPopupsAdmin();
             }
         };
-        document.getElementById('delete-popup-btn').onclick = window.deletePopup;
+
+        // Attach event listeners
+        document.getElementById('delete-popup-btn').addEventListener('click', window.deletePopup);
+        document.getElementById('clear-popup-btn').addEventListener('click', () => {
+            document.getElementById('popup-form').reset();
+            document.getElementById('popup-id').value = '';
+            document.getElementById('popup-image-urls').value = '';
+            document.getElementById('popup-images-preview').innerHTML = '';
+            document.getElementById('delete-popup-btn').style.display = 'none';
+        });
 
         initApp();
     </script>
