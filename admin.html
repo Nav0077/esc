@@ -220,6 +220,21 @@
 
                 <div class="form-grid">
                     <div class="form-group">
+                        <label>Match Date</label>
+                        <input type="date" id="match-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Match Time</label>
+                        <input type="time" id="match-time" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Venue</label>
+                        <input type="text" id="match-venue" class="form-control" placeholder="e.g. Tribhuvan University Ground">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
                         <label>Team 1 Name</label>
                         <input type="text" id="match-team1" class="form-control" required>
                     </div>
@@ -268,8 +283,15 @@
 
                         <!-- General Tab -->
                         <div id="v-toss" class="v-panel active">
-                            <label>Toss Result</label>
-                            <input type="text" id="v-toss-input" class="form-control" placeholder="e.g. Team A won the toss and elected to bat">
+                            <div class="form-group">
+                                <label>Toss Result</label>
+                                <input type="text" id="v-toss-input" class="form-control" placeholder="e.g. Team A won the toss and elected to bat">
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group"><label>Umpire 1</label><input type="text" id="v-umpire1" class="form-control"></div>
+                                <div class="form-group"><label>Umpire 2</label><input type="text" id="v-umpire2" class="form-control"></div>
+                                <div class="form-group"><label>Man of the Match</label><input type="text" id="v-mom" class="form-control"></div>
+                            </div>
                         </div>
 
                         <!-- Innings 1 Tab -->
@@ -727,6 +749,9 @@
         window.syncVisualToJSON = () => {
             const data = {
                 toss: document.getElementById('v-toss-input').value,
+                umpire1: document.getElementById('v-umpire1').value,
+                umpire2: document.getElementById('v-umpire2').value,
+                mom: document.getElementById('v-mom').value
             };
 
             ['inn1', 'inn2'].forEach((inningsKey, idx) => {
@@ -1100,6 +1125,17 @@
             document.getElementById('match-id').value = m.id;
             document.getElementById('match-tournament').value = m.tournament_name || '';
             document.getElementById('match-number').value = m.match_number || 0;
+            
+            if(m.match_date) {
+                const dt = new Date(m.match_date);
+                document.getElementById('match-date').value = dt.toISOString().split('T')[0];
+                document.getElementById('match-time').value = dt.toTimeString().substring(0, 5);
+            } else {
+                document.getElementById('match-date').value = '';
+                document.getElementById('match-time').value = '';
+            }
+            document.getElementById('match-venue').value = m.venue || '';
+            
             document.getElementById('match-team1').value = m.team1_name || '';
             document.getElementById('match-team2').value = m.team2_name || '';
             document.getElementById('match-team1-logo').value = m.team1_logo || '';
@@ -1107,7 +1143,15 @@
             document.getElementById('match-status').value = m.status || 'upcoming';
             document.getElementById('match-summary').value = m.summary || '';
             
-            document.getElementById('match-scoreboard').value = m.scoreboard ? JSON.stringify(m.scoreboard, null, 2) : '';
+            const sb = m.scoreboard || {};
+            document.getElementById('match-scoreboard').value = JSON.stringify(sb, null, 2);
+            
+            // Populate visual general tab
+            document.getElementById('v-toss-input').value = sb.toss || '';
+            document.getElementById('v-umpire1').value = sb.umpire1 || '';
+            document.getElementById('v-umpire2').value = sb.umpire2 || '';
+            document.getElementById('v-mom').value = sb.mom || '';
+
             if (typeof window.syncJSONToVisual === 'function') window.syncJSONToVisual();
             
             document.getElementById('delete-match-btn').style.display = 'inline-block';
@@ -1172,13 +1216,31 @@
                 catch(err) { alert("Invalid JSON in Scoreboard field!"); return; }
             }
 
+            const team1Score = document.getElementById('v-inn1-score')?.value || '';
+            const team1Overs = document.getElementById('v-inn1-overs')?.value || '';
+            const team2Score = document.getElementById('v-inn2-score')?.value || '';
+            const team2Overs = document.getElementById('v-inn2-overs')?.value || '';
+
+            const matchDateStr = document.getElementById('match-date').value;
+            const matchTimeStr = document.getElementById('match-time').value;
+            let finalMatchDate = null;
+            if(matchDateStr) {
+                finalMatchDate = matchTimeStr ? `${matchDateStr}T${matchTimeStr}:00` : `${matchDateStr}T00:00:00`;
+            }
+
             const payload = {
                 tournament_name: document.getElementById('match-tournament').value,
                 match_number: parseInt(document.getElementById('match-number').value),
+                match_date: finalMatchDate,
+                venue: document.getElementById('match-venue').value,
                 team1_name: document.getElementById('match-team1').value,
                 team2_name: document.getElementById('match-team2').value,
                 team1_logo: document.getElementById('match-team1-logo').value,
                 team2_logo: document.getElementById('match-team2-logo').value,
+                team1_score: team1Score,
+                team1_overs: team1Overs,
+                team2_score: team2Score,
+                team2_overs: team2Overs,
                 status: document.getElementById('match-status').value,
                 summary: document.getElementById('match-summary').value,
                 scoreboard: scoreData

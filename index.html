@@ -137,7 +137,7 @@
         async function fetchMatches() {
             const { data, error } = await supabase
                 .from('matches')
-                .select('id, tournament_name, match_number, team1_name, team2_name, team1_logo, team2_logo, team1_score, team2_score, team1_overs, team2_overs, summary, status')
+                .select('id, tournament_name, match_number, team1_name, team2_name, team1_logo, team2_logo, team1_score, team2_score, team1_overs, team2_overs, summary, status, match_date, venue')
                 .order('match_date', { ascending: true });
             
             if (error) {
@@ -160,7 +160,9 @@
                 '{{TEAM2_SCORE}}': match.team2_score || 'Yet to bat',
                 '{{TEAM1_OVERS}}': match.team1_overs ? `(${match.team1_overs})` : '',
                 '{{TEAM2_OVERS}}': match.team2_overs ? `(${match.team2_overs})` : '',
-                '{{SUMMARY}}': match.summary || ''
+                '{{SUMMARY}}': match.summary || '',
+                '{{VENUE}}': match.venue || '',
+                '{{DATE}}': match.match_date ? new Date(match.match_date).toLocaleDateString() : ''
             };
 
             Object.keys(replacements).forEach(key => {

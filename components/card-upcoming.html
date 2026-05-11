@@ -11,8 +11,11 @@
         <div class="team-meta"><img src="{{TEAM2_LOGO}}" class="team-logo"> {{TEAM2_NAME}}</div>
         <div class="score-info">-</div>
     </div>
-    <div class="card-footer" style="display: flex; align-items: center; gap: 8px; color: #6b7280;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-        {{SUMMARY}}
+    <div class="card-footer" style="display: flex; flex-direction: column; gap: 4px; color: #6b7280;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            {{DATE}} • {{SUMMARY}}
+        </div>
+        <div style="font-size: 11px; margin-left: 22px;">Venue: {{VENUE}}</div>
     </div>
 </div>

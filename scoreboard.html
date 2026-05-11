@@ -29,6 +29,9 @@
             <div class="match-header-info">
                 <h1 id="match-title">Loading Match...</h1>
                 <div class="match-status" id="match-status-text"></div>
+                <div id="match-info-details" class="match-info-bar">
+                    <!-- Dynamic Info -->
+                </div>
             </div>
 
             <div id="innings-wrapper"></div>
@@ -204,6 +207,22 @@
             
             // Priority: Summary -> Toss
             document.getElementById('match-status-text').textContent = data.summary || sb.toss || '';
+
+            // Match Info Bar
+            let infoItems = [];
+            if(data.tournament_name) infoItems.push(`<span><strong>Tournament:</strong> ${data.tournament_name}</span>`);
+            if(data.venue) infoItems.push(`<span><strong>Venue:</strong> ${data.venue}</span>`);
+            if(data.match_date) {
+                const dt = new Date(data.match_date);
+                infoItems.push(`<span><strong>Date:</strong> ${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`);
+            }
+            if(sb.umpire1 || sb.umpire2) {
+                let u = [sb.umpire1, sb.umpire2].filter(Boolean).join(', ');
+                infoItems.push(`<span><strong>Umpires:</strong> ${u}</span>`);
+            }
+            if(sb.mom) infoItems.push(`<span><strong>Man of the Match:</strong> <span style="color: #22c55e; font-weight: 700;">${sb.mom}</span></span>`);
+            
+            document.getElementById('match-info-details').innerHTML = infoItems.join('<span class="info-sep">•</span>');
 
             // Render Innings with Tabs
             let tabsHtml = '<div class="innings-tabs">';
