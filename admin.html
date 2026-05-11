@@ -602,6 +602,55 @@
 
     </main>
 
+    <!-- Match Editor Modal -->
+    <div id="match-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-match-title">Edit Match Scoreboard</h2>
+                <span class="close-modal" id="close-match-modal">&times;</span>
+            </div>
+            <div id="modal-match-form-container">
+                <!-- We will move/clone the match form here or use a similar structure -->
+                <form id="modal-match-form">
+                    <input type="hidden" id="modal-match-id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tournament</label>
+                            <input type="text" id="modal-match-tournament" class="form-control" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Match Number</label>
+                            <input type="number" id="modal-match-number" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Team 1</label><input type="text" id="modal-match-team1" class="form-control"></div>
+                        <div class="form-group"><label>Team 2</label><input type="text" id="modal-match-team2" class="form-control"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="modal-match-status" class="form-control">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="live">Live</option>
+                            <option value="finished">Finished</option>
+                        </select>
+                    </div>
+
+                    <div id="modal-scoreboard-editor">
+                        <!-- Reuse visual editor components here -->
+                        <div id="modal-visual-editor-placeholder"></div>
+                    </div>
+
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button type="submit" class="btn">Save Match Details</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-match-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { supabase } from "./js/supabase_client.js";
 
@@ -1419,7 +1468,7 @@
                                 <td><strong>${m.team1_name}</strong> vs <strong>${m.team2_name}</strong></td>
                                 <td><span class="status-badge ${m.status}">${m.status}</span></td>
                                 <td>
-                                    <button type="button" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="window.editMatch('${m.id}')">Scorecard</button>
+                                    <button type="button" class="btn btn-secondary" style="padding: 2px 8px; font-size: 11px;" onclick="window.openMatchModal('${m.id}')">Full Editor</button>
                                 </td>
                             </tr>
                         `).join('')}
@@ -1431,20 +1480,167 @@
         document.getElementById('add-match-to-tourney-btn').addEventListener('click', () => {
             const tourneyName = document.getElementById('tourney-name').value;
             if(!tourneyName) { alert("Please save the tournament first."); return; }
+            window.openMatchModal(null, tourneyName);
+        });
+
+        window.openMatchModal = async (id, tourneyName = null) => {
+            const modal = document.getElementById('match-modal');
+            modal.style.display = 'block';
             
-            // Switch to matches tab
-            document.querySelector('[data-target="matches-panel"]').click();
-            
-            // Clear match form
-            document.getElementById('match-form').reset();
-            document.getElementById('match-id').value = '';
-            document.getElementById('match-tournament').value = tourneyName;
-            
-            // Reset scoreboard visual editor
-            document.getElementById('match-scoreboard').value = '{}';
-            window.syncScoreboardJSONToVisual();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Move/Ensure visual editor is in modal or similar
+            // For simplicity, we'll clone the visual editor structure or use it if already there
+            const placeholder = document.getElementById('modal-visual-editor-placeholder');
+            if(!placeholder.innerHTML) {
+                // One-time setup: Copy the visual editor HTML from the main matches panel
+                const original = document.getElementById('visual-editor-container');
+                placeholder.innerHTML = original.outerHTML;
+                // Update IDs to avoid conflicts? No, we'll just target them contextually or hide the other one
+                // Better: just use a unique ID for modal visual editor
+                placeholder.querySelectorAll('[id]').forEach(el => el.id = 'm-' + el.id);
+            }
+
+            if(id) {
+                const m = allMatches.find(x => x.id === id);
+                if(!m) return;
+                document.getElementById('modal-match-id').value = m.id;
+                document.getElementById('modal-match-tournament').value = m.tournament_name || '';
+                document.getElementById('modal-match-number').value = m.match_number || 0;
+                document.getElementById('modal-match-team1').value = m.team1_name || '';
+                document.getElementById('modal-match-team2').value = m.team2_name || '';
+                document.getElementById('modal-match-status').value = m.status || 'upcoming';
+                
+                // Populate Modal Scoreboard
+                const sb = m.scoreboard || {};
+                document.getElementById('m-v-toss-input').value = sb.toss || '';
+                document.getElementById('m-v-umpire1').value = sb.umpire1 || '';
+                document.getElementById('m-v-umpire2').value = sb.umpire2 || '';
+                document.getElementById('m-v-mom').value = sb.mom || '';
+                
+                // Fill innings
+                ['inn1', 'inn2'].forEach(inn => {
+                    const data = sb[`innings${inn === 'inn1' ? '1' : '2'}`] || { team: '', score: '', overs: '', batting: [], bowling: [] };
+                    document.getElementById(`m-v-${inn}-team`).value = data.team || '';
+                    document.getElementById(`m-v-${inn}-score`).value = data.score || '';
+                    document.getElementById(`m-v-${inn}-overs`).value = data.overs || '';
+                    document.getElementById(`m-v-${inn}-extras`).value = data.extras || '';
+                    
+                    const batList = document.getElementById(`m-v-${inn}-batting`);
+                    batList.innerHTML = '';
+                    (data.batting || []).forEach(b => {
+                        const row = document.createElement('div');
+                        row.className = 'bat-row';
+                        row.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px;";
+                        row.innerHTML = `
+                            <input type="text" class="form-control bat-name" value="${b.name}" placeholder="Name" style="flex:2;">
+                            <input type="text" class="form-control bat-status" value="${b.status}" placeholder="Status" style="flex:2;">
+                            <input type="number" class="form-control bat-r" value="${b.runs}" placeholder="R" style="flex:1;">
+                            <input type="number" class="form-control bat-b" value="${b.balls}" placeholder="B" style="flex:1;">
+                            <input type="number" class="form-control bat-4s" value="${b.fours}" placeholder="4s" style="flex:1;">
+                            <input type="number" class="form-control bat-6s" value="${b.sixes}" placeholder="6s" style="flex:1;">
+                            <input type="text" class="form-control bat-sr" value="${b.sr}" placeholder="SR" style="flex:1;">
+                            <button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.remove()">X</button>
+                        `;
+                        batList.appendChild(row);
+                    });
+
+                    const bowlList = document.getElementById(`m-v-${inn}-bowling`);
+                    bowlList.innerHTML = '';
+                    (data.bowling || []).forEach(b => {
+                        const row = document.createElement('div');
+                        row.className = 'bowl-row';
+                        row.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px;";
+                        row.innerHTML = `
+                            <input type="text" class="form-control bowl-name" value="${b.name}" placeholder="Name" style="flex:2;">
+                            <input type="text" class="form-control bowl-o" value="${b.overs}" placeholder="O" style="flex:1;">
+                            <input type="number" class="form-control bowl-m" value="${b.maidens}" placeholder="M" style="flex:0.8;">
+                            <input type="number" class="form-control bowl-r" value="${b.runs}" placeholder="R" style="flex:1;">
+                            <input type="number" class="form-control bowl-w" value="${b.wkts}" placeholder="W" style="flex:1;">
+                            <input type="text" class="form-control bowl-e" value="${b.econ}" placeholder="E" style="flex:1;">
+                            <button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.remove()">X</button>
+                        `;
+                        bowlList.appendChild(row);
+                    });
+                });
+            } else {
+                // New match for this tourney
+                document.getElementById('modal-match-id').value = '';
+                document.getElementById('modal-match-tournament').value = tourneyName;
+                document.getElementById('modal-match-form').reset();
+                document.getElementById('m-v-inn1-batting').innerHTML = '';
+                document.getElementById('m-v-inn1-bowling').innerHTML = '';
+                document.getElementById('m-v-inn2-batting').innerHTML = '';
+                document.getElementById('m-v-inn2-bowling').innerHTML = '';
+            }
+        };
+
+        document.getElementById('close-match-modal').onclick = () => document.getElementById('match-modal').style.display = 'none';
+        document.getElementById('cancel-match-modal').onclick = () => document.getElementById('match-modal').style.display = 'none';
+        
+        document.getElementById('modal-match-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('modal-match-id').value;
+            const tourneyName = document.getElementById('modal-match-tournament').value;
+
+            // Gather Scoreboard Data from Modal Fields
+            const sbData = {
+                toss: document.getElementById('m-v-toss-input').value,
+                umpire1: document.getElementById('m-v-umpire1').value,
+                umpire2: document.getElementById('m-v-umpire2').value,
+                mom: document.getElementById('m-v-mom').value,
+                innings1: gatherInningsData('m-v-inn1'),
+                innings2: gatherInningsData('m-v-inn2')
+            };
+
+            function gatherInningsData(prefix) {
+                return {
+                    team: document.getElementById(prefix + '-team').value,
+                    score: document.getElementById(prefix + '-score').value,
+                    overs: document.getElementById(prefix + '-overs').value,
+                    extras: document.getElementById(prefix + '-extras').value,
+                    batting: Array.from(document.getElementById(prefix + '-batting').children).map(row => ({
+                        name: row.querySelector('.bat-name').value,
+                        status: row.querySelector('.bat-status').value,
+                        runs: parseInt(row.querySelector('.bat-r').value) || 0,
+                        balls: parseInt(row.querySelector('.bat-b').value) || 0,
+                        fours: parseInt(row.querySelector('.bat-4s').value) || 0,
+                        sixes: parseInt(row.querySelector('.bat-6s').value) || 0,
+                        sr: parseFloat(row.querySelector('.bat-sr').value) || 0
+                    })).filter(b => b.name),
+                    bowling: Array.from(document.getElementById(prefix + '-bowling').children).map(row => ({
+                        name: row.querySelector('.bowl-name').value,
+                        overs: row.querySelector('.bowl-o').value || "0",
+                        maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
+                        runs: parseInt(row.querySelector('.bowl-r').value) || 0,
+                        wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
+                        econ: parseFloat(row.querySelector('.bowl-e').value) || 0
+                    })).filter(b => b.name)
+                };
+            }
+
+            const payload = {
+                tournament_name: tourneyName,
+                match_number: parseInt(document.getElementById('modal-match-number').value),
+                team1_name: document.getElementById('modal-match-team1').value,
+                team2_name: document.getElementById('modal-match-team2').value,
+                status: document.getElementById('modal-match-status').value,
+                team1_score: sbData.innings1.score,
+                team1_overs: sbData.innings1.overs,
+                team2_score: sbData.innings2.score,
+                team2_overs: sbData.innings2.overs,
+                scoreboard: sbData
+            };
+
+            let res;
+            if(id) res = await supabase.from('matches').update(payload).eq('id', id);
+            else res = await supabase.from('matches').insert([payload]);
+
+            if (res.error) alert(res.error.message);
+            else {
+                alert("Match saved successfully!");
+                document.getElementById('match-modal').style.display = 'none';
+                fetchTournament(); // Refresh lists
+                fetchMatches();
+            }
         });
 
         document.getElementById('clear-tourney-btn').addEventListener('click', () => {
