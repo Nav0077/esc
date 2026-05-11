@@ -3,7 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite Social Club | Player Profile</title>
+    <title>Player Profile | Elite Social Club</title>
+    <meta name="description" content="Detailed player statistics, career highlights, and performance metrics for the athletes of Elite Social Club.">
+    <meta name="keywords" content="cricket player stats, Elite Social Club players, cricket highlights, player profile">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://elite-social-club.vercel.app/player-profile.html">
+    <meta property="og:title" content="Player Profile | Elite Social Club">
+    <meta property="og:description" content="View career stats, batting averages, and bowling performance for ESC players.">
+    <meta property="og:image" content="https://elite-social-club.vercel.app/assets/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Player Profile | Elite Social Club">
+    <meta property="twitter:description" content="View career stats, batting averages, and bowling performance for ESC players.">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2322c55e'/><text x='50' y='65' font-family='Arial' font-weight='bold' font-size='35' fill='white' text-anchor='middle'>ESC</text></svg>">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
@@ -49,16 +64,18 @@
         }
 
         async function initApp() {
-            await loadComponent("notice-placeholder", "components/notice-ticker.html");
-            await loadComponent("navbar-placeholder", "components/navbar.html");
-            initNavbar();
-            await loadComponent("footer-placeholder", "components/footer.html");
+            // Parallel loading
+            Promise.all([
+                loadComponent("notice-placeholder", "components/notice-ticker.html"),
+                loadComponent("navbar-placeholder", "components/navbar.html"),
+                loadComponent("footer-placeholder", "components/footer.html")
+            ]).then(() => initNavbar());
 
             const urlParams = new URLSearchParams(window.location.search);
             const playerId = urlParams.get('id');
 
             if (!playerId) {
-                document.getElementById('profile-content').innerHTML = '<h2>Player not found</h2>';
+                document.getElementById('profile-content').innerHTML = '<h2 style="color: white; text-align: center;">Player not found</h2>';
                 return;
             }
 
@@ -69,7 +86,7 @@
                 .single();
 
             if (error || !player) {
-                document.getElementById('profile-content').innerHTML = '<h2>Error loading profile</h2>';
+                document.getElementById('profile-content').innerHTML = '<h2 style="color: white; text-align: center;">Error loading profile</h2>';
                 return;
             }
 
