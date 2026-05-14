@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/cookies.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -52,6 +53,7 @@
         import { initNavbar } from "./js/navbar.js";
         import { supabase } from "./js/supabase_client.js";
         import { initGA } from './js/analytics.js';
+        import { initCookies } from './js/cookies.js';
 
         async function loadComponent(id, file) {
             try {
@@ -72,6 +74,7 @@
 
         async function initApp() {
             initGA();
+            initCookies();
             // Parallel loading
             Promise.all([
                 loadComponent("notice-placeholder", "components/notice-ticker.html"),

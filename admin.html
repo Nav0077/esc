@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/cookies.css">
     <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -809,6 +810,7 @@
     <script type="module">
         import { supabase } from "./js/supabase_client.js";
         import { initGA } from './js/analytics.js';
+        import { initCookies } from './js/cookies.js';
 
         // Global State
         let allPlayers = [];
@@ -1086,6 +1088,7 @@
         // Initialize App
         function initApp() {
             initGA();
+            initCookies();
             checkSession();
         }
 

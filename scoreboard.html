@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/scoreboard.css">
+    <link rel="stylesheet" href="css/cookies.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -55,6 +56,7 @@
         import { initNavbar } from "./js/navbar.js";
         import { supabase } from "./js/supabase_client.js";
         import { initGA } from './js/analytics.js';
+        import { initCookies } from './js/cookies.js';
 
         async function loadComponent(id, file) {
             try {
@@ -260,6 +262,7 @@
 
         async function initApp() {
             initGA();
+            initCookies();
             await loadComponent("notice-placeholder", "components/notice-ticker.html");
             await loadComponent("navbar-placeholder", "components/navbar.html");
             initNavbar();
