@@ -1263,34 +1263,40 @@
             const container = document.getElementById('player-batting-rows');
             const div = document.createElement('div');
             div.className = 'player-stat-row';
-            div.style.cssText = "display: grid; grid-template-columns: repeat(4, 1fr) 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
+            div.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr) 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
             div.innerHTML = `
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Format</label><input type="text" class="form-control p-bat-format" value="${data?.format || ''}" placeholder="T20/ODI"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Matches</label><input type="number" class="form-control p-bat-mat" value="${data?.mat || 0}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Innings</label><input type="number" class="form-control p-bat-inn" value="${data?.inn || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Mat</label><input type="number" class="form-control p-bat-mat" value="${data?.mat || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Inn</label><input type="number" class="form-control p-bat-inn" value="${data?.inn || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">NO</label><input type="number" class="form-control p-bat-no" value="${data?.no || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Runs</label><input type="number" class="form-control p-bat-runs" value="${data?.runs || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">HS</label><input type="text" class="form-control p-bat-hs" value="${data?.hs || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Avg</label><input type="number" step="0.01" class="form-control p-bat-avg" value="${data?.avg || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">BF</label><input type="number" class="form-control p-bat-bf" value="${data?.bf || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">S/R</label><input type="number" step="0.01" class="form-control p-bat-sr" value="${data?.sr || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">100s</label><input type="number" class="form-control p-bat-100" value="${data?.hundreds || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">50s</label><input type="number" class="form-control p-bat-50" value="${data?.fifties || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">4s</label><input type="number" class="form-control p-bat-4s" value="${data?.fours || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">6s</label><input type="number" class="form-control p-bat-6s" value="${data?.sixes || 0}"></div>
                 <button type="button" class="btn btn-danger" style="grid-column: span 1; height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
             `;
             container.appendChild(div);
-        };
-
-        window.addPlayerBowlingRow = (data = null) => {
+        };        window.addPlayerBowlingRow = (data = null) => {
             const container = document.getElementById('player-bowling-rows');
             const div = document.createElement('div');
             div.className = 'player-stat-row';
-            div.style.cssText = "display: grid; grid-template-columns: repeat(4, 1fr) 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
+            div.style.cssText = "display: grid; grid-template-columns: repeat(6, 1fr) 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
             div.innerHTML = `
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Format</label><input type="text" class="form-control p-bowl-format" value="${data?.format || ''}" placeholder="T20/ODI"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Matches</label><input type="number" class="form-control p-bowl-mat" value="${data?.mat || 0}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.balls ? (data.balls / 6).toFixed(1) : (data?.overs || 0)}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Wickets</label><input type="number" class="form-control p-bowl-wkts" value="${data?.wkts || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Mat</label><input type="number" class="form-control p-bowl-mat" value="${data?.mat || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Inn</label><input type="number" class="form-control p-bowl-inn" value="${data?.inn || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.balls ? (data.balls/6).toFixed(1) : (data?.overs || 0)}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Wkts</label><input type="number" class="form-control p-bowl-wkts" value="${data?.wkts || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Econ</label><input type="number" step="0.01" class="form-control p-bowl-econ" value="${data?.econ || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Avg</label><input type="number" step="0.01" class="form-control p-bowl-avg" value="${data?.avg || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">S/R</label><input type="number" step="0.01" class="form-control p-bowl-sr" value="${data?.sr || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Best</label><input type="text" class="form-control p-bowl-best" value="${data?.bbi || ''}" placeholder="5/20"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">5w</label><input type="number" class="form-control p-bowl-5w" value="${data?.fivew || 0}"></div>
                 <button type="button" class="btn btn-danger" style="grid-column: span 1; height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
             `;
             container.appendChild(div);
@@ -1338,11 +1344,16 @@
                 format: row.querySelector('.p-bat-format').value,
                 mat: parseInt(row.querySelector('.p-bat-mat').value) || 0,
                 inn: parseInt(row.querySelector('.p-bat-inn').value) || 0,
+                no: parseInt(row.querySelector('.p-bat-no').value) || 0,
                 runs: parseInt(row.querySelector('.p-bat-runs').value) || 0,
+                hs: row.querySelector('.p-bat-hs').value,
                 avg: parseFloat(row.querySelector('.p-bat-avg').value) || 0,
+                bf: parseInt(row.querySelector('.p-bat-bf').value) || 0,
                 sr: parseFloat(row.querySelector('.p-bat-sr').value) || 0,
                 hundreds: parseInt(row.querySelector('.p-bat-100').value) || 0,
-                fifties: parseInt(row.querySelector('.p-bat-50').value) || 0
+                fifties: parseInt(row.querySelector('.p-bat-50').value) || 0,
+                fours: parseInt(row.querySelector('.p-bat-4s').value) || 0,
+                sixes: parseInt(row.querySelector('.p-bat-6s').value) || 0
             })).filter(d => d.format);
             document.getElementById('player-batting').value = JSON.stringify(batData, null, 2);
 
@@ -1351,11 +1362,14 @@
             const bowlData = bowlRows.map(row => ({
                 format: row.querySelector('.p-bowl-format').value,
                 mat: parseInt(row.querySelector('.p-bowl-mat').value) || 0,
+                inn: parseInt(row.querySelector('.p-bowl-inn').value) || 0,
                 overs: row.querySelector('.p-bowl-overs').value,
                 wkts: parseInt(row.querySelector('.p-bowl-wkts').value) || 0,
                 econ: parseFloat(row.querySelector('.p-bowl-econ').value) || 0,
                 avg: parseFloat(row.querySelector('.p-bowl-avg').value) || 0,
-                bbi: row.querySelector('.p-bowl-best').value
+                sr: parseFloat(row.querySelector('.p-bowl-sr').value) || 0,
+                bbi: row.querySelector('.p-bowl-best').value,
+                fivew: parseInt(row.querySelector('.p-bowl-5w').value) || 0
             })).filter(d => d.format);
             document.getElementById('player-bowling').value = JSON.stringify(bowlData, null, 2);
 
