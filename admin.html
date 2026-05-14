@@ -1306,6 +1306,7 @@
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Mat</label><input type="number" class="form-control p-bowl-mat" value="${data?.mat || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Inn</label><input type="number" class="form-control p-bowl-inn" value="${data?.inn || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Balls</label><input type="number" class="form-control p-bowl-balls" value="${data?.balls || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Runs</label><input type="number" class="form-control p-bowl-runs" value="${data?.runs || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.overs || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Wkts</label><input type="number" class="form-control p-bowl-wkts" value="${data?.wkts || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Econ</label><input type="number" step="0.01" class="form-control p-bowl-econ" value="${data?.econ || 0}"></div>
@@ -1383,6 +1384,7 @@
                 mat: parseInt(row.querySelector('.p-bowl-mat').value) || 0,
                 inn: parseInt(row.querySelector('.p-bowl-inn').value) || 0,
                 balls: parseInt(row.querySelector('.p-bowl-balls').value) || 0,
+                runs: parseInt(row.querySelector('.p-bowl-runs').value) || 0,
                 overs: row.querySelector('.p-bowl-overs').value,
                 wkts: parseInt(row.querySelector('.p-bowl-wkts').value) || 0,
                 econ: parseFloat(row.querySelector('.p-bowl-econ').value) || 0,
