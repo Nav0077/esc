@@ -1305,13 +1305,16 @@
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Format</label><input type="text" class="form-control p-bowl-format" value="${data?.format || ''}" placeholder="T20/ODI"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Mat</label><input type="number" class="form-control p-bowl-mat" value="${data?.mat || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Inn</label><input type="number" class="form-control p-bowl-inn" value="${data?.inn || 0}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.balls ? (data.balls/6).toFixed(1) : (data?.overs || 0)}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Balls</label><input type="number" class="form-control p-bowl-balls" value="${data?.balls || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.overs || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Wkts</label><input type="number" class="form-control p-bowl-wkts" value="${data?.wkts || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Econ</label><input type="number" step="0.01" class="form-control p-bowl-econ" value="${data?.econ || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Avg</label><input type="number" step="0.01" class="form-control p-bowl-avg" value="${data?.avg || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">S/R</label><input type="number" step="0.01" class="form-control p-bowl-sr" value="${data?.sr || 0}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Best</label><input type="text" class="form-control p-bowl-best" value="${data?.bbi || ''}" placeholder="5/20"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">BBI</label><input type="text" class="form-control p-bowl-bbi" value="${data?.bbi || ''}" placeholder="5/20"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">BBM</label><input type="text" class="form-control p-bowl-bbm" value="${data?.bbm || ''}" placeholder="10/40"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">5w</label><input type="number" class="form-control p-bowl-5w" value="${data?.fivew || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">10w</label><input type="number" class="form-control p-bowl-10w" value="${data?.tenw || 0}"></div>
                 <button type="button" class="btn btn-danger" style="grid-column: span 1; height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
             `;
             container.appendChild(div);
@@ -1379,13 +1382,16 @@
                 format: row.querySelector('.p-bowl-format').value,
                 mat: parseInt(row.querySelector('.p-bowl-mat').value) || 0,
                 inn: parseInt(row.querySelector('.p-bowl-inn').value) || 0,
+                balls: parseInt(row.querySelector('.p-bowl-balls').value) || 0,
                 overs: row.querySelector('.p-bowl-overs').value,
                 wkts: parseInt(row.querySelector('.p-bowl-wkts').value) || 0,
                 econ: parseFloat(row.querySelector('.p-bowl-econ').value) || 0,
                 avg: parseFloat(row.querySelector('.p-bowl-avg').value) || 0,
                 sr: parseFloat(row.querySelector('.p-bowl-sr').value) || 0,
-                bbi: row.querySelector('.p-bowl-best').value,
-                fivew: parseInt(row.querySelector('.p-bowl-5w').value) || 0
+                bbi: row.querySelector('.p-bowl-bbi').value,
+                bbm: row.querySelector('.p-bowl-bbm').value,
+                fivew: parseInt(row.querySelector('.p-bowl-5w').value) || 0,
+                tenw: parseInt(row.querySelector('.p-bowl-10w').value) || 0
             })).filter(d => d.format);
             document.getElementById('player-bowling').value = JSON.stringify(bowlData, null, 2);
 
