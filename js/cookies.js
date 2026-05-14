@@ -8,8 +8,10 @@ export function initCookies() {
         <div id="cookie-banner" class="cookie-banner">
             <div class="cookie-content">
                 <div class="cookie-header">
-                    <span class="cookie-icon">🍪</span>
-                    <span class="cookie-title">Cookie Consent</span>
+                    <div class="cookie-logo">
+                        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='32' height='32'><circle cx='50' cy='50' r='50' fill='#22c55e'/><text x='50' y='65' font-family='Arial' font-weight='bold' font-size='35' fill='white' text-anchor='middle'>ESC</text></svg>
+                    </div>
+                    <span class="cookie-title">Elite Social Club</span>
                 </div>
                 <p class="cookie-text">
                     We use cookies to enhance your experience, analyze site traffic, and provide better cricket stats. 
