@@ -99,7 +99,7 @@
       async function fetchPlayers() {
         const { data, error } = await supabase
           .from('player_stats')
-          .select('id, name, role, category, tag, image_url, runs, batting_avg, highest_score, strike_rate')
+          .select('id, name, role, category, tag, image_url, runs, batting_avg, highest_score, strike_rate, recent_form')
           .order('name');
         
         if (error) {
@@ -142,7 +142,13 @@
                   '{{RUNS}}': (p.runs || 0).toLocaleString(),
                   '{{AVG}}': p.batting_avg || '-',
                   '{{HS}}': p.highest_score || '-',
-                  '{{SR}}': p.strike_rate || '-'
+                  '{{SR}}': p.strike_rate || '-',
+                  '{{RECENT_FORM}}': (p.recent_form || []).slice(0, 5).map(f => `
+                    <div class="form-dot ${f.is_not_out ? 'not-out' : ''}" title="vs ${f.opponent}">
+                        ${f.runs}${f.is_not_out ? '*' : ''}
+                        ${f.balls ? `<span class="balls">${f.balls}</span>` : ''}
+                    </div>
+                  `).join('') || '<span style="font-size:10px; color:#999;">N/A</span>'
               };
               Object.keys(replacements).forEach(key => {
                   card = card.split(key).join(replacements[key]);

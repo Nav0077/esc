@@ -142,9 +142,12 @@
                 <div class="recent-form-item">
                     <div class="opponent-info">
                         <span class="opponent-name">vs ${f.opponent}</span>
-                        <span class="match-meta">T20 • 22 Oct</span>
+                        <span class="match-meta">Match Entry</span>
                     </div>
-                    <span class="score-badge ${f.is_not_out ? 'score-notout' : ''}">${f.runs}${f.is_not_out ? '*' : ''}</span>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                        <span class="score-badge ${f.is_not_out ? 'score-notout' : ''}">${f.runs}${f.balls ? `(${f.balls})` : ''}${f.is_not_out ? '*' : ''}</span>
+                        ${f.wkts > 0 ? `<span style="font-size: 11px; color: #22c55e; font-weight: 700;">${f.wkts} Wkts</span>` : ''}
+                    </div>
                 </div>
             `).join('');
 

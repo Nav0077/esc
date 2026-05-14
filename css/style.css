@@ -546,3 +546,48 @@ body {
     font-size: 11px;
   }
 }
+
+/* Recent Form for Player Card */
+.card-recent-form {
+    padding: 12px 15px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+}
+
+.card-recent-form p {
+    font-size: 10px;
+    font-weight: 700;
+    color: #888;
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+}
+
+.form-indicators {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.form-dot {
+    background: #eee;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #444;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-dot.not-out {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.form-dot span.balls {
+    font-size: 9px;
+    font-weight: 400;
+    color: #666;
+}
