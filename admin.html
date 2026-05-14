@@ -1306,13 +1306,12 @@
             const container = document.getElementById('player-form-rows');
             const div = document.createElement('div');
             div.className = 'player-stat-row';
-            div.style.cssText = "display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
+            div.style.cssText = "display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
             div.innerHTML = `
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Opponent</label><input type="text" class="form-control p-form-opp" value="${data?.opponent || ''}" placeholder="vs Team X"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Runs</label><input type="number" class="form-control p-form-runs" value="${data?.runs || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Balls</label><input type="number" class="form-control p-form-balls" value="${data?.balls || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Wkts</label><input type="number" class="form-control p-form-wkts" value="${data?.wkts || 0}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Date</label><input type="text" class="form-control p-form-date" value="${data?.date || ''}" placeholder="May 12"></div>
                 <div class="form-group" style="margin:0; display:flex; align-items:center; gap:5px; padding-top:15px;"><input type="checkbox" class="p-form-no" ${data?.is_not_out ? 'checked' : ''} style="width:16px;height:16px;"><label style="font-size:10px;margin:0">Not Out</label></div>
                 <button type="button" class="btn btn-danger" style="height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
             `;
@@ -1382,7 +1381,6 @@
                 runs: parseInt(row.querySelector('.p-form-runs').value) || 0,
                 balls: parseInt(row.querySelector('.p-form-balls').value) || 0,
                 wkts: parseInt(row.querySelector('.p-form-wkts').value) || 0,
-                date: row.querySelector('.p-form-date').value,
                 is_not_out: row.querySelector('.p-form-no').checked
             })).filter(d => d.opponent);
             document.getElementById('player-form-json').value = JSON.stringify(formData, null, 2);
