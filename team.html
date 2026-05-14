@@ -99,7 +99,7 @@
       async function fetchPlayers() {
         const { data, error } = await supabase
           .from('player_stats')
-          .select('id, name, role, category, tag, image_url, runs, batting_avg, highest_score, strike_rate, recent_form')
+          .select('id, name, role, category, tag, image_url, matches, runs, batting_avg, strike_rate, highest_score, wickets, bowling_avg, best_bowling, recent_form')
           .order('name');
         
         if (error) {
@@ -139,10 +139,14 @@
                   '{{ROLE}}': p.role || 'Player',
                   '{{TAG}}': p.tag || '',
                   '{{IMAGE_URL}}': p.image_url || 'https://via.placeholder.com/150',
+                  '{{MAT}}': p.matches || '0',
                   '{{RUNS}}': (p.runs || 0).toLocaleString(),
+                  '{{WKTS}}': p.wickets || '0',
                   '{{AVG}}': p.batting_avg || '-',
                   '{{HS}}': p.highest_score || '-',
                   '{{SR}}': p.strike_rate || '-',
+                  '{{BW_AVG}}': p.bowling_avg || '-',
+                  '{{BEST}}': p.best_bowling || '-',
                   '{{RECENT_FORM}}': (p.recent_form || []).slice(0, 5).map(f => `
                     <div class="form-dot ${f.is_not_out ? 'not-out' : ''}" title="vs ${f.opponent}">
                         ${f.runs}${f.is_not_out ? '*' : ''}
