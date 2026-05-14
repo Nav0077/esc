@@ -808,6 +808,7 @@
 
     <script type="module">
         import { supabase } from "./js/supabase_client.js";
+        import { initGA } from './js/analytics.js';
 
         // Global State
         let allPlayers = [];
@@ -1084,6 +1085,7 @@
 
         // Initialize App
         function initApp() {
+            initGA();
             checkSession();
         }
 

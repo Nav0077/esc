@@ -77,6 +77,7 @@
     <script type="module">
       import { initNavbar } from "./js/navbar.js";
       import { supabase } from "./js/supabase_client.js";
+      import { initGA } from './js/analytics.js';
 
       async function loadComponent(id, file) {
         try {
@@ -110,6 +111,7 @@
       }
 
       async function initApp() {
+        initGA();
         const componentPromises = [
             loadComponent("notice-placeholder", "components/notice-ticker.html"),
             loadComponent("navbar-placeholder", "components/navbar.html"),

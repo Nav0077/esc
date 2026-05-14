@@ -66,6 +66,7 @@
    <script type="module">
         import { initNavbar } from './js/navbar.js';
         import { supabase } from "./js/supabase_client.js";
+        import { initGA } from './js/analytics.js';
 
         // Load Component Function
         async function loadComponent(id, file) {
@@ -88,6 +89,7 @@
 
         // Parallel fetching of components and data
         async function initApp() {
+            initGA();
             // 1. Start loading essential components in parallel
             const componentPromises = [
                 loadComponent('notice-placeholder', 'components/notice-ticker.html'),
