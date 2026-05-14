@@ -160,26 +160,38 @@
 
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Batting Stats (JSON)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="tmpl-batting-btn">Insert Template</button>
+                        Advanced Batting Stats
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-player-batting-json">Toggle JSON</button>
                     </label>
-                    <textarea id="player-batting" class="form-control" style="font-family: monospace;" placeholder='[{"format": "T20", "runs": ...}]'></textarea>
+                    <div id="player-batting-visual" class="visual-editor-box" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                        <div id="player-batting-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPlayerBattingRow()">+ Add Format (T20/ODI/etc.)</button>
+                    </div>
+                    <textarea id="player-batting" class="form-control" style="font-family: monospace; display: none;" placeholder='[{"format": "T20", "runs": ...}]'></textarea>
                 </div>
 
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Bowling Stats (JSON)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="tmpl-bowling-btn">Insert Template</button>
+                        Advanced Bowling Stats
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-player-bowling-json">Toggle JSON</button>
                     </label>
-                    <textarea id="player-bowling" class="form-control" style="font-family: monospace;" placeholder='[{"format": "T20", "wkts": ...}]'></textarea>
+                    <div id="player-bowling-visual" class="visual-editor-box" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                        <div id="player-bowling-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPlayerBowlingRow()">+ Add Format (T20/ODI/etc.)</button>
+                    </div>
+                    <textarea id="player-bowling" class="form-control" style="font-family: monospace; display: none;" placeholder='[{"format": "T20", "wkts": ...}]'></textarea>
                 </div>
 
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Recent Form (JSON)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="tmpl-form-btn">Insert Template</button>
+                        Recent Form (Last 5 Matches)
+                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-player-form-json">Toggle JSON</button>
                     </label>
-                    <textarea id="player-form-json" class="form-control" style="font-family: monospace;" placeholder='[{"opponent": "Lions", "runs": ...}]'></textarea>
+                    <div id="player-form-visual" class="visual-editor-box" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                        <div id="player-form-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPlayerFormRow()">+ Add Match Entry</button>
+                    </div>
+                    <textarea id="player-form-json" class="form-control" style="font-family: monospace; display: none;" placeholder='[{"opponent": "Lions", "runs": ...}]'></textarea>
                 </div>
 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -1023,6 +1035,9 @@
             document.getElementById('player-bowling').value = p.bowling_detailed ? JSON.stringify(p.bowling_detailed, null, 2) : '';
             document.getElementById('player-form-json').value = p.recent_form ? JSON.stringify(p.recent_form, null, 2) : '';
 
+            // Sync Visual Editors for Players
+            window.syncPlayerJSONToVisual();
+
             const preview = document.getElementById('image-preview');
             if(p.image_url) {
                 preview.src = p.image_url;
@@ -1091,6 +1106,9 @@
             e.preventDefault();
             const id = document.getElementById('player-id').value;
             
+            // Sync visual to JSON before submission
+            window.syncPlayerVisualToJSON();
+
             const parseJson = (idStr) => {
                 const val = document.getElementById(idStr).value.trim();
                 if(!val) return null;
@@ -1137,27 +1155,130 @@
         });
 
 
-        // Player Templates
-        document.getElementById('tmpl-batting-btn').addEventListener('click', () => {
-            const tmpl = [{
-                "format": "T20", "mat": 0, "inn": 0, "no": 0, "runs": 0, "hs": 0, "avg": 0.0, "bf": 0, "sr": 0.0, "hundreds": 0, "fifties": 0, "fours": 0, "sixes": 0
-            }];
-            document.getElementById('player-batting').value = JSON.stringify(tmpl, null, 2);
-        });
+        // Player Advanced Visual Editor Logic
+        window.addPlayerBattingRow = (data = null) => {
+            const container = document.getElementById('player-batting-rows');
+            const div = document.createElement('div');
+            div.className = 'player-stat-row';
+            div.style.cssText = "display: grid; grid-template-columns: repeat(4, 1fr) 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
+            div.innerHTML = `
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Format</label><input type="text" class="form-control p-bat-format" value="${data?.format || ''}" placeholder="T20/ODI"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Matches</label><input type="number" class="form-control p-bat-mat" value="${data?.mat || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Innings</label><input type="number" class="form-control p-bat-inn" value="${data?.inn || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Runs</label><input type="number" class="form-control p-bat-runs" value="${data?.runs || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Avg</label><input type="number" step="0.01" class="form-control p-bat-avg" value="${data?.avg || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">S/R</label><input type="number" step="0.01" class="form-control p-bat-sr" value="${data?.sr || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">100s</label><input type="number" class="form-control p-bat-100" value="${data?.hundreds || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">50s</label><input type="number" class="form-control p-bat-50" value="${data?.fifties || 0}"></div>
+                <button type="button" class="btn btn-danger" style="grid-column: span 1; height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
 
-        document.getElementById('tmpl-bowling-btn').addEventListener('click', () => {
-            const tmpl = [{
-                "format": "T20", "mat": 0, "inn": 0, "balls": 0, "runs": 0, "wkts": 0, "bbi": "0/0", "bbm": "0/0", "econ": 0.0, "avg": 0.0, "sr": 0.0, "fivew": 0, "tenw": 0
-            }];
-            document.getElementById('player-bowling').value = JSON.stringify(tmpl, null, 2);
-        });
+        window.addPlayerBowlingRow = (data = null) => {
+            const container = document.getElementById('player-bowling-rows');
+            const div = document.createElement('div');
+            div.className = 'player-stat-row';
+            div.style.cssText = "display: grid; grid-template-columns: repeat(4, 1fr) 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
+            div.innerHTML = `
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Format</label><input type="text" class="form-control p-bowl-format" value="${data?.format || ''}" placeholder="T20/ODI"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Matches</label><input type="number" class="form-control p-bowl-mat" value="${data?.mat || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.balls ? (data.balls/6).toFixed(1) : (data?.overs || 0)}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Wickets</label><input type="number" class="form-control p-bowl-wkts" value="${data?.wkts || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Econ</label><input type="number" step="0.01" class="form-control p-bowl-econ" value="${data?.econ || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Avg</label><input type="number" step="0.01" class="form-control p-bowl-avg" value="${data?.avg || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Best</label><input type="text" class="form-control p-bowl-best" value="${data?.bbi || ''}" placeholder="5/20"></div>
+                <button type="button" class="btn btn-danger" style="grid-column: span 1; height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
 
-        document.getElementById('tmpl-form-btn').addEventListener('click', () => {
-            const tmpl = [
-                { "opponent": "Team X", "runs": 0, "is_not_out": false },
-                { "opponent": "Team Y", "runs": 0, "is_not_out": true }
-            ];
-            document.getElementById('player-form-json').value = JSON.stringify(tmpl, null, 2);
+        window.addPlayerFormRow = (data = null) => {
+            const container = document.getElementById('player-form-rows');
+            const div = document.createElement('div');
+            div.className = 'player-stat-row';
+            div.style.cssText = "display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 40px; gap: 8px; background: white; padding: 10px; border-radius: 6px; border: 1px solid #ddd;";
+            div.innerHTML = `
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Opponent</label><input type="text" class="form-control p-form-opp" value="${data?.opponent || ''}" placeholder="vs Team X"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Runs</label><input type="number" class="form-control p-form-runs" value="${data?.runs || 0}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Wkts</label><input type="number" class="form-control p-form-wkts" value="${data?.wkts || 0}"></div>
+                <div class="form-group" style="margin:0; display:flex; align-items:center; gap:5px; padding-top:15px;"><input type="checkbox" class="p-form-no" ${data?.is_not_out ? 'checked' : ''} style="width:16px;height:16px;"><label style="font-size:10px;margin:0">Not Out</label></div>
+                <button type="button" class="btn btn-danger" style="height: 38px; align-self: end;" onclick="this.parentElement.remove()">X</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.syncPlayerJSONToVisual = () => {
+            // Batting
+            const batData = JSON.parse(document.getElementById('player-batting').value || '[]');
+            const batContainer = document.getElementById('player-batting-rows');
+            batContainer.innerHTML = '';
+            batData.forEach(d => window.addPlayerBattingRow(d));
+
+            // Bowling
+            const bowlData = JSON.parse(document.getElementById('player-bowling').value || '[]');
+            const bowlContainer = document.getElementById('player-bowling-rows');
+            bowlContainer.innerHTML = '';
+            bowlData.forEach(d => window.addPlayerBowlingRow(d));
+
+            // Recent Form
+            const formData = JSON.parse(document.getElementById('player-form-json').value || '[]');
+            const formContainer = document.getElementById('player-form-rows');
+            formContainer.innerHTML = '';
+            formData.forEach(d => window.addPlayerFormRow(d));
+        };
+
+        window.syncPlayerVisualToJSON = () => {
+            // Batting
+            const batRows = Array.from(document.getElementById('player-batting-rows').children);
+            const batData = batRows.map(row => ({
+                format: row.querySelector('.p-bat-format').value,
+                mat: parseInt(row.querySelector('.p-bat-mat').value) || 0,
+                inn: parseInt(row.querySelector('.p-bat-inn').value) || 0,
+                runs: parseInt(row.querySelector('.p-bat-runs').value) || 0,
+                avg: parseFloat(row.querySelector('.p-bat-avg').value) || 0,
+                sr: parseFloat(row.querySelector('.p-bat-sr').value) || 0,
+                hundreds: parseInt(row.querySelector('.p-bat-100').value) || 0,
+                fifties: parseInt(row.querySelector('.p-bat-50').value) || 0
+            })).filter(d => d.format);
+            document.getElementById('player-batting').value = JSON.stringify(batData, null, 2);
+
+            // Bowling
+            const bowlRows = Array.from(document.getElementById('player-bowling-rows').children);
+            const bowlData = bowlRows.map(row => ({
+                format: row.querySelector('.p-bowl-format').value,
+                mat: parseInt(row.querySelector('.p-bowl-mat').value) || 0,
+                overs: row.querySelector('.p-bowl-overs').value,
+                wkts: parseInt(row.querySelector('.p-bowl-wkts').value) || 0,
+                econ: parseFloat(row.querySelector('.p-bowl-econ').value) || 0,
+                avg: parseFloat(row.querySelector('.p-bowl-avg').value) || 0,
+                bbi: row.querySelector('.p-bowl-best').value
+            })).filter(d => d.format);
+            document.getElementById('player-bowling').value = JSON.stringify(bowlData, null, 2);
+
+            // Recent Form
+            const formRows = Array.from(document.getElementById('player-form-rows').children);
+            const formData = formRows.map(row => ({
+                opponent: row.querySelector('.p-form-opp').value,
+                runs: parseInt(row.querySelector('.p-form-runs').value) || 0,
+                wkts: parseInt(row.querySelector('.p-form-wkts').value) || 0,
+                is_not_out: row.querySelector('.p-form-no').checked
+            })).filter(d => d.opponent);
+            document.getElementById('player-form-json').value = JSON.stringify(formData, null, 2);
+        };
+
+        // Toggles
+        document.getElementById('toggle-player-batting-json').addEventListener('click', () => {
+            const el = document.getElementById('player-batting');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        });
+        document.getElementById('toggle-player-bowling-json').addEventListener('click', () => {
+            const el = document.getElementById('player-bowling');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        });
+        document.getElementById('toggle-player-form-json').addEventListener('click', () => {
+            const el = document.getElementById('player-form-json');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
         });
 
 

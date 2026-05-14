@@ -256,3 +256,34 @@ textarea.form-control {
         justify-content: flex-end;
     }
 }
+
+/* Advanced Visual Editor Styles */
+.visual-editor-box {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+.player-stat-row {
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.player-stat-row:hover {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    border-color: #cbd5e1 !important;
+}
+
+.player-stat-row input.form-control {
+    padding: 6px 8px;
+    height: 32px;
+}
+
+.player-stat-row label {
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.btn-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
