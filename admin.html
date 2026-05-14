@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elite Social Club | Admin Dashboard</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2322c55e'/><text x='50' y='65' font-family='Arial' font-weight='bold' font-size='35' fill='white' text-anchor='middle'>ESC</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2322c55e'/><text x='50' y='65' font-family='Arial' font-weight='bold' font-size='35' fill='white' text-anchor='middle'>ESC</text></svg>">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
     <main class="admin-container">
-        
+
         <!-- ========================================== -->
         <!-- AUTH PANEL -->
         <!-- ========================================== -->
-        <div id="auth-section" style="max-width: 400px; margin: 60px auto; background: white; padding: 32px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <div id="auth-section"
+            style="max-width: 400px; margin: 60px auto; background: white; padding: 32px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
             <h2 style="text-align: center; margin-bottom: 24px;">Admin Login</h2>
             <form id="login-form">
                 <div class="form-group">
@@ -31,7 +35,8 @@
                 </div>
                 <button type="submit" class="btn" style="width: 100%;" id="login-btn">Sign In</button>
             </form>
-            <div id="auth-error" style="color: #ef4444; margin-top: 16px; font-size: 14px; text-align: center; display: none;"></div>
+            <div id="auth-error"
+                style="color: #ef4444; margin-top: 16px; font-size: 14px; text-align: center; display: none;"></div>
             <p style="margin-top: 24px; font-size: 13px; color: #6b7280; text-align: center;">
                 If you don't have an account, create one in your Supabase Dashboard under Authentication > Users.
             </p>
@@ -58,558 +63,654 @@
                 <button class="admin-tab" data-target="messages-panel">Inbox</button>
             </div>
 
-        <!-- ========================================== -->
-        <!-- PLAYERS PANEL -->
-        <!-- ========================================== -->
-        <div id="players-panel" class="admin-panel active">
-            <h2>Add / Edit Player</h2>
-            <form id="player-form">
-                <input type="hidden" id="player-id">
-                
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="player-name" class="form-control" required placeholder="e.g. V. Kohli">
-                </div>
+            <!-- ========================================== -->
+            <!-- PLAYERS PANEL -->
+            <!-- ========================================== -->
+            <div id="players-panel" class="admin-panel active">
+                <h2>Add / Edit Player</h2>
+                <form id="player-form">
+                    <input type="hidden" id="player-id">
 
-                <div class="form-group">
-                    <label>Role</label>
-                    <input type="text" id="player-role" class="form-control" required placeholder="e.g. Batsman (RHB)">
-                </div>
-
-                <div class="form-group">
-                    <label>Category (Dropdown)</label>
-                    <select id="player-category" class="form-control">
-                        <option value="batsmen">Batsmen</option>
-                        <option value="bowlers">Bowlers</option>
-                        <option value="all-rounders">All-Rounders</option>
-                    </select>
-                </div>
-
-                <div class="form-grid">
                     <div class="form-group">
-                        <label>Nationality (ISO Code)</label>
-                        <input type="text" id="player-nationality" class="form-control" placeholder="e.g. IN, NP, AU">
+                        <label>Full Name</label>
+                        <input type="text" id="player-name" class="form-control" required placeholder="e.g. V. Kohli">
                     </div>
-                    <div class="form-group">
-                        <label>Tag / Special Title</label>
-                        <input type="text" id="player-tag" class="form-control" placeholder="e.g. Captain">
-                    </div>
-                </div>
 
-                <div class="form-grid">
                     <div class="form-group">
-                        <label>Batting Style</label>
-                        <input type="text" id="player-batting-style" class="form-control" placeholder="e.g. Right Handed Bat">
+                        <label>Role</label>
+                        <input type="text" id="player-role" class="form-control" required
+                            placeholder="e.g. Batsman (RHB)">
                     </div>
+
                     <div class="form-group">
-                        <label>Bowling Style</label>
-                        <input type="text" id="player-bowling-style" class="form-control" placeholder="e.g. Right-arm fast">
-                    </div>
-                </div>
-
-                <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
-                    <div class="form-group">
-                        <label>Matches</label>
-                        <input type="number" id="player-matches-total" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Total Runs</label>
-                        <input type="number" id="player-runs-total" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Total Wkts</label>
-                        <input type="number" id="player-wickets-total" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Highest Score</label>
-                        <input type="text" id="player-hs-total" class="form-control">
-                    </div>
-                </div>
-
-                <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
-                    <div class="form-group">
-                        <label>Batting Avg</label>
-                        <input type="number" step="0.01" id="player-batting-avg-total" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Strike Rate</label>
-                        <input type="number" step="0.01" id="player-sr-total" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Bowling Avg</label>
-                        <input type="number" step="0.01" id="player-bowling-avg-total" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Best Bowling</label>
-                        <input type="text" id="player-bb-total" class="form-control" placeholder="e.g. 5/12">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Profile Image Upload</label>
-                    <input type="file" id="player-image" class="form-control" accept="image/*">
-                    <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload an image or leave blank to keep existing. Image will be uploaded to Supabase Storage.</p>
-                    <img id="image-preview" class="image-preview" style="display: none;">
-                    <input type="hidden" id="player-image-url">
-                </div>
-
-                <div class="form-group">
-                    <label>Bio</label>
-                    <textarea id="player-bio" class="form-control" placeholder="Player biography..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Advanced Batting Stats
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-player-batting-json">Toggle JSON</button>
-                    </label>
-                    <div id="player-batting-visual" class="visual-editor-box" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
-                        <div id="player-batting-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPlayerBattingRow()">+ Add Format (T20/ODI/etc.)</button>
-                    </div>
-                    <textarea id="player-batting" class="form-control" style="font-family: monospace; display: none;" placeholder='[{"format": "T20", "runs": ...}]'></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Advanced Bowling Stats
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-player-bowling-json">Toggle JSON</button>
-                    </label>
-                    <div id="player-bowling-visual" class="visual-editor-box" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
-                        <div id="player-bowling-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPlayerBowlingRow()">+ Add Format (T20/ODI/etc.)</button>
-                    </div>
-                    <textarea id="player-bowling" class="form-control" style="font-family: monospace; display: none;" placeholder='[{"format": "T20", "wkts": ...}]'></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Recent Form (Last 5 Matches)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-player-form-json">Toggle JSON</button>
-                    </label>
-                    <div id="player-form-visual" class="visual-editor-box" style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
-                        <div id="player-form-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
-                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPlayerFormRow()">+ Add Match Entry</button>
-                    </div>
-                    <textarea id="player-form-json" class="form-control" style="font-family: monospace; display: none;" placeholder='[{"opponent": "Lions", "runs": ...}]'></textarea>
-                </div>
-
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="submit" class="btn" id="save-player-btn">Save Player</button>
-                    <button type="button" class="btn btn-secondary" id="clear-player-btn">Clear Form</button>
-                    <button type="button" class="btn btn-danger" id="delete-player-btn" style="display: none;">Delete Player</button>
-                </div>
-            </form>
-
-            <div class="item-list">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="margin: 0;">Existing Players</h3>
-                </div>
-                <input type="text" id="search-players" class="search-box" placeholder="Search players by name...">
-                <div id="players-list">Loading players...</div>
-            </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- MATCHES PANEL -->
-        <!-- ========================================== -->
-        <div id="matches-panel" class="admin-panel">
-            <h2>Add / Edit Match</h2>
-            <form id="match-form">
-                <input type="hidden" id="match-id">
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Select Tournament</label>
-                        <select id="match-tournament" class="form-control" required>
-                            <option value="">-- Select Tournament --</option>
+                        <label>Category (Dropdown)</label>
+                        <select id="player-category" class="form-control">
+                            <option value="batsmen">Batsmen</option>
+                            <option value="bowlers">Bowlers</option>
+                            <option value="all-rounders">All-Rounders</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Match Number</label>
-                        <input type="number" id="match-number" class="form-control" required>
-                    </div>
-                </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Match Date</label>
-                        <input type="date" id="match-date" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Match Time</label>
-                        <input type="time" id="match-time" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Venue</label>
-                        <input type="text" id="match-venue" class="form-control" placeholder="e.g. Tribhuvan University Ground">
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Team 1 Name</label>
-                        <input type="text" id="match-team1" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Team 2 Name</label>
-                        <input type="text" id="match-team2" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Team 1 Logo</label>
-                        <input type="file" id="match-team1-logo-file" class="form-control" accept="image/*">
-                        <input type="text" id="match-team1-logo" class="form-control" placeholder="Logo URL" style="margin-top: 5px;">
-                    </div>
-                    <div class="form-group">
-                        <label>Team 2 Logo</label>
-                        <input type="file" id="match-team2-logo-file" class="form-control" accept="image/*">
-                        <input type="text" id="match-team2-logo" class="form-control" placeholder="Logo URL" style="margin-top: 5px;">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="match-status" class="form-control">
-                        <option value="upcoming">Upcoming</option>
-                        <option value="live">Live</option>
-                        <option value="finished">Finished</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Summary / Toss Result</label>
-                    <input type="text" id="match-summary" class="form-control" placeholder="e.g. Falcons won by 5 wickets">
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Scoreboard Data (Visual Editor)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-json-btn">Toggle JSON View</button>
-                    </label>
-                    
-                    <div id="visual-editor-container" style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 5px;">
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-                            <button type="button" class="btn btn-secondary v-tab-btn active" data-vtab="v-toss" style="padding: 5px 10px; font-size: 13px;">General</button>
-                            <button type="button" class="btn btn-secondary v-tab-btn" data-vtab="v-inn1" style="padding: 5px 10px; font-size: 13px;">Innings 1</button>
-                            <button type="button" class="btn btn-secondary v-tab-btn" data-vtab="v-inn2" style="padding: 5px 10px; font-size: 13px;">Innings 2</button>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nationality (ISO Code)</label>
+                            <input type="text" id="player-nationality" class="form-control"
+                                placeholder="e.g. IN, NP, AU">
                         </div>
-
-                        <!-- General Tab -->
-                        <div id="v-toss" class="v-panel active">
-                            <div class="form-group">
-                                <label>Toss Result</label>
-                                <input type="text" id="v-toss-input" class="form-control" placeholder="e.g. Team A won the toss and elected to bat">
-                            </div>
-                            <div class="form-grid">
-                                <div class="form-group"><label>Umpire 1</label><input type="text" id="v-umpire1" class="form-control"></div>
-                                <div class="form-group"><label>Umpire 2</label><input type="text" id="v-umpire2" class="form-control"></div>
-                                <div class="form-group"><label>Man of the Match</label><input type="text" id="v-mom" class="form-control"></div>
-                            </div>
-                        </div>
-
-                        <!-- Innings 1 Tab -->
-                        <div id="v-inn1" class="v-panel" style="display: none;">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Team</label><input type="text" id="v-inn1-team" class="form-control"></div>
-                                <div class="form-group"><label>Score</label><input type="text" id="v-inn1-score" class="form-control" placeholder="150/4"></div>
-                                <div class="form-group"><label>Overs</label><input type="text" id="v-inn1-overs" class="form-control" placeholder="20.0"></div>
-                                <div class="form-group"><label>Extras</label><input type="text" id="v-inn1-extras" class="form-control" placeholder="0 (b 0, lb 0, w 0, nb 0)"></div>
-                            </div>
-                            
-                            <div style="margin-top: 15px;">
-                                <h4 style="margin-bottom: 8px; font-size: 14px;">Batting</h4>
-                                <div id="v-inn1-batting" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
-                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBatsmanRow('inn1')">+ Add Batsman</button>
-                            </div>
-
-                            <div style="margin-top: 20px;">
-                                <h4 style="margin-bottom: 8px; font-size: 14px;">Bowling</h4>
-                                <div id="v-inn1-bowling" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
-                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBowlerRow('inn1')">+ Add Bowler</button>
-                            </div>
-                        </div>
-
-                        <!-- Innings 2 Tab -->
-                        <div id="v-inn2" class="v-panel" style="display: none;">
-                            <div class="form-grid">
-                                <div class="form-group"><label>Team</label><input type="text" id="v-inn2-team" class="form-control"></div>
-                                <div class="form-group"><label>Score</label><input type="text" id="v-inn2-score" class="form-control" placeholder="150/4"></div>
-                                <div class="form-group"><label>Overs</label><input type="text" id="v-inn2-overs" class="form-control" placeholder="20.0"></div>
-                                <div class="form-group"><label>Extras</label><input type="text" id="v-inn2-extras" class="form-control" placeholder="0 (b 0, lb 0, w 0, nb 0)"></div>
-                            </div>
-                            
-                            <div style="margin-top: 15px;">
-                                <h4 style="margin-bottom: 8px; font-size: 14px;">Batting</h4>
-                                <div id="v-inn2-batting" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
-                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBatsmanRow('inn2')">+ Add Batsman</button>
-                            </div>
-
-                            <div style="margin-top: 20px;">
-                                <h4 style="margin-bottom: 8px; font-size: 14px;">Bowling</h4>
-                                <div id="v-inn2-bowling" style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;"></div>
-                                <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 4px 8px;" onclick="window.addBowlerRow('inn2')">+ Add Bowler</button>
-                            </div>
-                        </div>
-
-                        <div style="margin-top: 20px; text-align: right;">
-                            <button type="button" class="btn" style="background-color: #10b981;" onclick="window.syncVisualToJSON()">Apply Changes to JSON</button>
+                        <div class="form-group">
+                            <label>Tag / Special Title</label>
+                            <input type="text" id="player-tag" class="form-control" placeholder="e.g. Captain">
                         </div>
                     </div>
 
-                    <textarea id="match-scoreboard" class="form-control" style="font-family: monospace; min-height: 200px; margin-top: 10px; display: none;" placeholder='{"innings1": {...}, "innings2": {...}}'></textarea>
-                </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Batting Style</label>
+                            <input type="text" id="player-batting-style" class="form-control"
+                                placeholder="e.g. Right Handed Bat">
+                        </div>
+                        <div class="form-group">
+                            <label>Bowling Style</label>
+                            <input type="text" id="player-bowling-style" class="form-control"
+                                placeholder="e.g. Right-arm fast">
+                        </div>
+                    </div>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="submit" class="btn" id="save-match-btn">Save Match</button>
-                    <button type="button" class="btn btn-secondary" id="clear-match-btn">Clear Form</button>
-                    <button type="button" class="btn btn-danger" id="delete-match-btn" style="display: none;">Delete Match</button>
-                </div>
-            </form>
+                    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="form-group">
+                            <label>Matches</label>
+                            <input type="number" id="player-matches-total" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Runs</label>
+                            <input type="number" id="player-runs-total" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Wkts</label>
+                            <input type="number" id="player-wickets-total" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Highest Score</label>
+                            <input type="text" id="player-hs-total" class="form-control">
+                        </div>
+                    </div>
 
-            <div class="item-list">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <h3 style="margin: 0;">Existing Matches</h3>
+                    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="form-group">
+                            <label>Batting Avg</label>
+                            <input type="number" step="0.01" id="player-batting-avg-total" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Strike Rate</label>
+                            <input type="number" step="0.01" id="player-sr-total" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Bowling Avg</label>
+                            <input type="number" step="0.01" id="player-bowling-avg-total" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Best Bowling</label>
+                            <input type="text" id="player-bb-total" class="form-control" placeholder="e.g. 5/12">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Image Upload</label>
+                        <input type="file" id="player-image" class="form-control" accept="image/*">
+                        <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload an image or leave blank to keep
+                            existing. Image will be uploaded to Supabase Storage.</p>
+                        <img id="image-preview" class="image-preview" style="display: none;">
+                        <input type="hidden" id="player-image-url">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="player-bio" class="form-control" placeholder="Player biography..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Advanced Batting Stats
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-player-batting-json">Toggle JSON</button>
+                        </label>
+                        <div id="player-batting-visual" class="visual-editor-box"
+                            style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                            <div id="player-batting-rows" style="display: flex; flex-direction: column; gap: 10px;">
+                            </div>
+                            <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;"
+                                onclick="window.addPlayerBattingRow()">+ Add Format (T20/ODI/etc.)</button>
+                        </div>
+                        <textarea id="player-batting" class="form-control"
+                            style="font-family: monospace; display: none;"
+                            placeholder='[{"format": "T20", "runs": ...}]'></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Advanced Bowling Stats
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-player-bowling-json">Toggle JSON</button>
+                        </label>
+                        <div id="player-bowling-visual" class="visual-editor-box"
+                            style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                            <div id="player-bowling-rows" style="display: flex; flex-direction: column; gap: 10px;">
+                            </div>
+                            <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;"
+                                onclick="window.addPlayerBowlingRow()">+ Add Format (T20/ODI/etc.)</button>
+                        </div>
+                        <textarea id="player-bowling" class="form-control"
+                            style="font-family: monospace; display: none;"
+                            placeholder='[{"format": "T20", "wkts": ...}]'></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Recent Form (Last 5 Matches)
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-player-form-json">Toggle JSON</button>
+                        </label>
+                        <div id="player-form-visual" class="visual-editor-box"
+                            style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                            <div id="player-form-rows" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;"
+                                onclick="window.addPlayerFormRow()">+ Add Match Entry</button>
+                        </div>
+                        <textarea id="player-form-json" class="form-control"
+                            style="font-family: monospace; display: none;"
+                            placeholder='[{"opponent": "Lions", "runs": ...}]'></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn" id="save-player-btn">Save Player</button>
+                        <button type="button" class="btn btn-secondary" id="clear-player-btn">Clear Form</button>
+                        <button type="button" class="btn btn-danger" id="delete-player-btn"
+                            style="display: none;">Delete Player</button>
+                    </div>
+                </form>
+
+                <div class="item-list">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0;">Existing Players</h3>
+                    </div>
+                    <input type="text" id="search-players" class="search-box" placeholder="Search players by name...">
+                    <div id="players-list">Loading players...</div>
                 </div>
-                <input type="text" id="search-matches" class="search-box" placeholder="Search matches by team or tournament...">
-                <div id="matches-list">Loading matches...</div>
             </div>
-        </div>
 
-        <!-- ========================================== -->
-        <!-- MESSAGES PANEL -->
-        <!-- ========================================== -->
-        <div id="messages-panel" class="admin-panel">
-            <h2>Contact Messages</h2>
-            <div class="item-list" style="margin-top: 10px; border-top: none; padding-top: 0;">
-                <div id="messages-list">Loading messages...</div>
-            </div>
-        </div>
+            <!-- ========================================== -->
+            <!-- MATCHES PANEL -->
+            <!-- ========================================== -->
+            <div id="matches-panel" class="admin-panel">
+                <h2>Add / Edit Match</h2>
+                <form id="match-form">
+                    <input type="hidden" id="match-id">
 
-        <!-- ========================================== -->
-        <!-- TOURNAMENTS PANEL -->
-        <!-- ========================================== -->
-        <div id="tournaments-panel" class="admin-panel">
-            <h2>Tournament Settings (Standings & Stats)</h2>
-            <form id="tournament-form">
-                <input type="hidden" id="tourney-id">
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Tournament Name</label>
-                        <input type="text" id="tourney-name" class="form-control" required>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Select Tournament</label>
+                            <select id="match-tournament" class="form-control" required>
+                                <option value="">-- Select Tournament --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Match Number</label>
+                            <input type="number" id="match-number" class="form-control" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Tournament Banner</label>
-                        <input type="file" id="tourney-banner-file" class="form-control" accept="image/*">
-                        <input type="text" id="tourney-banner" class="form-control" placeholder="Banner URL" style="margin-top: 5px;">
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Match Date</label>
+                            <input type="date" id="match-date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Match Time</label>
+                            <input type="time" id="match-time" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Venue</label>
+                            <input type="text" id="match-venue" class="form-control"
+                                placeholder="e.g. Tribhuvan University Ground">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Category</label>
-                        <select id="tourney-category" class="form-control">
-                            <option value="International">International</option>
-                            <option value="Domestic">Domestic</option>
-                            <option value="League">League</option>
-                        </select>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Team 1 Name</label>
+                            <input type="text" id="match-team1" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Team 2 Name</label>
+                            <input type="text" id="match-team2" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Team 1 Logo</label>
+                            <input type="file" id="match-team1-logo-file" class="form-control" accept="image/*">
+                            <input type="text" id="match-team1-logo" class="form-control" placeholder="Logo URL"
+                                style="margin-top: 5px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Team 2 Logo</label>
+                            <input type="file" id="match-team2-logo-file" class="form-control" accept="image/*">
+                            <input type="text" id="match-team2-logo" class="form-control" placeholder="Logo URL"
+                                style="margin-top: 5px;">
+                        </div>
                     </div>
+
                     <div class="form-group">
                         <label>Status</label>
-                        <select id="tourney-status" class="form-control">
-                            <option value="current">Current / Live</option>
+                        <select id="match-status" class="form-control">
                             <option value="upcoming">Upcoming</option>
+                            <option value="live">Live</option>
                             <option value="finished">Finished</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="form-grid">
                     <div class="form-group">
-                        <label>Dates</label>
-                        <input type="text" id="tourney-dates" class="form-control" placeholder="e.g. May 1 - May 15, 2026">
+                        <label>Summary / Toss Result</label>
+                        <input type="text" id="match-summary" class="form-control"
+                            placeholder="e.g. Falcons won by 5 wickets">
                     </div>
+
                     <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" id="tourney-location" class="form-control" placeholder="e.g. Kathmandu, Nepal">
-                    </div>
-                </div>
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Scoreboard Data (Visual Editor)
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-json-btn">Toggle JSON View</button>
+                        </label>
 
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="tourney-description" class="form-control" placeholder="Short description of the tournament..." style="min-height: 80px;"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Points Table
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-pts-json-btn">Toggle JSON View</button>
-                    </label>
-                    
-                    <div id="pts-visual-editor" class="visual-editor-box">
-                        <table class="admin-table" id="pts-table-body">
-                            <thead>
-                                <tr>
-                                    <th>Team</th>
-                                    <th>Mat</th>
-                                    <th>Won</th>
-                                    <th>Lost</th>
-                                    <th>Pts</th>
-                                    <th>NRR</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Rows will be injected here -->
-                            </tbody>
-                        </table>
-                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;" onclick="window.addPtsRow()">+ Add Team</button>
-                    </div>
-                    <textarea id="tourney-pts" class="form-control" style="font-family: monospace; min-height: 150px; display: none;"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Top Performers (Stats)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-stats-json-btn">Toggle JSON View</button>
-                    </label>
-
-                    <div id="stats-visual-editor" class="visual-editor-box">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Most Runs</label>
-                                <div id="v-stats-runs"></div>
-                                <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;" onclick="window.addStatsRow('runs')">+ Add Player</button>
+                        <div id="visual-editor-container"
+                            style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 5px;">
+                            <div
+                                style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                                <button type="button" class="btn btn-secondary v-tab-btn active" data-vtab="v-toss"
+                                    style="padding: 5px 10px; font-size: 13px;">General</button>
+                                <button type="button" class="btn btn-secondary v-tab-btn" data-vtab="v-inn1"
+                                    style="padding: 5px 10px; font-size: 13px;">Innings 1</button>
+                                <button type="button" class="btn btn-secondary v-tab-btn" data-vtab="v-inn2"
+                                    style="padding: 5px 10px; font-size: 13px;">Innings 2</button>
                             </div>
-                            <div class="form-group">
-                                <label>Most Wickets</label>
-                                <div id="v-stats-wickets"></div>
-                                <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;" onclick="window.addStatsRow('wickets')">+ Add Player</button>
+
+                            <!-- General Tab -->
+                            <div id="v-toss" class="v-panel active">
+                                <div class="form-group">
+                                    <label>Toss Result</label>
+                                    <input type="text" id="v-toss-input" class="form-control"
+                                        placeholder="e.g. Team A won the toss and elected to bat">
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group"><label>Umpire 1</label><input type="text" id="v-umpire1"
+                                            class="form-control"></div>
+                                    <div class="form-group"><label>Umpire 2</label><input type="text" id="v-umpire2"
+                                            class="form-control"></div>
+                                    <div class="form-group"><label>Man of the Match</label><input type="text" id="v-mom"
+                                            class="form-control"></div>
+                                </div>
+                            </div>
+
+                            <!-- Innings 1 Tab -->
+                            <div id="v-inn1" class="v-panel" style="display: none;">
+                                <div class="form-grid">
+                                    <div class="form-group"><label>Team</label><input type="text" id="v-inn1-team"
+                                            class="form-control"></div>
+                                    <div class="form-group"><label>Score</label><input type="text" id="v-inn1-score"
+                                            class="form-control" placeholder="150/4"></div>
+                                    <div class="form-group"><label>Overs</label><input type="text" id="v-inn1-overs"
+                                            class="form-control" placeholder="20.0"></div>
+                                    <div class="form-group"><label>Extras</label><input type="text" id="v-inn1-extras"
+                                            class="form-control" placeholder="0 (b 0, lb 0, w 0, nb 0)"></div>
+                                </div>
+
+                                <div style="margin-top: 15px;">
+                                    <h4 style="margin-bottom: 8px; font-size: 14px;">Batting</h4>
+                                    <div id="v-inn1-batting"
+                                        style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        style="font-size: 12px; padding: 4px 8px;"
+                                        onclick="window.addBatsmanRow('inn1')">+ Add Batsman</button>
+                                </div>
+
+                                <div style="margin-top: 20px;">
+                                    <h4 style="margin-bottom: 8px; font-size: 14px;">Bowling</h4>
+                                    <div id="v-inn1-bowling"
+                                        style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        style="font-size: 12px; padding: 4px 8px;"
+                                        onclick="window.addBowlerRow('inn1')">+ Add Bowler</button>
+                                </div>
+                            </div>
+
+                            <!-- Innings 2 Tab -->
+                            <div id="v-inn2" class="v-panel" style="display: none;">
+                                <div class="form-grid">
+                                    <div class="form-group"><label>Team</label><input type="text" id="v-inn2-team"
+                                            class="form-control"></div>
+                                    <div class="form-group"><label>Score</label><input type="text" id="v-inn2-score"
+                                            class="form-control" placeholder="150/4"></div>
+                                    <div class="form-group"><label>Overs</label><input type="text" id="v-inn2-overs"
+                                            class="form-control" placeholder="20.0"></div>
+                                    <div class="form-group"><label>Extras</label><input type="text" id="v-inn2-extras"
+                                            class="form-control" placeholder="0 (b 0, lb 0, w 0, nb 0)"></div>
+                                </div>
+
+                                <div style="margin-top: 15px;">
+                                    <h4 style="margin-bottom: 8px; font-size: 14px;">Batting</h4>
+                                    <div id="v-inn2-batting"
+                                        style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        style="font-size: 12px; padding: 4px 8px;"
+                                        onclick="window.addBatsmanRow('inn2')">+ Add Batsman</button>
+                                </div>
+
+                                <div style="margin-top: 20px;">
+                                    <h4 style="margin-bottom: 8px; font-size: 14px;">Bowling</h4>
+                                    <div id="v-inn2-bowling"
+                                        style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                    </div>
+                                    <button type="button" class="btn btn-secondary"
+                                        style="font-size: 12px; padding: 4px 8px;"
+                                        onclick="window.addBowlerRow('inn2')">+ Add Bowler</button>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 20px; text-align: right;">
+                                <button type="button" class="btn" style="background-color: #10b981;"
+                                    onclick="window.syncVisualToJSON()">Apply Changes to JSON</button>
                             </div>
                         </div>
+
+                        <textarea id="match-scoreboard" class="form-control"
+                            style="font-family: monospace; min-height: 200px; margin-top: 10px; display: none;"
+                            placeholder='{"innings1": {...}, "innings2": {...}}'></textarea>
                     </div>
-                    <textarea id="tourney-stats" class="form-control" style="font-family: monospace; min-height: 150px; display: none;"></textarea>
-                </div>
 
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        Archives (Historical Data)
-                        <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" id="toggle-archives-json-btn">Toggle JSON View</button>
-                    </label>
-
-                    <div id="archives-visual-editor" class="visual-editor-box">
-                        <div id="v-archives-list"></div>
-                        <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;" onclick="window.addArchiveRow()">+ Add History Entry</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn" id="save-match-btn">Save Match</button>
+                        <button type="button" class="btn btn-secondary" id="clear-match-btn">Clear Form</button>
+                        <button type="button" class="btn btn-danger" id="delete-match-btn" style="display: none;">Delete
+                            Match</button>
                     </div>
-                    <textarea id="tourney-archives" class="form-control" style="font-family: monospace; min-height: 100px; display: none;"></textarea>
-                </div>
+                </form>
 
-                <div class="form-group" id="tourney-matches-section" style="display: none; margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <label style="margin: 0; font-size: 16px; font-weight: 700;">Tournament Matches</label>
-                        <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 5px 12px;" id="add-match-to-tourney-btn">+ Add Match</button>
+                <div class="item-list">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0;">Existing Matches</h3>
                     </div>
-                    <div id="tourney-matches-list">
-                        <!-- Match Table will be injected here -->
-                    </div>
+                    <input type="text" id="search-matches" class="search-box"
+                        placeholder="Search matches by team or tournament...">
+                    <div id="matches-list">Loading matches...</div>
                 </div>
-
-                <div style="margin-top: 20px;">
-                    <button type="submit" class="btn">Save Tournament Settings</button>
-                    <button type="button" class="btn btn-secondary" id="clear-tourney-btn">Create New Tournament</button>
-                </div>
-            </form>
-
-            <div class="item-list" style="margin-top: 30px;">
-                <h3>Existing Tournaments</h3>
-                <div id="tournaments-list">Loading tournaments...</div>
             </div>
-        </div>
 
-        <!-- ========================================== -->
-        <!-- NOTICES PANEL -->
-        <!-- ========================================== -->
-        <div id="notices-panel" class="admin-panel">
-            <h2>Manage Notices & Updates</h2>
-            <form id="notice-form">
-                <div class="form-group">
-                    <label>Notice Title</label>
-                    <input type="text" id="notice-title" class="form-control" required placeholder="e.g. Match Postponed">
+            <!-- ========================================== -->
+            <!-- MESSAGES PANEL -->
+            <!-- ========================================== -->
+            <div id="messages-panel" class="admin-panel">
+                <h2>Contact Messages</h2>
+                <div class="item-list" style="margin-top: 10px; border-top: none; padding-top: 0;">
+                    <div id="messages-list">Loading messages...</div>
                 </div>
-
-                <div class="form-group">
-                    <label>Notice Type (Color)</label>
-                    <select id="notice-type" class="form-control">
-                        <option value="info">Info (Blue)</option>
-                        <option value="success">Success (Green)</option>
-                        <option value="warning">Warning (Yellow)</option>
-                        <option value="danger">Danger (Red)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Message Content</label>
-                    <textarea id="notice-message" class="form-control" required style="min-height: 100px;" placeholder="Details of the announcement..."></textarea>
-                </div>
-
-                <button type="submit" class="btn">Post Notice</button>
-            </form>
-
-            <div class="item-list" style="margin-top: 30px;">
-                <h3>Active Notices</h3>
-                <div id="notices-list">Loading notices...</div>
             </div>
-        </div>
 
-        <!-- ========================================== -->
-        <!-- POPUPS PANEL -->
-        <!-- ========================================== -->
-        <div id="popups-panel" class="admin-panel">
-            <h2>Manage Promotional Popups</h2>
-            <form id="popup-form">
-                <input type="hidden" id="popup-id">
-                
-                <div class="form-group">
-                    <label>Popup Title (Admin only)</label>
-                    <input type="text" id="popup-title" class="form-control" required placeholder="e.g. New Year Special">
-                </div>
+            <!-- ========================================== -->
+            <!-- TOURNAMENTS PANEL -->
+            <!-- ========================================== -->
+            <div id="tournaments-panel" class="admin-panel">
+                <h2>Tournament Settings (Standings & Stats)</h2>
+                <form id="tournament-form">
+                    <input type="hidden" id="tourney-id">
 
-                <div class="form-group">
-                    <label>Promo Images (Multi-upload supported)</label>
-                    <input type="file" id="popup-images" class="form-control" accept="image/*" multiple>
-                    <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload one or more images. They will be displayed in the popup.</p>
-                    <div id="popup-images-preview" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;"></div>
-                    <input type="hidden" id="popup-image-urls">
-                </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Tournament Name</label>
+                            <input type="text" id="tourney-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Tournament Banner</label>
+                            <input type="file" id="tourney-banner-file" class="form-control" accept="image/*">
+                            <input type="text" id="tourney-banner" class="form-control" placeholder="Banner URL"
+                                style="margin-top: 5px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="tourney-category" class="form-control">
+                                <option value="International">International</option>
+                                <option value="Domestic">Domestic</option>
+                                <option value="League">League</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="tourney-status" class="form-control">
+                                <option value="current">Current / Live</option>
+                                <option value="upcoming">Upcoming</option>
+                                <option value="finished">Finished</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="form-group">
-                    <label>Action Link URL (Optional)</label>
-                    <input type="url" id="popup-link" class="form-control" placeholder="https://...">
-                </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Dates</label>
+                            <input type="text" id="tourney-dates" class="form-control"
+                                placeholder="e.g. May 1 - May 15, 2026">
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="tourney-location" class="form-control"
+                                placeholder="e.g. Kathmandu, Nepal">
+                        </div>
+                    </div>
 
-                <div class="form-grid">
                     <div class="form-group">
-                        <label>Display Frequency</label>
-                        <select id="popup-frequency" class="form-control">
-                            <option value="once_per_session">Once per session</option>
-                            <option value="every_load">On every page load</option>
+                        <label>Description</label>
+                        <textarea id="tourney-description" class="form-control"
+                            placeholder="Short description of the tournament..." style="min-height: 80px;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Points Table
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-pts-json-btn">Toggle JSON View</button>
+                        </label>
+
+                        <div id="pts-visual-editor" class="visual-editor-box">
+                            <table class="admin-table" id="pts-table-body">
+                                <thead>
+                                    <tr>
+                                        <th>Team</th>
+                                        <th>Mat</th>
+                                        <th>Won</th>
+                                        <th>Lost</th>
+                                        <th>Pts</th>
+                                        <th>NRR</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be injected here -->
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;"
+                                onclick="window.addPtsRow()">+ Add Team</button>
+                        </div>
+                        <textarea id="tourney-pts" class="form-control"
+                            style="font-family: monospace; min-height: 150px; display: none;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Top Performers (Stats)
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-stats-json-btn">Toggle JSON View</button>
+                        </label>
+
+                        <div id="stats-visual-editor" class="visual-editor-box">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Most Runs</label>
+                                    <div id="v-stats-runs"></div>
+                                    <button type="button" class="btn btn-secondary"
+                                        style="margin-top: 5px; font-size: 11px;" onclick="window.addStatsRow('runs')">+
+                                        Add Player</button>
+                                </div>
+                                <div class="form-group">
+                                    <label>Most Wickets</label>
+                                    <div id="v-stats-wickets"></div>
+                                    <button type="button" class="btn btn-secondary"
+                                        style="margin-top: 5px; font-size: 11px;"
+                                        onclick="window.addStatsRow('wickets')">+ Add Player</button>
+                                </div>
+                            </div>
+                        </div>
+                        <textarea id="tourney-stats" class="form-control"
+                            style="font-family: monospace; min-height: 150px; display: none;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            Archives (Historical Data)
+                            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;"
+                                id="toggle-archives-json-btn">Toggle JSON View</button>
+                        </label>
+
+                        <div id="archives-visual-editor" class="visual-editor-box">
+                            <div id="v-archives-list"></div>
+                            <button type="button" class="btn btn-secondary" style="margin-top: 5px; font-size: 11px;"
+                                onclick="window.addArchiveRow()">+ Add History Entry</button>
+                        </div>
+                        <textarea id="tourney-archives" class="form-control"
+                            style="font-family: monospace; min-height: 100px; display: none;"></textarea>
+                    </div>
+
+                    <div class="form-group" id="tourney-matches-section"
+                        style="display: none; margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label style="margin: 0; font-size: 16px; font-weight: 700;">Tournament Matches</label>
+                            <button type="button" class="btn btn-secondary" style="font-size: 12px; padding: 5px 12px;"
+                                id="add-match-to-tourney-btn">+ Add Match</button>
+                        </div>
+                        <div id="tourney-matches-list">
+                            <!-- Match Table will be injected here -->
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <button type="submit" class="btn">Save Tournament Settings</button>
+                        <button type="button" class="btn btn-secondary" id="clear-tourney-btn">Create New
+                            Tournament</button>
+                    </div>
+                </form>
+
+                <div class="item-list" style="margin-top: 30px;">
+                    <h3>Existing Tournaments</h3>
+                    <div id="tournaments-list">Loading tournaments...</div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- NOTICES PANEL -->
+            <!-- ========================================== -->
+            <div id="notices-panel" class="admin-panel">
+                <h2>Manage Notices & Updates</h2>
+                <form id="notice-form">
+                    <div class="form-group">
+                        <label>Notice Title</label>
+                        <input type="text" id="notice-title" class="form-control" required
+                            placeholder="e.g. Match Postponed">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notice Type (Color)</label>
+                        <select id="notice-type" class="form-control">
+                            <option value="info">Info (Blue)</option>
+                            <option value="success">Success (Green)</option>
+                            <option value="warning">Warning (Yellow)</option>
+                            <option value="danger">Danger (Red)</option>
                         </select>
                     </div>
-                    <div class="form-group" style="display: flex; align-items: flex-end; gap: 8px; padding-bottom: 5px;">
-                        <input type="checkbox" id="popup-active" checked style="width: 20px; height: 20px; cursor: pointer;">
-                        <label for="popup-active" style="margin-bottom: 0; cursor: pointer;">Is Active</label>
+
+                    <div class="form-group">
+                        <label>Message Content</label>
+                        <textarea id="notice-message" class="form-control" required style="min-height: 100px;"
+                            placeholder="Details of the announcement..."></textarea>
                     </div>
-                </div>
 
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button type="submit" class="btn" id="save-popup-btn">Save Popup</button>
-                    <button type="button" class="btn btn-secondary" id="clear-popup-btn">Clear Form</button>
-                    <button type="button" class="btn btn-danger" id="delete-popup-btn" style="display: none;">Delete Popup</button>
-                </div>
-            </form>
+                    <button type="submit" class="btn">Post Notice</button>
+                </form>
 
-            <div class="item-list" style="margin-top: 30px;">
-                <h3>Existing Popups</h3>
-                <div id="popups-list">Loading popups...</div>
+                <div class="item-list" style="margin-top: 30px;">
+                    <h3>Active Notices</h3>
+                    <div id="notices-list">Loading notices...</div>
+                </div>
             </div>
-        </div>
+
+            <!-- ========================================== -->
+            <!-- POPUPS PANEL -->
+            <!-- ========================================== -->
+            <div id="popups-panel" class="admin-panel">
+                <h2>Manage Promotional Popups</h2>
+                <form id="popup-form">
+                    <input type="hidden" id="popup-id">
+
+                    <div class="form-group">
+                        <label>Popup Title (Admin only)</label>
+                        <input type="text" id="popup-title" class="form-control" required
+                            placeholder="e.g. New Year Special">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Promo Images (Multi-upload supported)</label>
+                        <input type="file" id="popup-images" class="form-control" accept="image/*" multiple>
+                        <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload one or more images. They will
+                            be displayed in the popup.</p>
+                        <div id="popup-images-preview"
+                            style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;"></div>
+                        <input type="hidden" id="popup-image-urls">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Action Link URL (Optional)</label>
+                        <input type="url" id="popup-link" class="form-control" placeholder="https://...">
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Display Frequency</label>
+                            <select id="popup-frequency" class="form-control">
+                                <option value="once_per_session">Once per session</option>
+                                <option value="every_load">On every page load</option>
+                            </select>
+                        </div>
+                        <div class="form-group"
+                            style="display: flex; align-items: flex-end; gap: 8px; padding-bottom: 5px;">
+                            <input type="checkbox" id="popup-active" checked
+                                style="width: 20px; height: 20px; cursor: pointer;">
+                            <label for="popup-active" style="margin-bottom: 0; cursor: pointer;">Is Active</label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn" id="save-popup-btn">Save Popup</button>
+                        <button type="button" class="btn btn-secondary" id="clear-popup-btn">Clear Form</button>
+                        <button type="button" class="btn btn-danger" id="delete-popup-btn" style="display: none;">Delete
+                            Popup</button>
+                    </div>
+                </form>
+
+                <div class="item-list" style="margin-top: 30px;">
+                    <h3>Existing Popups</h3>
+                    <div id="popups-list">Loading popups...</div>
+                </div>
+            </div>
 
         </div> <!-- END DASHBOARD SECTION -->
 
@@ -661,10 +762,12 @@
                         </div>
                     </div>
                     <div class="form-grid">
-                        <div class="form-group"><label>Team 1</label><input type="text" id="modal-match-team1" class="form-control"></div>
-                        <div class="form-group"><label>Team 2</label><input type="text" id="modal-match-team2" class="form-control"></div>
+                        <div class="form-group"><label>Team 1</label><input type="text" id="modal-match-team1"
+                                class="form-control"></div>
+                        <div class="form-group"><label>Team 2</label><input type="text" id="modal-match-team2"
+                                class="form-control"></div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Status</label>
                         <select id="modal-match-status" class="form-control">
@@ -714,7 +817,7 @@
             tab.addEventListener('click', (e) => {
                 document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-                
+
                 e.target.classList.add('active');
                 document.getElementById(e.target.getAttribute('data-target')).classList.add('active');
             });
@@ -726,7 +829,7 @@
                 const target = e.target.getAttribute('data-vtab');
                 document.querySelectorAll('.v-tab-btn').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.v-panel').forEach(p => p.style.display = 'none');
-                
+
                 e.target.classList.add('active');
                 document.getElementById(target).style.display = 'block';
             });
@@ -797,16 +900,16 @@
                 }
                 const data = JSON.parse(ta);
                 document.getElementById('v-toss-input').value = data.toss || '';
-                
+
                 ['inn1', 'inn2'].forEach((inningsKey, idx) => {
-                    const innData = data[`innings${idx+1}`];
+                    const innData = data[`innings${idx + 1}`];
                     const i = inningsKey;
                     if (innData) {
                         document.getElementById(`v-${i}-team`).value = innData.team || '';
                         document.getElementById(`v-${i}-score`).value = innData.score || '';
                         document.getElementById(`v-${i}-overs`).value = innData.overs || '';
                         document.getElementById(`v-${i}-extras`).value = innData.extras || '';
-                        
+
                         document.getElementById(`v-${i}-batting`).innerHTML = '';
                         (innData.batting || []).forEach(b => {
                             window.addBatsmanRow(i);
@@ -877,7 +980,7 @@
                     econ: parseFloat(row.querySelector('.bowl-eco').value) || 0
                 })).filter(b => b.name);
 
-                data[`innings${idx+1}`] = {
+                data[`innings${idx + 1}`] = {
                     team: teamName,
                     score: document.getElementById(`v-${i}-score`).value,
                     overs: document.getElementById(`v-${i}-overs`).value,
@@ -895,7 +998,7 @@
         // AUTHENTICATION LOGIC
         // ==========================================
         let isInitialAuth = true;
-        
+
         supabase.auth.onAuthStateChange((event, session) => {
             if (session) {
                 document.getElementById('auth-section').style.display = 'none';
@@ -939,7 +1042,7 @@
             e.preventDefault();
             const btn = document.getElementById('login-btn');
             const errEl = document.getElementById('auth-error');
-            
+
             btn.textContent = "Signing In...";
             btn.disabled = true;
             errEl.style.display = 'none';
@@ -948,7 +1051,7 @@
             const password = document.getElementById('auth-password').value;
 
             const { error } = await supabase.auth.signInWithPassword({ email, password });
-            
+
             btn.textContent = "Sign In";
             btn.disabled = false;
 
@@ -982,9 +1085,9 @@
         function renderPlayersList(filter = '') {
             const list = document.getElementById('players-list');
             const filtered = allPlayers.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
-            
-            if(filtered.length === 0) { list.innerHTML = '<p>No players found.</p>'; return; }
-            
+
+            if (filtered.length === 0) { list.innerHTML = '<p>No players found.</p>'; return; }
+
             list.innerHTML = filtered.map(p => `
                 <div class="list-item">
                     <div class="list-item-content-wrapper">
@@ -1007,7 +1110,7 @@
 
         window.editPlayer = (id) => {
             const p = allPlayers.find(x => x.id === id);
-            if(!p) return;
+            if (!p) return;
 
             // Switch to players tab
             document.querySelector('[data-target="players-panel"]').click();
@@ -1030,7 +1133,7 @@
             document.getElementById('player-sr-total').value = p.strike_rate || 0;
             document.getElementById('player-bowling-avg-total').value = p.bowling_avg || 0;
             document.getElementById('player-bb-total').value = p.best_bowling || '';
-            
+
             document.getElementById('player-batting').value = p.batting_detailed ? JSON.stringify(p.batting_detailed, null, 2) : '';
             document.getElementById('player-bowling').value = p.bowling_detailed ? JSON.stringify(p.bowling_detailed, null, 2) : '';
             document.getElementById('player-form-json').value = p.recent_form ? JSON.stringify(p.recent_form, null, 2) : '';
@@ -1039,7 +1142,7 @@
             window.syncPlayerJSONToVisual();
 
             const preview = document.getElementById('image-preview');
-            if(p.image_url) {
+            if (p.image_url) {
                 preview.src = p.image_url;
                 preview.style.display = 'block';
             } else {
@@ -1059,10 +1162,10 @@
 
         document.getElementById('delete-player-btn').addEventListener('click', async () => {
             const id = document.getElementById('player-id').value;
-            if(!id || !confirm('Are you sure you want to delete this player?')) return;
-            
+            if (!id || !confirm('Are you sure you want to delete this player?')) return;
+
             const { error } = await supabase.from('player_stats').delete().eq('id', id);
-            if(error) showMessage("Failed to delete player: " + error.message, true);
+            if (error) showMessage("Failed to delete player: " + error.message, true);
             else {
                 showMessage("Player deleted.");
                 document.getElementById('clear-player-btn').click();
@@ -1072,7 +1175,7 @@
 
         document.getElementById('player-image').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if(!file) return;
+            if (!file) return;
 
             const btn = document.getElementById('save-player-btn');
             btn.textContent = "Uploading Image...";
@@ -1092,7 +1195,7 @@
             }
 
             const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-            
+
             document.getElementById('player-image-url').value = data.publicUrl;
             document.getElementById('image-preview').src = data.publicUrl;
             document.getElementById('image-preview').style.display = 'block';
@@ -1105,14 +1208,14 @@
         document.getElementById('player-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('player-id').value;
-            
+
             // Sync visual to JSON before submission
             window.syncPlayerVisualToJSON();
 
             const parseJson = (idStr) => {
                 const val = document.getElementById(idStr).value.trim();
-                if(!val) return null;
-                try { return JSON.parse(val); } catch(err) { throw new Error(`Invalid JSON in ${idStr}`); }
+                if (!val) return null;
+                try { return JSON.parse(val); } catch (err) { throw new Error(`Invalid JSON in ${idStr}`); }
             };
 
             try {
@@ -1183,7 +1286,7 @@
             div.innerHTML = `
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Format</label><input type="text" class="form-control p-bowl-format" value="${data?.format || ''}" placeholder="T20/ODI"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Matches</label><input type="number" class="form-control p-bowl-mat" value="${data?.mat || 0}"></div>
-                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.balls ? (data.balls/6).toFixed(1) : (data?.overs || 0)}"></div>
+                <div class="form-group" style="margin:0"><label style="font-size:10px">Overs</label><input type="number" step="0.1" class="form-control p-bowl-overs" value="${data?.balls ? (data.balls / 6).toFixed(1) : (data?.overs || 0)}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Wickets</label><input type="number" class="form-control p-bowl-wkts" value="${data?.wkts || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Econ</label><input type="number" step="0.01" class="form-control p-bowl-econ" value="${data?.econ || 0}"></div>
                 <div class="form-group" style="margin:0"><label style="font-size:10px">Avg</label><input type="number" step="0.01" class="form-control p-bowl-avg" value="${data?.avg || 0}"></div>
@@ -1294,12 +1397,12 @@
 
         function renderMatchesList(filter = '') {
             const list = document.getElementById('matches-list');
-            const filtered = allMatches.filter(m => 
+            const filtered = allMatches.filter(m =>
                 (m.team1_name + m.team2_name + m.tournament_name).toLowerCase().includes(filter.toLowerCase())
             );
 
-            if(filtered.length === 0) { list.innerHTML = '<p>No matches found.</p>'; return; }
-            
+            if (filtered.length === 0) { list.innerHTML = '<p>No matches found.</p>'; return; }
+
             list.innerHTML = filtered.map(m => `
                 <div class="list-item">
                     <div class="list-item-content-wrapper">
@@ -1309,7 +1412,7 @@
                             <img src="${m.team2_logo || 'https://via.placeholder.com/24'}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
                         </div>
                         <div class="list-item-info">
-                            <h3>${m.team1_name} vs ${m.team2_name} <span style="font-size: 12px; color: ${m.status==='live'?'#ef4444':'gray'}; text-transform: uppercase;">(${m.status})</span></h3>
+                            <h3>${m.team1_name} vs ${m.team2_name} <span style="font-size: 12px; color: ${m.status === 'live' ? '#ef4444' : 'gray'}; text-transform: uppercase;">(${m.status})</span></h3>
                             <p>${m.tournament_name} • Match ${m.match_number}</p>
                         </div>
                     </div>
@@ -1326,7 +1429,7 @@
 
         window.editMatch = (id) => {
             const m = allMatches.find(x => x.id === id);
-            if(!m) return;
+            if (!m) return;
 
             // Switch to matches tab
             document.querySelector('[data-target="matches-panel"]').click();
@@ -1334,8 +1437,8 @@
             document.getElementById('match-id').value = m.id;
             document.getElementById('match-tournament').value = m.tournament_name || '';
             document.getElementById('match-number').value = m.match_number || 0;
-            
-            if(m.match_date) {
+
+            if (m.match_date) {
                 const dt = new Date(m.match_date);
                 document.getElementById('match-date').value = dt.toISOString().split('T')[0];
                 document.getElementById('match-time').value = dt.toTimeString().substring(0, 5);
@@ -1344,17 +1447,17 @@
                 document.getElementById('match-time').value = '';
             }
             document.getElementById('match-venue').value = m.venue || '';
-            
+
             document.getElementById('match-team1').value = m.team1_name || '';
             document.getElementById('match-team2').value = m.team2_name || '';
             document.getElementById('match-team1-logo').value = m.team1_logo || '';
             document.getElementById('match-team2-logo').value = m.team2_logo || '';
             document.getElementById('match-status').value = m.status || 'upcoming';
             document.getElementById('match-summary').value = m.summary || '';
-            
+
             const sb = m.scoreboard || {};
             document.getElementById('match-scoreboard').value = JSON.stringify(sb, null, 2);
-            
+
             // Populate visual general tab
             document.getElementById('v-toss-input').value = sb.toss || '';
             document.getElementById('v-umpire1').value = sb.umpire1 || '';
@@ -1362,7 +1465,7 @@
             document.getElementById('v-mom').value = sb.mom || '';
 
             if (typeof window.syncJSONToVisual === 'function') window.syncJSONToVisual();
-            
+
             document.getElementById('delete-match-btn').style.display = 'inline-block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
@@ -1377,10 +1480,10 @@
 
         document.getElementById('delete-match-btn').addEventListener('click', async () => {
             const id = document.getElementById('match-id').value;
-            if(!id || !confirm('Are you sure you want to delete this match?')) return;
-            
+            if (!id || !confirm('Are you sure you want to delete this match?')) return;
+
             const { error } = await supabase.from('matches').delete().eq('id', id);
-            if(error) showMessage("Failed to delete match: " + error.message, true);
+            if (error) showMessage("Failed to delete match: " + error.message, true);
             else {
                 showMessage("Match deleted.");
                 document.getElementById('clear-match-btn').click();
@@ -1391,7 +1494,7 @@
         async function handleLogoUpload(inputId, targetInputId) {
             const fileInput = document.getElementById(inputId);
             const targetInput = document.getElementById(targetInputId);
-            
+
             fileInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -1413,7 +1516,7 @@
         document.getElementById('match-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('match-id').value;
-            
+
             let scoreData = null;
             if (typeof window.syncVisualToJSON === 'function') {
                 window.syncVisualToJSON();
@@ -1421,8 +1524,8 @@
 
             const sbStr = document.getElementById('match-scoreboard').value.trim();
             if (sbStr) {
-                try { scoreData = JSON.parse(sbStr); } 
-                catch(err) { alert("Invalid JSON in Scoreboard field!"); return; }
+                try { scoreData = JSON.parse(sbStr); }
+                catch (err) { alert("Invalid JSON in Scoreboard field!"); return; }
             }
 
             const team1Score = document.getElementById('v-inn1-score')?.value || '';
@@ -1433,7 +1536,7 @@
             const matchDateStr = document.getElementById('match-date').value;
             const matchTimeStr = document.getElementById('match-time').value;
             let finalMatchDate = null;
-            if(matchDateStr) {
+            if (matchDateStr) {
                 finalMatchDate = matchTimeStr ? `${matchDateStr}T${matchTimeStr}:00` : `${matchDateStr}T00:00:00`;
             }
 
@@ -1482,8 +1585,8 @@
 
         function renderMessagesList() {
             const list = document.getElementById('messages-list');
-            if(allMessages.length === 0) { list.innerHTML = '<p>No messages found.</p>'; return; }
-            
+            if (allMessages.length === 0) { list.innerHTML = '<p>No messages found.</p>'; return; }
+
             list.innerHTML = allMessages.map(m => {
                 const date = new Date(m.created_at).toLocaleString();
                 return `
@@ -1503,9 +1606,9 @@
         }
 
         window.deleteMessage = async (id) => {
-            if(!confirm('Are you sure you want to delete this message?')) return;
+            if (!confirm('Are you sure you want to delete this message?')) return;
             const { error } = await supabase.from('contact_messages').delete().eq('id', id);
-            if(error) showMessage("Failed to delete message: " + error.message, true);
+            if (error) showMessage("Failed to delete message: " + error.message, true);
             else fetchMessages();
         };
 
@@ -1518,7 +1621,7 @@
             allTournaments = data;
             renderTournamentsList();
             populateTournamentsDropdown();
-            
+
             // If no tournament is being edited, maybe load the first one by default if it's the first fetch
             if (!document.getElementById('tourney-id').value && data.length > 0) {
                 // Optional: load first one
@@ -1528,8 +1631,8 @@
 
         function renderTournamentsList() {
             const list = document.getElementById('tournaments-list');
-            if(allTournaments.length === 0) { list.innerHTML = '<p>No tournaments found.</p>'; return; }
-            
+            if (allTournaments.length === 0) { list.innerHTML = '<p>No tournaments found.</p>'; return; }
+
             list.innerHTML = allTournaments.map(t => `
                 <div class="list-item">
                     <div class="list-item-info">
@@ -1546,14 +1649,14 @@
         function populateTournamentsDropdown() {
             const select = document.getElementById('match-tournament');
             const currentVal = select.value;
-            select.innerHTML = '<option value="">-- Select Tournament --</option>' + 
+            select.innerHTML = '<option value="">-- Select Tournament --</option>' +
                 allTournaments.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
             select.value = currentVal;
         }
 
         window.editTournament = (id) => {
             const data = allTournaments.find(t => t.id === id);
-            if(data) {
+            if (data) {
                 document.getElementById('tourney-id').value = data.id;
                 document.getElementById('tourney-name').value = data.name;
                 document.getElementById('tourney-dates').value = data.dates || '';
@@ -1562,10 +1665,10 @@
                 document.getElementById('tourney-category').value = data.category || 'League';
                 document.getElementById('tourney-status').value = data.status || 'upcoming';
                 document.getElementById('tourney-description').value = data.description || '';
-                
+
                 const pts = data.points_table || [];
                 document.getElementById('tourney-pts').value = JSON.stringify(pts, null, 2);
-                
+
                 const stats = data.top_stats || { most_runs: [], most_wickets: [] };
                 document.getElementById('tourney-stats').value = JSON.stringify(stats, null, 2);
 
@@ -1574,7 +1677,7 @@
 
                 // Sync Visual Editors
                 window.syncTourneyJSONToVisual();
-                
+
                 // Show Matches Section
                 document.getElementById('tourney-matches-section').style.display = 'block';
                 fetchTourneyMatches(data.name);
@@ -1587,18 +1690,18 @@
         async function fetchTourneyMatches(tourneyName) {
             const container = document.getElementById('tourney-matches-list');
             container.innerHTML = "<p style='font-size: 13px; color: gray;'>Loading matches...</p>";
-            
+
             const { data, error } = await supabase
                 .from('matches')
                 .select('id, match_number, team1_name, team2_name, status, summary')
                 .eq('tournament_name', tourneyName)
                 .order('match_number', { ascending: true });
-                
-            if(error || !data || data.length === 0) {
+
+            if (error || !data || data.length === 0) {
                 container.innerHTML = "<div style='text-align: center; padding: 20px; background: #f9fafb; border: 1px dashed #ccc; border-radius: 6px; color: gray; font-size: 13px;'>No matches found for this tournament. Click '+ Add Match' to create one.</div>";
                 return;
             }
-            
+
             container.innerHTML = `
                 <table class="admin-table" style="font-size: 13px;">
                     <thead>
@@ -1627,18 +1730,18 @@
 
         document.getElementById('add-match-to-tourney-btn').addEventListener('click', () => {
             const tourneyName = document.getElementById('tourney-name').value;
-            if(!tourneyName) { alert("Please save the tournament first."); return; }
+            if (!tourneyName) { alert("Please save the tournament first."); return; }
             window.openMatchModal(null, tourneyName);
         });
 
         window.openMatchModal = async (id, tourneyName = null) => {
             const modal = document.getElementById('match-modal');
             modal.style.display = 'block';
-            
+
             // Move/Ensure visual editor is in modal or similar
             // For simplicity, we'll clone the visual editor structure or use it if already there
             const placeholder = document.getElementById('modal-visual-editor-placeholder');
-            if(!placeholder.innerHTML) {
+            if (!placeholder.innerHTML) {
                 // One-time setup: Copy the visual editor HTML from the main matches panel
                 const original = document.getElementById('visual-editor-container');
                 placeholder.innerHTML = original.outerHTML;
@@ -1647,23 +1750,23 @@
                 placeholder.querySelectorAll('[id]').forEach(el => el.id = 'm-' + el.id);
             }
 
-            if(id) {
+            if (id) {
                 const m = allMatches.find(x => x.id === id);
-                if(!m) return;
+                if (!m) return;
                 document.getElementById('modal-match-id').value = m.id;
                 document.getElementById('modal-match-tournament').value = m.tournament_name || '';
                 document.getElementById('modal-match-number').value = m.match_number || 0;
                 document.getElementById('modal-match-team1').value = m.team1_name || '';
                 document.getElementById('modal-match-team2').value = m.team2_name || '';
                 document.getElementById('modal-match-status').value = m.status || 'upcoming';
-                
+
                 // Populate Modal Scoreboard
                 const sb = m.scoreboard || {};
                 document.getElementById('m-v-toss-input').value = sb.toss || '';
                 document.getElementById('m-v-umpire1').value = sb.umpire1 || '';
                 document.getElementById('m-v-umpire2').value = sb.umpire2 || '';
                 document.getElementById('m-v-mom').value = sb.mom || '';
-                
+
                 // Fill innings
                 ['inn1', 'inn2'].forEach(inn => {
                     const data = sb[`innings${inn === 'inn1' ? '1' : '2'}`] || { team: '', score: '', overs: '', batting: [], bowling: [] };
@@ -1671,7 +1774,7 @@
                     document.getElementById(`m-v-${inn}-score`).value = data.score || '';
                     document.getElementById(`m-v-${inn}-overs`).value = data.overs || '';
                     document.getElementById(`m-v-${inn}-extras`).value = data.extras || '';
-                    
+
                     const batList = document.getElementById(`m-v-${inn}-batting`);
                     batList.innerHTML = '';
                     (data.batting || []).forEach(b => {
@@ -1723,7 +1826,7 @@
 
         document.getElementById('close-match-modal').onclick = () => document.getElementById('match-modal').style.display = 'none';
         document.getElementById('cancel-match-modal').onclick = () => document.getElementById('match-modal').style.display = 'none';
-        
+
         document.getElementById('modal-match-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('modal-match-id').value;
@@ -1779,7 +1882,7 @@
             };
 
             let res;
-            if(id) res = await supabase.from('matches').update(payload).eq('id', id);
+            if (id) res = await supabase.from('matches').update(payload).eq('id', id);
             else res = await supabase.from('matches').insert([payload]);
 
             if (res.error) alert(res.error.message);
@@ -1820,7 +1923,7 @@
         document.getElementById('toggle-pts-json-btn').addEventListener('click', () => {
             const ta = document.getElementById('tourney-pts');
             const vis = document.getElementById('pts-visual-editor');
-            if(ta.style.display === 'none') {
+            if (ta.style.display === 'none') {
                 ta.style.display = 'block'; vis.style.display = 'none';
             } else {
                 ta.style.display = 'none'; vis.style.display = 'block';
@@ -1831,7 +1934,7 @@
         document.getElementById('toggle-stats-json-btn').addEventListener('click', () => {
             const ta = document.getElementById('tourney-stats');
             const vis = document.getElementById('stats-visual-editor');
-            if(ta.style.display === 'none') {
+            if (ta.style.display === 'none') {
                 ta.style.display = 'block'; vis.style.display = 'none';
             } else {
                 ta.style.display = 'none'; vis.style.display = 'block';
@@ -1842,7 +1945,7 @@
         document.getElementById('toggle-archives-json-btn').addEventListener('click', () => {
             const ta = document.getElementById('tourney-archives');
             const vis = document.getElementById('archives-visual-editor');
-            if(ta.style.display === 'none') {
+            if (ta.style.display === 'none') {
                 ta.style.display = 'block'; vis.style.display = 'none';
             } else {
                 ta.style.display = 'none'; vis.style.display = 'block';
@@ -1897,7 +2000,7 @@
                 const ptsRaw = document.getElementById('tourney-pts').value;
                 const pts = ptsRaw ? JSON.parse(ptsRaw) : [];
                 const ptsBody = document.querySelector('#pts-table-body tbody');
-                if(ptsBody) {
+                if (ptsBody) {
                     ptsBody.innerHTML = '';
                     pts.forEach(p => {
                         window.addPtsRow();
@@ -1916,7 +2019,7 @@
                 const stats = statsRaw ? JSON.parse(statsRaw) : { most_runs: [], most_wickets: [] };
                 ['runs', 'wickets'].forEach(type => {
                     const container = document.getElementById(`v-stats-${type}`);
-                    if(container) {
+                    if (container) {
                         container.innerHTML = '';
                         const data = type === 'runs' ? (stats.most_runs || []) : (stats.most_wickets || []);
                         data.forEach(s => {
@@ -1933,7 +2036,7 @@
                 const archRaw = document.getElementById('tourney-archives').value;
                 const arch = archRaw ? JSON.parse(archRaw) : [];
                 const archContainer = document.getElementById('v-archives-list');
-                if(archContainer) {
+                if (archContainer) {
                     archContainer.innerHTML = '';
                     arch.forEach(a => {
                         window.addArchiveRow();
@@ -1943,7 +2046,7 @@
                         last.querySelector('.a-runner').value = a.runner_up || '';
                     });
                 }
-            } catch(e) { console.warn("Sync error:", e); }
+            } catch (e) { console.warn("Sync error:", e); }
         };
 
         function getTourneyVisualData() {
@@ -1969,7 +2072,7 @@
                         team: div.querySelector('.s-team').value,
                         value: parseInt(div.querySelector('.s-val').value) || 0
                     };
-                    if(type === 'runs') stats.most_runs.push(item);
+                    if (type === 'runs') stats.most_runs.push(item);
                     else stats.most_wickets.push(item);
                 });
             });
@@ -1990,22 +2093,22 @@
         document.getElementById('tournament-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('tourney-id').value;
-            
+
             // Sync from visual if visible
             let ptsData, statsData, archData;
             const ptsVisVisible = document.getElementById('pts-visual-editor').style.display !== 'none';
             const statsVisVisible = document.getElementById('stats-visual-editor').style.display !== 'none';
             const archVisVisible = document.getElementById('archives-visual-editor').style.display !== 'none';
 
-            if(ptsVisVisible || statsVisVisible || archVisVisible) {
+            if (ptsVisVisible || statsVisVisible || archVisVisible) {
                 const vis = getTourneyVisualData();
                 ptsData = vis.pts;
                 statsData = vis.stats;
                 archData = vis.archives;
             } else {
-                try { ptsData = JSON.parse(document.getElementById('tourney-pts').value || '[]'); } catch(e) { alert("Invalid Points JSON"); return; }
-                try { statsData = JSON.parse(document.getElementById('tourney-stats').value || '{"most_runs":[], "most_wickets":[]}'); } catch(e) { alert("Invalid Stats JSON"); return; }
-                try { archData = JSON.parse(document.getElementById('tourney-archives').value || '[]'); } catch(e) { alert("Invalid Archives JSON"); return; }
+                try { ptsData = JSON.parse(document.getElementById('tourney-pts').value || '[]'); } catch (e) { alert("Invalid Points JSON"); return; }
+                try { statsData = JSON.parse(document.getElementById('tourney-stats').value || '{"most_runs":[], "most_wickets":[]}'); } catch (e) { alert("Invalid Stats JSON"); return; }
+                try { archData = JSON.parse(document.getElementById('tourney-archives').value || '[]'); } catch (e) { alert("Invalid Archives JSON"); return; }
             }
 
             const payload = {
@@ -2022,7 +2125,7 @@
             };
 
             let res;
-            if(id) res = await supabase.from('tournaments').update(payload).eq('id', id);
+            if (id) res = await supabase.from('tournaments').update(payload).eq('id', id);
             else res = await supabase.from('tournaments').insert([payload]);
 
             if (res.error) showMessage(res.error.message, true);
@@ -2059,15 +2162,15 @@
 
         function renderNoticesAdmin() {
             const list = document.getElementById('notices-list');
-            if(allNotices.length === 0) { list.innerHTML = '<p>No notices found.</p>'; return; }
-            
+            if (allNotices.length === 0) { list.innerHTML = '<p>No notices found.</p>'; return; }
+
             list.innerHTML = allNotices.map(n => {
                 const date = new Date(n.created_at).toLocaleString();
                 return `
                 <div class="list-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
                     <div style="display: flex; justify-content: space-between; width: 100%;">
                         <div class="list-item-info">
-                            <h3><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${n.type==='info'?'#3b82f6':n.type==='success'?'#10b981':n.type==='warning'?'#f59e0b':'#ef4444'}; margin-right:6px;"></span>${n.title}</h3>
+                            <h3><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${n.type === 'info' ? '#3b82f6' : n.type === 'success' ? '#10b981' : n.type === 'warning' ? '#f59e0b' : '#ef4444'}; margin-right:6px;"></span>${n.title}</h3>
                             <p>${date}</p>
                         </div>
                         <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px;" onclick="window.deleteNotice('${n.id}')">Delete</button>
@@ -2096,9 +2199,9 @@
         });
 
         window.deleteNotice = async (id) => {
-            if(!confirm('Are you sure you want to delete this notice?')) return;
+            if (!confirm('Are you sure you want to delete this notice?')) return;
             const { error } = await supabase.from('notifications').delete().eq('id', id);
-            if(error) showMessage("Failed to delete notice: " + error.message, true);
+            if (error) showMessage("Failed to delete notice: " + error.message, true);
             else fetchNoticesAdmin();
         };
 
@@ -2114,8 +2217,8 @@
 
         function renderPopupsAdmin() {
             const list = document.getElementById('popups-list');
-            if(allPopups.length === 0) { list.innerHTML = '<p>No popups found.</p>'; return; }
-            
+            if (allPopups.length === 0) { list.innerHTML = '<p>No popups found.</p>'; return; }
+
             list.innerHTML = allPopups.map(p => {
                 const date = new Date(p.created_at).toLocaleString();
                 const imagesHtml = (p.image_urls || []).map(url => `<img src="${url}" style="height: 40px; border-radius: 4px; border: 1px solid #ddd;">`).join('');
@@ -2126,7 +2229,7 @@
                             ${imagesHtml}
                         </div>
                         <div class="list-item-info">
-                            <h3>${p.title} <span style="font-size: 11px; color: ${p.is_active?'#10b981':'#ef4444'}; text-transform: uppercase;">(${p.is_active?'Active':'Inactive'})</span></h3>
+                            <h3>${p.title} <span style="font-size: 11px; color: ${p.is_active ? '#10b981' : '#ef4444'}; text-transform: uppercase;">(${p.is_active ? 'Active' : 'Inactive'})</span></h3>
                             <p>${p.display_frequency.replace(/_/g, ' ')} • ${date}</p>
                         </div>
                     </div>
@@ -2139,12 +2242,12 @@
 
         document.getElementById('popup-images').addEventListener('change', async (e) => {
             const files = Array.from(e.target.files);
-            if(!files.length) return;
+            if (!files.length) return;
 
             const btn = document.getElementById('save-popup-btn');
             const preview = document.getElementById('popup-images-preview');
             const urlsInput = document.getElementById('popup-image-urls');
-            
+
             btn.textContent = "Uploading...";
             btn.disabled = true;
 
@@ -2195,8 +2298,8 @@
 
         window.editPopup = (id) => {
             const p = allPopups.find(x => x.id === id);
-            if(!p) return;
-            
+            if (!p) return;
+
             // Switch to popups tab
             document.querySelector('[data-target="popups-panel"]').click();
 
@@ -2205,7 +2308,7 @@
             document.getElementById('popup-link').value = p.link_url || '';
             document.getElementById('popup-frequency').value = p.display_frequency || 'once_per_session';
             document.getElementById('popup-active').checked = p.is_active;
-            
+
             const urls = p.image_urls || [];
             document.getElementById('popup-image-urls').value = urls.join(',');
             renderPopupPreviews(urls);
@@ -2219,8 +2322,8 @@
             e.preventDefault();
             const id = document.getElementById('popup-id').value;
             const urls = document.getElementById('popup-image-urls').value.split(',').filter(u => u.trim() !== '');
-            
-            if(urls.length === 0) {
+
+            if (urls.length === 0) {
                 alert("Please upload at least one image.");
                 return;
             }
@@ -2234,7 +2337,7 @@
             };
 
             let res;
-            if(id) res = await supabase.from('popups').update(payload).eq('id', id);
+            if (id) res = await supabase.from('popups').update(payload).eq('id', id);
             else res = await supabase.from('popups').insert([payload]);
 
             if (res.error) showMessage(res.error.message, true);
@@ -2247,9 +2350,9 @@
 
         document.getElementById('delete-popup-btn').addEventListener('click', async () => {
             const id = document.getElementById('popup-id').value;
-            if(!id || !confirm('Are you sure you want to delete this popup?')) return;
+            if (!id || !confirm('Are you sure you want to delete this popup?')) return;
             const { error } = await supabase.from('popups').delete().eq('id', id);
-            if(error) showMessage("Failed to delete popup: " + error.message, true);
+            if (error) showMessage("Failed to delete popup: " + error.message, true);
             else {
                 showMessage("Popup deleted.");
                 document.getElementById('clear-popup-btn').click();
@@ -2298,7 +2401,5 @@
         initApp();
     </script>
 </body>
+
 </html>
-
-
-
