@@ -1046,6 +1046,8 @@
                 <input type="number" class="form-control bowl-m" placeholder="M" style="flex:1;">
                 <input type="number" class="form-control bowl-r" placeholder="R" style="flex:1;">
                 <input type="number" class="form-control bowl-w" placeholder="W" style="flex:1;">
+                <input type="number" class="form-control bowl-nb" placeholder="NB" style="flex:1;">
+                <input type="number" class="form-control bowl-wd" placeholder="WD" style="flex:1;">
                 <input type="number" class="form-control bowl-eco" placeholder="ECO" step="0.01" style="flex:1;">
                 <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
             `;
@@ -1141,6 +1143,8 @@
                             last.querySelector('.bowl-m').value = b.maidens ?? '';
                             last.querySelector('.bowl-r').value = b.runs ?? '';
                             last.querySelector('.bowl-w').value = b.wkts ?? '';
+                            last.querySelector('.bowl-nb').value = b.nb ?? 0;
+                            last.querySelector('.bowl-wd').value = b.wd ?? 0;
                             last.querySelector('.bowl-eco').value = b.econ ?? '';
                         });
                     } else {
@@ -1195,6 +1199,8 @@
                         maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
                         runs: parseInt(row.querySelector('.bowl-r').value) || 0,
                         wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
+                        nb: parseInt(row.querySelector('.bowl-nb').value) || 0,
+                        wd: parseInt(row.querySelector('.bowl-wd').value) || 0,
                         econ: parseFloat(row.querySelector('.bowl-eco').value) || 0
                     };
                 }).filter(b => b.name);
@@ -2162,7 +2168,9 @@
                             maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
                             runs: parseInt(row.querySelector('.bowl-r').value) || 0,
                             wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
-                            econ: parseFloat(row.querySelector('.bowl-e').value) || 0
+                            nb: parseInt(row.querySelector('.bowl-nb').value) || 0,
+                            wd: parseInt(row.querySelector('.bowl-wd').value) || 0,
+                            econ: parseFloat(row.querySelector('.bowl-eco').value) || 0
                         };
                     }).filter(b => b.name)
                 };
