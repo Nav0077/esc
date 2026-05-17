@@ -820,6 +820,8 @@
         import { initGA } from './js/analytics.js';
         import { initCookies } from './js/cookies.js';
 
+        const defaultMaleAvatar = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23e5e7eb'/><circle cx='50' cy='38' r='20' fill='%239ca3af'/><path d='M50 62c-20 0-36 10-36 22v6h72v-6c0-12-16-22-36-22z' fill='%239ca3af'/></svg>";
+
         // Global State
         let allPlayers = [];
         let allMatches = [];
@@ -1016,7 +1018,7 @@
             const div = document.createElement('div');
             div.style.cssText = "display: flex; gap: 5px; align-items: center; margin-bottom: 5px;";
             div.innerHTML = `
-                <img class="player-row-avatar" src="https://via.placeholder.com/32" alt="Avatar">
+                <img class="player-row-avatar" src="${defaultMaleAvatar}" alt="Avatar">
                 <input type="text" class="form-control bat-name" placeholder="Name" style="flex:2;">
                 <input type="text" class="form-control bat-status" placeholder="Status" style="flex:2;">
                 <input type="number" class="form-control bat-r" placeholder="R" style="flex:1;">
@@ -1038,7 +1040,7 @@
             const div = document.createElement('div');
             div.style.cssText = "display: flex; gap: 5px; align-items: center; margin-bottom: 5px;";
             div.innerHTML = `
-                <img class="player-row-avatar" src="https://via.placeholder.com/32" alt="Avatar">
+                <img class="player-row-avatar" src="${defaultMaleAvatar}" alt="Avatar">
                 <input type="text" class="form-control bowl-name" placeholder="Name" style="flex:2;">
                 <input type="number" class="form-control bowl-o" placeholder="O" step="0.1" style="flex:1;">
                 <input type="number" class="form-control bowl-m" placeholder="M" style="flex:1;">
@@ -1310,7 +1312,7 @@
             list.innerHTML = filtered.map(p => `
                 <div class="list-item">
                     <div class="list-item-content-wrapper">
-                        <img src="${p.image_url || 'https://via.placeholder.com/40'}" class="list-item-avatar">
+                        <img src="${p.image_url || defaultMaleAvatar}" class="list-item-avatar">
                         <div class="list-item-info">
                             <h3>${p.name}</h3>
                             <p>${p.role} • ${p.category}</p>
@@ -1455,7 +1457,7 @@
                     strike_rate: parseFloat(document.getElementById('player-sr-total').value) || 0,
                     bowling_avg: parseFloat(document.getElementById('player-bowling-avg-total').value) || 0,
                     best_bowling: document.getElementById('player-bb-total').value,
-                    image_url: document.getElementById('player-image-url').value || 'https://via.placeholder.com/150',
+                    image_url: document.getElementById('player-image-url').value || '',
                     batting_detailed: parseJson('player-batting'),
                     bowling_detailed: parseJson('player-bowling'),
                     recent_form: parseJson('player-form-json')
