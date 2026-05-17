@@ -32,7 +32,8 @@
                 const tickerApp = document.getElementById('notice-ticker-app');
                 
                 if (textEl && tickerApp) {
-                    textEl.innerHTML = `<strong>${notice.title}:</strong> ${notice.message} &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; 🏆 Elite Social Club: Your premier destination for cricket analytics.`;
+                    const suffixText = notice.suffix || '🏆 Elite Social Club: ENTER IN THE UPCOMMING NIGHT MATCH .....';
+                    textEl.innerHTML = `<strong>${notice.title}:</strong> ${notice.message} &nbsp;&nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp;&nbsp; ${suffixText}`;
                     tickerApp.style.display = 'block';
                 }
             }
