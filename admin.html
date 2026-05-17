@@ -866,12 +866,149 @@
             }
         });
 
+        // Global Autocomplete State
+        let activeAutocompleteInput = null;
+        let autocompleteMatches = [];
+        let autocompleteIndex = -1;
+
+        const getDropdown = () => {
+            let el = document.getElementById('autocomplete-menu');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'autocomplete-menu';
+                el.className = 'autocomplete-dropdown';
+                document.body.appendChild(el);
+            }
+            return el;
+        };
+
+        function closeDropdown() {
+            const dropdown = document.getElementById('autocomplete-menu');
+            if (dropdown) dropdown.style.display = 'none';
+            activeAutocompleteInput = null;
+            autocompleteMatches = [];
+            autocompleteIndex = -1;
+        }
+
+        function renderAutocompleteItems() {
+            const dropdown = getDropdown();
+            dropdown.innerHTML = '';
+            if (autocompleteMatches.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            
+            autocompleteMatches.forEach((player, idx) => {
+                const item = document.createElement('div');
+                item.className = `autocomplete-item ${idx === autocompleteIndex ? 'active' : ''}`;
+                item.innerHTML = `
+                    <img src="${player.image_url || 'https://via.placeholder.com/32'}" class="autocomplete-item-avatar">
+                    <div class="autocomplete-item-info">
+                        <span class="autocomplete-item-name">${player.name}</span>
+                        <span class="autocomplete-item-role">${player.role || 'Player'}</span>
+                    </div>
+                `;
+                item.addEventListener('click', () => selectPlayer(player));
+                dropdown.appendChild(item);
+            });
+        }
+
+        function selectPlayer(player) {
+            if (!activeAutocompleteInput) return;
+            
+            activeAutocompleteInput.value = player.name;
+            activeAutocompleteInput.dataset.playerId = player.id;
+            activeAutocompleteInput.dataset.playerImageUrl = player.image_url || '';
+            
+            // Find the avatar image in this row and update its src
+            const row = activeAutocompleteInput.parentElement;
+            const avatar = row.querySelector('.player-row-avatar');
+            if (avatar) {
+                avatar.src = player.image_url || 'https://via.placeholder.com/32';
+                avatar.style.borderColor = '#22c55e'; // Highlight matched green border
+            }
+            
+            closeDropdown();
+        }
+
+        window.attachPlayerAutocomplete = (input) => {
+            input.addEventListener('input', () => {
+                const val = input.value;
+                
+                // Clear existing dataset since user is typing
+                delete input.dataset.playerId;
+                delete input.dataset.playerImageUrl;
+                
+                // Revert avatar to default placeholder and gray border
+                const avatar = input.parentElement.querySelector('.player-row-avatar');
+                if (avatar) {
+                    avatar.src = 'https://via.placeholder.com/32';
+                    avatar.style.borderColor = '#d1d5db';
+                }
+                
+                if (!val.trim()) {
+                    closeDropdown();
+                    return;
+                }
+                
+                activeAutocompleteInput = input;
+                autocompleteMatches = allPlayers.filter(p => 
+                    p.name.toLowerCase().includes(val.toLowerCase())
+                ).slice(0, 10);
+                
+                autocompleteIndex = -1;
+                
+                // Position dropdown
+                const rect = input.getBoundingClientRect();
+                const dropdown = getDropdown();
+                dropdown.style.left = `${rect.left + window.scrollX}px`;
+                dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+                dropdown.style.width = `${rect.width}px`;
+                dropdown.style.display = 'block';
+                
+                renderAutocompleteItems();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                const dropdown = getDropdown();
+                if (dropdown.style.display !== 'block') return;
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    autocompleteIndex = (autocompleteIndex + 1) % autocompleteMatches.length;
+                    renderAutocompleteItems();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    autocompleteIndex = (autocompleteIndex - 1 + autocompleteMatches.length) % autocompleteMatches.length;
+                    renderAutocompleteItems();
+                } else if (e.key === 'Enter') {
+                    if (autocompleteIndex > -1 && autocompleteIndex < autocompleteMatches.length) {
+                        e.preventDefault();
+                        selectPlayer(autocompleteMatches[autocompleteIndex]);
+                    }
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeDropdown();
+                }
+            });
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('autocomplete-menu');
+            if (dropdown && !dropdown.contains(e.target) && (!activeAutocompleteInput || !activeAutocompleteInput.contains(e.target))) {
+                closeDropdown();
+            }
+        });
+
         // Visual Editor Logic
-        window.addBatsmanRow = (innings) => {
-            const container = document.getElementById(`v-${innings}-batting`);
+        window.addBatsmanRow = (innings, isModal = false) => {
+            const prefix = isModal ? 'm-' : '';
+            const container = document.getElementById(`${prefix}v-${innings}-batting`);
             const div = document.createElement('div');
-            div.style.cssText = "display: flex; gap: 5px; align-items: center;";
+            div.style.cssText = "display: flex; gap: 5px; align-items: center; margin-bottom: 5px;";
             div.innerHTML = `
+                <img class="player-row-avatar" src="https://via.placeholder.com/32" alt="Avatar">
                 <input type="text" class="form-control bat-name" placeholder="Name" style="flex:2;">
                 <input type="text" class="form-control bat-status" placeholder="Status" style="flex:2;">
                 <input type="number" class="form-control bat-r" placeholder="R" style="flex:1;">
@@ -882,13 +1019,18 @@
                 <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
             `;
             container.appendChild(div);
+            
+            const nameInput = div.querySelector('.bat-name');
+            window.attachPlayerAutocomplete(nameInput);
         };
 
-        window.addBowlerRow = (innings) => {
-            const container = document.getElementById(`v-${innings}-bowling`);
+        window.addBowlerRow = (innings, isModal = false) => {
+            const prefix = isModal ? 'm-' : '';
+            const container = document.getElementById(`${prefix}v-${innings}-bowling`);
             const div = document.createElement('div');
-            div.style.cssText = "display: flex; gap: 5px; align-items: center;";
+            div.style.cssText = "display: flex; gap: 5px; align-items: center; margin-bottom: 5px;";
             div.innerHTML = `
+                <img class="player-row-avatar" src="https://via.placeholder.com/32" alt="Avatar">
                 <input type="text" class="form-control bowl-name" placeholder="Name" style="flex:2;">
                 <input type="number" class="form-control bowl-o" placeholder="O" step="0.1" style="flex:1;">
                 <input type="number" class="form-control bowl-m" placeholder="M" style="flex:1;">
@@ -898,6 +1040,9 @@
                 <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
             `;
             container.appendChild(div);
+            
+            const nameInput = div.querySelector('.bowl-name');
+            window.attachPlayerAutocomplete(nameInput);
         };
 
         window.syncJSONToVisual = () => {
@@ -932,7 +1077,25 @@
                         (innData.batting || []).forEach(b => {
                             window.addBatsmanRow(i);
                             const last = document.getElementById(`v-${i}-batting`).lastElementChild;
-                            last.querySelector('.bat-name').value = b.name || '';
+                            const nameInput = last.querySelector('.bat-name');
+                            nameInput.value = b.name || '';
+                            
+                            // Restore dataset & avatar
+                            const pId = b.id || b.playerId;
+                            let player = allPlayers.find(p => p.id === pId);
+                            if (!player && b.name) {
+                                player = allPlayers.find(p => p.name.toLowerCase() === b.name.toLowerCase());
+                            }
+                            if (player) {
+                                nameInput.dataset.playerId = player.id;
+                                nameInput.dataset.playerImageUrl = player.image_url || '';
+                                const avatar = last.querySelector('.player-row-avatar');
+                                if (avatar && player.image_url) {
+                                    avatar.src = player.image_url;
+                                    avatar.style.borderColor = '#22c55e';
+                                }
+                            }
+                            
                             last.querySelector('.bat-status').value = b.status || '';
                             last.querySelector('.bat-r').value = b.runs ?? '';
                             last.querySelector('.bat-b').value = b.balls ?? '';
@@ -945,7 +1108,25 @@
                         (innData.bowling || []).forEach(b => {
                             window.addBowlerRow(i);
                             const last = document.getElementById(`v-${i}-bowling`).lastElementChild;
-                            last.querySelector('.bowl-name').value = b.name || '';
+                            const nameInput = last.querySelector('.bowl-name');
+                            nameInput.value = b.name || '';
+                            
+                            // Restore dataset & avatar
+                            const pId = b.id || b.playerId;
+                            let player = allPlayers.find(p => p.id === pId);
+                            if (!player && b.name) {
+                                player = allPlayers.find(p => p.name.toLowerCase() === b.name.toLowerCase());
+                            }
+                            if (player) {
+                                nameInput.dataset.playerId = player.id;
+                                nameInput.dataset.playerImageUrl = player.image_url || '';
+                                const avatar = last.querySelector('.player-row-avatar');
+                                if (avatar && player.image_url) {
+                                    avatar.src = player.image_url;
+                                    avatar.style.borderColor = '#22c55e';
+                                }
+                            }
+                            
                             last.querySelector('.bowl-o').value = b.overs ?? '';
                             last.querySelector('.bowl-m').value = b.maidens ?? '';
                             last.querySelector('.bowl-r').value = b.runs ?? '';
@@ -979,24 +1160,34 @@
                 const teamName = document.getElementById(`v-${i}-team`).value;
                 if (!teamName) return; // Skip if no team name
 
-                const batting = Array.from(document.getElementById(`v-${i}-batting`).children).map(row => ({
-                    name: row.querySelector('.bat-name').value,
-                    status: row.querySelector('.bat-status').value,
-                    runs: parseInt(row.querySelector('.bat-r').value) || 0,
-                    balls: parseInt(row.querySelector('.bat-b').value) || 0,
-                    fours: parseInt(row.querySelector('.bat-4s').value) || 0,
-                    sixes: parseInt(row.querySelector('.bat-6s').value) || 0,
-                    sr: parseFloat(row.querySelector('.bat-sr').value) || 0
-                })).filter(b => b.name);
+                const batting = Array.from(document.getElementById(`v-${i}-batting`).children).map(row => {
+                    const nameInput = row.querySelector('.bat-name');
+                    return {
+                        name: nameInput.value,
+                        id: nameInput.dataset.playerId || '',
+                        image_url: nameInput.dataset.playerImageUrl || '',
+                        status: row.querySelector('.bat-status').value,
+                        runs: parseInt(row.querySelector('.bat-r').value) || 0,
+                        balls: parseInt(row.querySelector('.bat-b').value) || 0,
+                        fours: parseInt(row.querySelector('.bat-4s').value) || 0,
+                        sixes: parseInt(row.querySelector('.bat-6s').value) || 0,
+                        sr: parseFloat(row.querySelector('.bat-sr').value) || 0
+                    };
+                }).filter(b => b.name);
 
-                const bowling = Array.from(document.getElementById(`v-${i}-bowling`).children).map(row => ({
-                    name: row.querySelector('.bowl-name').value,
-                    overs: row.querySelector('.bowl-o').value || "0",
-                    maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
-                    runs: parseInt(row.querySelector('.bowl-r').value) || 0,
-                    wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
-                    econ: parseFloat(row.querySelector('.bowl-eco').value) || 0
-                })).filter(b => b.name);
+                const bowling = Array.from(document.getElementById(`v-${i}-bowling`).children).map(row => {
+                    const nameInput = row.querySelector('.bowl-name');
+                    return {
+                        name: nameInput.value,
+                        id: nameInput.dataset.playerId || '',
+                        image_url: nameInput.dataset.playerImageUrl || '',
+                        overs: row.querySelector('.bowl-o').value || "0",
+                        maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
+                        runs: parseInt(row.querySelector('.bowl-r').value) || 0,
+                        wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
+                        econ: parseFloat(row.querySelector('.bowl-eco').value) || 0
+                    };
+                }).filter(b => b.name);
 
                 data[`innings${idx + 1}`] = {
                     team: teamName,
@@ -1783,15 +1974,20 @@
             modal.style.display = 'block';
 
             // Move/Ensure visual editor is in modal or similar
-            // For simplicity, we'll clone the visual editor structure or use it if already there
             const placeholder = document.getElementById('modal-visual-editor-placeholder');
             if (!placeholder.innerHTML) {
                 // One-time setup: Copy the visual editor HTML from the main matches panel
                 const original = document.getElementById('visual-editor-container');
                 placeholder.innerHTML = original.outerHTML;
-                // Update IDs to avoid conflicts? No, we'll just target them contextually or hide the other one
-                // Better: just use a unique ID for modal visual editor
                 placeholder.querySelectorAll('[id]').forEach(el => el.id = 'm-' + el.id);
+                
+                // Update button onclick attributes to pass isModal = true
+                placeholder.querySelectorAll('button').forEach(btn => {
+                    const onclick = btn.getAttribute('onclick');
+                    if (onclick) {
+                        btn.setAttribute('onclick', onclick.replace(")", ", true)"));
+                    }
+                });
             }
 
             if (id) {
@@ -1824,8 +2020,9 @@
                     (data.batting || []).forEach(b => {
                         const row = document.createElement('div');
                         row.className = 'bat-row';
-                        row.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px;";
+                        row.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px; align-items: center;";
                         row.innerHTML = `
+                            <img class="player-row-avatar" src="https://via.placeholder.com/32" alt="Avatar">
                             <input type="text" class="form-control bat-name" value="${b.name}" placeholder="Name" style="flex:2;">
                             <input type="text" class="form-control bat-status" value="${b.status}" placeholder="Status" style="flex:2;">
                             <input type="number" class="form-control bat-r" value="${b.runs}" placeholder="R" style="flex:1;">
@@ -1833,9 +2030,28 @@
                             <input type="number" class="form-control bat-4s" value="${b.fours}" placeholder="4s" style="flex:1;">
                             <input type="number" class="form-control bat-6s" value="${b.sixes}" placeholder="6s" style="flex:1;">
                             <input type="text" class="form-control bat-sr" value="${b.sr}" placeholder="SR" style="flex:1;">
-                            <button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.remove()">X</button>
+                            <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
                         `;
                         batList.appendChild(row);
+
+                        const nameInput = row.querySelector('.bat-name');
+                        window.attachPlayerAutocomplete(nameInput);
+
+                        // Resolve and highlight player
+                        const pId = b.id || b.playerId;
+                        let player = allPlayers.find(p => p.id === pId);
+                        if (!player && b.name) {
+                            player = allPlayers.find(p => p.name.toLowerCase() === b.name.toLowerCase());
+                        }
+                        if (player) {
+                            nameInput.dataset.playerId = player.id;
+                            nameInput.dataset.playerImageUrl = player.image_url || '';
+                            const avatar = row.querySelector('.player-row-avatar');
+                            if (avatar && player.image_url) {
+                                avatar.src = player.image_url;
+                                avatar.style.borderColor = '#22c55e';
+                            }
+                        }
                     });
 
                     const bowlList = document.getElementById(`m-v-${inn}-bowling`);
@@ -1843,17 +2059,37 @@
                     (data.bowling || []).forEach(b => {
                         const row = document.createElement('div');
                         row.className = 'bowl-row';
-                        row.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px;";
+                        row.style.cssText = "display: flex; gap: 5px; margin-bottom: 5px; align-items: center;";
                         row.innerHTML = `
+                            <img class="player-row-avatar" src="https://via.placeholder.com/32" alt="Avatar">
                             <input type="text" class="form-control bowl-name" value="${b.name}" placeholder="Name" style="flex:2;">
                             <input type="text" class="form-control bowl-o" value="${b.overs}" placeholder="O" style="flex:1;">
                             <input type="number" class="form-control bowl-m" value="${b.maidens}" placeholder="M" style="flex:0.8;">
                             <input type="number" class="form-control bowl-r" value="${b.runs}" placeholder="R" style="flex:1;">
                             <input type="number" class="form-control bowl-w" value="${b.wkts}" placeholder="W" style="flex:1;">
                             <input type="text" class="form-control bowl-e" value="${b.econ}" placeholder="E" style="flex:1;">
-                            <button type="button" class="btn btn-danger" style="padding: 4px;" onclick="this.parentElement.remove()">X</button>
+                            <button type="button" class="btn btn-danger" style="padding: 6px; flex: 0.5;" onclick="this.parentElement.remove()">X</button>
                         `;
                         bowlList.appendChild(row);
+
+                        const nameInput = row.querySelector('.bowl-name');
+                        window.attachPlayerAutocomplete(nameInput);
+
+                        // Resolve and highlight player
+                        const pId = b.id || b.playerId;
+                        let player = allPlayers.find(p => p.id === pId);
+                        if (!player && b.name) {
+                            player = allPlayers.find(p => p.name.toLowerCase() === b.name.toLowerCase());
+                        }
+                        if (player) {
+                            nameInput.dataset.playerId = player.id;
+                            nameInput.dataset.playerImageUrl = player.image_url || '';
+                            const avatar = row.querySelector('.player-row-avatar');
+                            if (avatar && player.image_url) {
+                                avatar.src = player.image_url;
+                                avatar.style.borderColor = '#22c55e';
+                            }
+                        }
                     });
                 });
             } else {
@@ -1892,23 +2128,33 @@
                     score: document.getElementById(prefix + '-score').value,
                     overs: document.getElementById(prefix + '-overs').value,
                     extras: document.getElementById(prefix + '-extras').value,
-                    batting: Array.from(document.getElementById(prefix + '-batting').children).map(row => ({
-                        name: row.querySelector('.bat-name').value,
-                        status: row.querySelector('.bat-status').value,
-                        runs: parseInt(row.querySelector('.bat-r').value) || 0,
-                        balls: parseInt(row.querySelector('.bat-b').value) || 0,
-                        fours: parseInt(row.querySelector('.bat-4s').value) || 0,
-                        sixes: parseInt(row.querySelector('.bat-6s').value) || 0,
-                        sr: parseFloat(row.querySelector('.bat-sr').value) || 0
-                    })).filter(b => b.name),
-                    bowling: Array.from(document.getElementById(prefix + '-bowling').children).map(row => ({
-                        name: row.querySelector('.bowl-name').value,
-                        overs: row.querySelector('.bowl-o').value || "0",
-                        maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
-                        runs: parseInt(row.querySelector('.bowl-r').value) || 0,
-                        wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
-                        econ: parseFloat(row.querySelector('.bowl-e').value) || 0
-                    })).filter(b => b.name)
+                    batting: Array.from(document.getElementById(prefix + '-batting').children).map(row => {
+                        const nameInput = row.querySelector('.bat-name');
+                        return {
+                            name: nameInput.value,
+                            id: nameInput.dataset.playerId || '',
+                            image_url: nameInput.dataset.playerImageUrl || '',
+                            status: row.querySelector('.bat-status').value,
+                            runs: parseInt(row.querySelector('.bat-r').value) || 0,
+                            balls: parseInt(row.querySelector('.bat-b').value) || 0,
+                            fours: parseInt(row.querySelector('.bat-4s').value) || 0,
+                            sixes: parseInt(row.querySelector('.bat-6s').value) || 0,
+                            sr: parseFloat(row.querySelector('.bat-sr').value) || 0
+                        };
+                    }).filter(b => b.name),
+                    bowling: Array.from(document.getElementById(prefix + '-bowling').children).map(row => {
+                        const nameInput = row.querySelector('.bowl-name');
+                        return {
+                            name: nameInput.value,
+                            id: nameInput.dataset.playerId || '',
+                            image_url: nameInput.dataset.playerImageUrl || '',
+                            overs: row.querySelector('.bowl-o').value || "0",
+                            maidens: parseInt(row.querySelector('.bowl-m').value) || 0,
+                            runs: parseInt(row.querySelector('.bowl-r').value) || 0,
+                            wkts: parseInt(row.querySelector('.bowl-w').value) || 0,
+                            econ: parseFloat(row.querySelector('.bowl-e').value) || 0
+                        };
+                    }).filter(b => b.name)
                 };
             }
 

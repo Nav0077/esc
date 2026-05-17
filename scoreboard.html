@@ -76,35 +76,65 @@
             }
         }
 
+        // Global Player Mapping
+        let playerMap = {};
+
+
         function renderBattingRows(battingArray) {
             if (!battingArray || battingArray.length === 0) return '<tr><td colspan="7">No batting data</td></tr>';
-            return battingArray.map(b => `
-                <tr>
-                    <td><a href="#" class="player-name">${b.name}</a></td>
-                    <td class="dismissal">${b.status}</td>
-                    <td class="num runs-bold">${b.runs}</td>
-                    <td class="num">${b.balls}</td>
-                    <td class="num">${b.fours}</td>
-                    <td class="num">${b.sixes}</td>
-                    <td class="num">${b.sr}</td>
-                </tr>
-            `).join('');
+            return battingArray.map(b => {
+                const playerObj = b.id ? { id: b.id, image_url: b.image_url } : playerMap[b.name.toLowerCase().trim()];
+                const hasProfile = playerObj && playerObj.id;
+                const pUrl = hasProfile ? `player-profile.html?id=${playerObj.id}` : '#';
+                const pImg = (playerObj && playerObj.image_url) ? playerObj.image_url : 'https://via.placeholder.com/32';
+                const avatarHtml = `<img src="${pImg}" class="scorecard-player-avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #d1d5db; background: #e5e7eb; flex-shrink: 0;">`;
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${avatarHtml}
+                                ${hasProfile ? `<a href="${pUrl}" class="player-name">${b.name}</a>` : `<span class="player-name-static" style="font-weight: 500; color: #374151;">${b.name}</span>`}
+                            </div>
+                        </td>
+                        <td class="dismissal">${b.status || ''}</td>
+                        <td class="num runs-bold">${b.runs ?? 0}</td>
+                        <td class="num">${b.balls ?? 0}</td>
+                        <td class="num">${b.fours ?? 0}</td>
+                        <td class="num">${b.sixes ?? 0}</td>
+                        <td class="num">${b.sr ?? '0.00'}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function renderBowlingRows(bowlingArray) {
             if (!bowlingArray || bowlingArray.length === 0) return '<tr><td colspan="8">No bowling data</td></tr>';
-            return bowlingArray.map(b => `
-                <tr>
-                    <td><a href="#" class="player-name">${b.name}</a></td>
-                    <td class="num">${b.overs}</td>
-                    <td class="num">${b.maidens}</td>
-                    <td class="num runs-bold">${b.runs}</td>
-                    <td class="num runs-bold" style="color: #cb202d;">${b.wkts}</td>
-                    <td class="num">0</td>
-                    <td class="num">0</td>
-                    <td class="num">${b.econ}</td>
-                </tr>
-            `).join('');
+            return bowlingArray.map(b => {
+                const playerObj = b.id ? { id: b.id, image_url: b.image_url } : playerMap[b.name.toLowerCase().trim()];
+                const hasProfile = playerObj && playerObj.id;
+                const pUrl = hasProfile ? `player-profile.html?id=${playerObj.id}` : '#';
+                const pImg = (playerObj && playerObj.image_url) ? playerObj.image_url : 'https://via.placeholder.com/32';
+                const avatarHtml = `<img src="${pImg}" class="scorecard-player-avatar" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #d1d5db; background: #e5e7eb; flex-shrink: 0;">`;
+
+                return `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                ${avatarHtml}
+                                ${hasProfile ? `<a href="${pUrl}" class="player-name">${b.name}</a>` : `<span class="player-name-static" style="font-weight: 500; color: #374151;">${b.name}</span>`}
+                            </div>
+                        </td>
+                        <td class="num">${b.overs ?? '0.0'}</td>
+                        <td class="num">${b.maidens ?? 0}</td>
+                        <td class="num runs-bold">${b.runs ?? 0}</td>
+                        <td class="num runs-bold" style="color: #cb202d;">${b.wkts ?? 0}</td>
+                        <td class="num">0</td>
+                        <td class="num">0</td>
+                        <td class="num">${b.econ ?? '0.00'}</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function generateInningsHTML(inningsData) {
@@ -183,6 +213,24 @@
                 document.getElementById('loading-state').style.display = 'none';
                 document.getElementById('error-state').style.display = 'block';
                 return;
+            }
+
+            // Fetch player profiles to resolve retroactively
+            try {
+                const { data: playerProfiles } = await supabase
+                    .from('player_stats')
+                    .select('id, name, image_url');
+                
+                if (playerProfiles) {
+                    playerProfiles.forEach(p => {
+                        playerMap[p.name.toLowerCase().trim()] = {
+                            id: p.id,
+                            image_url: p.image_url
+                        };
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load player profiles for scorecard mapping", e);
             }
 
             const { data, error } = await supabase

@@ -287,3 +287,71 @@ textarea.form-control {
     align-items: center;
     justify-content: center;
 }
+
+/* Player Autocomplete & Scorecard Avatar Styling */
+.autocomplete-dropdown {
+    position: absolute;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 9999;
+    display: none;
+}
+
+.autocomplete-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover, .autocomplete-item.active {
+    background-color: #f3f4f6;
+}
+
+.autocomplete-item-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    background: #e5e7eb;
+    border: 1px solid #e5e7eb;
+}
+
+.autocomplete-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.autocomplete-item-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.autocomplete-item-role {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.player-row-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #e5e7eb;
+    border: 1px solid #d1d5db;
+    transition: border-color 0.15s ease;
+}
+

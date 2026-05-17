@@ -263,6 +263,24 @@
                 return;
             }
 
+            // Fetch player profiles to resolve avatars and IDs for top performers
+            let playerMap = {};
+            try {
+                const { data: playerProfiles } = await supabase
+                    .from('player_stats')
+                    .select('id, name, image_url');
+                if (playerProfiles) {
+                    playerProfiles.forEach(p => {
+                        playerMap[p.name.toLowerCase().trim()] = {
+                            id: p.id,
+                            image_url: p.image_url
+                        };
+                    });
+                }
+            } catch (e) {
+                console.error("Failed to load player profiles for tournament detail", e);
+            }
+
             const matchesPromise = supabase
                 .from('matches')
                 .select('id, tournament_name, match_number, team1_name, team2_name, team1_logo, team2_logo, team1_score, team2_score, team1_overs, team2_overs, summary, status, match_date, venue')
@@ -300,32 +318,46 @@
             // Render Stats
             if(data.top_stats) {
                 if(data.top_stats.most_runs) {
-                    document.getElementById('runs-list').innerHTML = data.top_stats.most_runs.map(p => `
-                        <div class="stat-list-item">
-                            <div class="stat-player">
-                                <img src="https://via.placeholder.com/40" alt="Player">
-                                <div class="stat-player-info">
-                                    <h4>${p.name}</h4>
-                                    <p>${p.team}</p>
+                    document.getElementById('runs-list').innerHTML = data.top_stats.most_runs.map(p => {
+                        const playerObj = playerMap[p.name.toLowerCase().trim()];
+                        const hasProfile = playerObj && playerObj.id;
+                        const pUrl = hasProfile ? `player-profile.html?id=${playerObj.id}` : '#';
+                        const pImg = (playerObj && playerObj.image_url) ? playerObj.image_url : 'https://via.placeholder.com/40';
+                        
+                        return `
+                            <div class="stat-list-item" style="cursor: ${hasProfile ? 'pointer' : 'default'}; display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f3f4f6;" onclick="${hasProfile ? `window.location.href='${pUrl}'` : ''}">
+                                <div class="stat-player" style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="${pImg}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #d1d5db; background: #e5e7eb;">
+                                    <div class="stat-player-info">
+                                        <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1f2937;">${p.name}</h4>
+                                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #6b7280;">${p.team || ''}</p>
+                                    </div>
                                 </div>
+                                <div class="stat-value" style="font-size: 16px; font-weight: 700; color: #10b981;">${p.value}</div>
                             </div>
-                            <div class="stat-value">${p.value}</div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
                 if(data.top_stats.most_wickets) {
-                    document.getElementById('wickets-list').innerHTML = data.top_stats.most_wickets.map(p => `
-                        <div class="stat-list-item">
-                            <div class="stat-player">
-                                <img src="https://via.placeholder.com/40" alt="Player">
-                                <div class="stat-player-info">
-                                    <h4>${p.name}</h4>
-                                    <p>${p.team}</p>
+                    document.getElementById('wickets-list').innerHTML = data.top_stats.most_wickets.map(p => {
+                        const playerObj = playerMap[p.name.toLowerCase().trim()];
+                        const hasProfile = playerObj && playerObj.id;
+                        const pUrl = hasProfile ? `player-profile.html?id=${playerObj.id}` : '#';
+                        const pImg = (playerObj && playerObj.image_url) ? playerObj.image_url : 'https://via.placeholder.com/40';
+                        
+                        return `
+                            <div class="stat-list-item" style="cursor: ${hasProfile ? 'pointer' : 'default'}; display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f3f4f6;" onclick="${hasProfile ? `window.location.href='${pUrl}'` : ''}">
+                                <div class="stat-player" style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="${pImg}" alt="${p.name}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid #d1d5db; background: #e5e7eb;">
+                                    <div class="stat-player-info">
+                                        <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1f2937;">${p.name}</h4>
+                                        <p style="margin: 2px 0 0 0; font-size: 12px; color: #6b7280;">${p.team || ''}</p>
+                                    </div>
                                 </div>
+                                <div class="stat-value" style="font-size: 16px; font-weight: 700; color: #10b981;">${p.value}</div>
                             </div>
-                            <div class="stat-value">${p.value}</div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             }
 
