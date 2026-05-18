@@ -60,6 +60,7 @@
                 <button class="admin-tab" data-target="tournaments-panel">Manage Tournaments</button>
                 <button class="admin-tab" data-target="notices-panel">Manage Notices</button>
                 <button class="admin-tab" data-target="popups-panel">Manage Popups</button>
+                <button class="admin-tab" data-target="gallery-panel">Manage Gallery</button>
                 <button class="admin-tab" data-target="club-panel">Club Info</button>
                 <button class="admin-tab" data-target="messages-panel">Inbox</button>
             </div>
@@ -736,6 +737,62 @@
                 </div>
             </div>
 
+            <!-- ========================================== -->
+            <!-- GALLERY PANEL -->
+            <!-- ========================================== -->
+            <div id="gallery-panel" class="admin-panel">
+                <h2>Manage Club Moments & Events (Gallery)</h2>
+                <form id="gallery-form">
+                    <input type="hidden" id="gallery-id">
+
+                    <div class="form-group">
+                        <label>Title / Caption</label>
+                        <input type="text" id="gallery-title" class="form-control" required placeholder="e.g. Annual Championship Trophy Celebration">
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="gallery-category" class="form-control">
+                                <option value="Club Moments">Club Moments</option>
+                                <option value="Events">Events</option>
+                                <option value="Matches">Matches</option>
+                                <option value="Practice">Practice</option>
+                                <option value="Celebration">Celebration</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Event Date</label>
+                            <input type="date" id="gallery-date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description (Optional Details)</label>
+                        <textarea id="gallery-desc" class="form-control" placeholder="Add more context or details about this moment..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Photo</label>
+                        <input type="file" id="gallery-image-file" class="form-control" accept="image/*">
+                        <p style="font-size: 12px; color: #666; margin-top: 4px;">Upload an image. It will be stored securely in Supabase Storage.</p>
+                        <img id="gallery-image-preview" style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px; display: none;">
+                        <input type="hidden" id="gallery-image-url">
+                    </div>
+
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="submit" class="btn" id="save-gallery-btn">Save Photo</button>
+                        <button type="button" class="btn btn-secondary" id="clear-gallery-btn">Clear Form</button>
+                        <button type="button" class="btn btn-danger" id="delete-gallery-btn" style="display: none;">Delete Photo</button>
+                    </div>
+                </form>
+
+                <div class="item-list" style="margin-top: 30px;">
+                    <h3>Existing Gallery Photos</h3>
+                    <div id="gallery-list">Loading gallery...</div>
+                </div>
+            </div>
+
         </div> <!-- END DASHBOARD SECTION -->
 
         <!-- ========================================== -->
@@ -828,6 +885,7 @@
         let allMessages = [];
         let allNotices = [];
         let allPopups = [];
+        let allGallery = [];
         let allTournaments = [];
         let clubInfo = null;
 
@@ -1247,6 +1305,7 @@
                 fetchTournament(),
                 fetchNoticesAdmin(),
                 fetchPopupsAdmin(),
+                fetchGalleryAdmin(),
                 loadClubInfo()
             ]);
         }
@@ -2681,6 +2740,163 @@
             document.getElementById('popup-image-urls').value = '';
             document.getElementById('popup-images-preview').innerHTML = '';
             document.getElementById('delete-popup-btn').style.display = 'none';
+        });
+
+        // ==========================================
+        // GALLERY LOGIC
+        // ==========================================
+        async function fetchGalleryAdmin() {
+            const { data, error } = await supabase.from('gallery').select('*').order('event_date', { ascending: false });
+            if (error) { console.error(error); return; }
+            allGallery = data;
+            renderGalleryAdmin();
+        }
+
+        function renderGalleryAdmin() {
+            const list = document.getElementById('gallery-list');
+            if (allGallery.length === 0) { list.innerHTML = '<p>No gallery photos found.</p>'; return; }
+
+            list.innerHTML = allGallery.map(g => {
+                const date = new Date(g.event_date).toLocaleDateString();
+                return `
+                <div class="list-item">
+                    <div class="list-item-content-wrapper">
+                        <img src="${g.image_url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; margin-right: 15px;">
+                        <div class="list-item-info">
+                            <h3>${g.title} <span style="font-size: 11px; color: #3b82f6; background: #eff6ff; padding: 2px 8px; border-radius: 12px; border: 1px solid #bfdbfe; margin-left: 6px;">${g.category}</span></h3>
+                            <p>${date} ${g.description ? '• ' + g.description.substring(0, 60) + '...' : ''}</p>
+                        </div>
+                    </div>
+                    <div class="list-item-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.editGallery('${g.id}')">Edit</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        document.getElementById('gallery-image-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('save-gallery-btn');
+            btn.textContent = "Uploading Image...";
+            btn.disabled = true;
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+            const filePath = `photos/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage.from('gallery').upload(filePath, file);
+
+            if (uploadError) {
+                showMessage("Image upload failed: " + uploadError.message, true);
+                btn.textContent = "Save Photo";
+                btn.disabled = false;
+                return;
+            }
+
+            const { data } = supabase.storage.from('gallery').getPublicUrl(filePath);
+
+            document.getElementById('gallery-image-url').value = data.publicUrl;
+            document.getElementById('gallery-image-preview').src = data.publicUrl;
+            document.getElementById('gallery-image-preview').style.display = 'block';
+
+            btn.textContent = "Save Photo";
+            btn.disabled = false;
+            showMessage("Gallery image uploaded!");
+        });
+
+        window.editGallery = (id) => {
+            const g = allGallery.find(x => x.id === id);
+            if (!g) return;
+
+            document.querySelector('[data-target="gallery-panel"]').click();
+
+            document.getElementById('gallery-id').value = g.id;
+            document.getElementById('gallery-title').value = g.title || '';
+            document.getElementById('gallery-category').value = g.category || 'Club Moments';
+            if (g.event_date) {
+                document.getElementById('gallery-date').value = g.event_date;
+            } else {
+                document.getElementById('gallery-date').value = new Date().toISOString().split('T')[0];
+            }
+            document.getElementById('gallery-desc').value = g.description || '';
+            document.getElementById('gallery-image-url').value = g.image_url || '';
+
+            if (g.image_url) {
+                document.getElementById('gallery-image-preview').src = g.image_url;
+                document.getElementById('gallery-image-preview').style.display = 'block';
+            } else {
+                document.getElementById('gallery-image-preview').style.display = 'none';
+            }
+
+            document.getElementById('delete-gallery-btn').style.display = 'inline-block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        document.getElementById('gallery-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('gallery-id').value;
+            const imageUrl = document.getElementById('gallery-image-url').value;
+
+            if (!imageUrl) {
+                alert("Please upload a photo.");
+                return;
+            }
+
+            const payload = {
+                title: document.getElementById('gallery-title').value,
+                category: document.getElementById('gallery-category').value,
+                event_date: document.getElementById('gallery-date').value || new Date().toISOString().split('T')[0],
+                description: document.getElementById('gallery-desc').value,
+                image_url: imageUrl
+            };
+
+            let res;
+            if (id) res = await supabase.from('gallery').update(payload).eq('id', id);
+            else res = await supabase.from('gallery').insert([payload]);
+
+            if (res.error) showMessage(res.error.message, true);
+            else {
+                showMessage("Gallery photo saved successfully!");
+                document.getElementById('clear-gallery-btn').click();
+                fetchGalleryAdmin();
+            }
+        });
+
+        document.getElementById('delete-gallery-btn').addEventListener('click', async () => {
+            const id = document.getElementById('gallery-id').value;
+            if (!id || !confirm('Are you sure you want to delete this gallery photo? It will also be deleted from Supabase storage.')) return;
+
+            const item = allGallery.find(g => g.id === id);
+            if (item && item.image_url && item.image_url.includes('/gallery/')) {
+                const pathParts = item.image_url.split('/gallery/');
+                if (pathParts.length > 1) {
+                    const storagePath = pathParts[1];
+                    try {
+                        await supabase.storage.from('gallery').remove([storagePath]);
+                    } catch (err) {
+                        console.warn("Storage removal warning:", err);
+                    }
+                }
+            }
+
+            const { error } = await supabase.from('gallery').delete().eq('id', id);
+            if (error) showMessage("Failed to delete gallery photo: " + error.message, true);
+            else {
+                showMessage("Gallery photo deleted completely.");
+                document.getElementById('clear-gallery-btn').click();
+                fetchGalleryAdmin();
+            }
+        });
+
+        document.getElementById('clear-gallery-btn').addEventListener('click', () => {
+            document.getElementById('gallery-form').reset();
+            document.getElementById('gallery-id').value = '';
+            document.getElementById('gallery-image-url').value = '';
+            document.getElementById('gallery-image-preview').style.display = 'none';
+            document.getElementById('delete-gallery-btn').style.display = 'none';
+            document.getElementById('gallery-date').value = new Date().toISOString().split('T')[0];
         });
 
         // ==========================================
