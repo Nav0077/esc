@@ -104,7 +104,7 @@
       async function fetchPlayers() {
         const { data, error } = await supabase
           .from('player_stats')
-          .select('id, name, role, category, tag, image_url, matches, runs, batting_avg, strike_rate, highest_score, wickets, bowling_avg, best_bowling, recent_form')
+          .select('id, name, role, category, tag, image_url, matches, runs, batting_avg, strike_rate, highest_score, wickets, bowling_avg, best_bowling, recent_form, is_playing_15, is_retired')
           .order('name');
         
         if (error) {
@@ -139,6 +139,7 @@
         } else {
           container.innerHTML = players.map(p => {
               let card = playerCardHtml;
+              card = card.replace('class="player-card"', `class="player-card" data-is-playing-15="${p.is_playing_15 || false}" data-is-retired="${p.is_retired || false}"`);
               const replacements = {
                   '{{ID}}': p.id,
                   '{{CATEGORY}}': p.category || 'all-rounders',
@@ -182,18 +183,18 @@
 
           cards.forEach(card => {
             const category = card.getAttribute("data-category");
+            const isPlaying15 = card.getAttribute("data-is-playing-15") === "true";
+            const isRetired = card.getAttribute("data-is-retired") === "true";
             const role = (card.querySelector(".role")?.textContent || "").toLowerCase();
             const name = card.querySelector("h3").textContent.toLowerCase();
             
-            const isRetired = category === 'retired';
-            
             let matchesTab = false;
             if (activeFilter === "all-players") {
-              matchesTab = true;
+              matchesTab = !isRetired;
             } else if (activeFilter === "retired") {
               matchesTab = isRetired;
             } else if (activeFilter === "playing_15") {
-              matchesTab = category === "playing_15";
+              matchesTab = isPlaying15 && !isRetired;
             } else if (activeFilter === "batsmen") {
               matchesTab = !isRetired && (category === "batsmen" || role.includes("batsman") || role.includes("keeper"));
             } else if (activeFilter === "bowlers") {

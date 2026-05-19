@@ -91,12 +91,20 @@
                     <div class="form-group">
                         <label>Category (Dropdown)</label>
                         <select id="player-category" class="form-control">
-                            <option value="playing_15">Playing 15</option>
                             <option value="batsmen">Batsmen</option>
                             <option value="bowlers">Bowlers</option>
                             <option value="all-rounders">All-Rounders</option>
-                            <option value="retired">Retired Player</option>
                         </select>
+                    </div>
+                    <div class="form-group" style="display: flex; gap: 20px; align-items: center; margin-top: 15px; margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: #374151;">
+                            <input type="checkbox" id="player-is-playing-15" style="width: 18px; height: 18px; cursor: pointer; accent-color: #22c55e;">
+                            Playing 15
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; color: #374151;">
+                            <input type="checkbox" id="player-is-retired" style="width: 18px; height: 18px; cursor: pointer; accent-color: #ef4444;">
+                            Retired Player
+                        </label>
                     </div>
 
                     <div class="form-grid">
@@ -1371,8 +1379,6 @@
         }
 
         function formatCategory(cat) {
-            if (cat === 'playing_15') return 'Playing 15';
-            if (cat === 'retired') return 'Retired Player';
             if (cat === 'batsmen') return 'Batsmen';
             if (cat === 'bowlers') return 'Bowlers';
             if (cat === 'all-rounders') return 'All-Rounders';
@@ -1391,7 +1397,7 @@
                         <img src="${p.image_url || defaultMaleAvatar}" class="list-item-avatar">
                         <div class="list-item-info">
                             <h3>${p.name}</h3>
-                            <p>${p.role} • ${formatCategory(p.category)}</p>
+                            <p>${p.role} • ${formatCategory(p.category)}${p.is_playing_15 ? ' • Playing 15' : ''}${p.is_retired ? ' • Retired' : ''}</p>
                         </div>
                     </div>
                     <div class="list-item-actions">
@@ -1415,7 +1421,9 @@
             document.getElementById('player-id').value = p.id;
             document.getElementById('player-name').value = p.name || '';
             document.getElementById('player-role').value = p.role || '';
-            document.getElementById('player-category').value = p.category || 'playing_15';
+            document.getElementById('player-category').value = p.category || 'batsmen';
+            document.getElementById('player-is-playing-15').checked = p.is_playing_15 || false;
+            document.getElementById('player-is-retired').checked = p.is_retired || false;
             document.getElementById('player-bio').value = p.bio || '';
             document.getElementById('player-image-url').value = p.image_url || '';
             document.getElementById('player-nationality').value = p.nationality || 'IN';
@@ -1520,6 +1528,8 @@
                     name: document.getElementById('player-name').value,
                     role: document.getElementById('player-role').value,
                     category: document.getElementById('player-category').value,
+                    is_playing_15: document.getElementById('player-is-playing-15').checked,
+                    is_retired: document.getElementById('player-is-retired').checked,
                     bio: document.getElementById('player-bio').value,
                     nationality: document.getElementById('player-nationality').value || 'IN',
                     tag: document.getElementById('player-tag').value,
