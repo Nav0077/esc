@@ -91,9 +91,11 @@
                     <div class="form-group">
                         <label>Category (Dropdown)</label>
                         <select id="player-category" class="form-control">
+                            <option value="playing_15">Playing 15</option>
                             <option value="batsmen">Batsmen</option>
                             <option value="bowlers">Bowlers</option>
                             <option value="all-rounders">All-Rounders</option>
+                            <option value="retired">Retired Player</option>
                         </select>
                     </div>
 
@@ -1368,6 +1370,15 @@
             renderPlayersList();
         }
 
+        function formatCategory(cat) {
+            if (cat === 'playing_15') return 'Playing 15';
+            if (cat === 'retired') return 'Retired Player';
+            if (cat === 'batsmen') return 'Batsmen';
+            if (cat === 'bowlers') return 'Bowlers';
+            if (cat === 'all-rounders') return 'All-Rounders';
+            return cat || '';
+        }
+
         function renderPlayersList(filter = '') {
             const list = document.getElementById('players-list');
             const filtered = allPlayers.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
@@ -1380,7 +1391,7 @@
                         <img src="${p.image_url || defaultMaleAvatar}" class="list-item-avatar">
                         <div class="list-item-info">
                             <h3>${p.name}</h3>
-                            <p>${p.role} • ${p.category}</p>
+                            <p>${p.role} • ${formatCategory(p.category)}</p>
                         </div>
                     </div>
                     <div class="list-item-actions">
@@ -1404,7 +1415,7 @@
             document.getElementById('player-id').value = p.id;
             document.getElementById('player-name').value = p.name || '';
             document.getElementById('player-role').value = p.role || '';
-            document.getElementById('player-category').value = p.category || 'batsmen';
+            document.getElementById('player-category').value = p.category || 'playing_15';
             document.getElementById('player-bio').value = p.bio || '';
             document.getElementById('player-image-url').value = p.image_url || '';
             document.getElementById('player-nationality').value = p.nationality || 'IN';

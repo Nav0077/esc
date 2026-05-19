@@ -170,6 +170,8 @@
                                 <div class="style-tags">
                                     <span class="style-tag">${p.batting_style || 'N/A'}</span>
                                     <span class="style-tag">${p.bowling_style || 'N/A'}</span>
+                                    ${p.category === 'playing_15' ? '<span class="style-tag" style="background-color: #22c55e; color: white;">Playing 15</span>' : ''}
+                                    ${p.category === 'retired' ? '<span class="style-tag" style="background-color: #ef4444; color: white;">Retired Player</span>' : ''}
                                 </div>
                             </div>
                         </div>
