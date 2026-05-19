@@ -182,9 +182,26 @@
 
           cards.forEach(card => {
             const category = card.getAttribute("data-category");
+            const role = (card.querySelector(".role")?.textContent || "").toLowerCase();
             const name = card.querySelector("h3").textContent.toLowerCase();
             
-            const matchesTab = activeFilter === "all-players" || category === activeFilter;
+            const isRetired = category === 'retired';
+            
+            let matchesTab = false;
+            if (activeFilter === "all-players") {
+              matchesTab = true;
+            } else if (activeFilter === "retired") {
+              matchesTab = isRetired;
+            } else if (activeFilter === "playing_15") {
+              matchesTab = category === "playing_15";
+            } else if (activeFilter === "batsmen") {
+              matchesTab = !isRetired && (category === "batsmen" || role.includes("batsman") || role.includes("keeper"));
+            } else if (activeFilter === "bowlers") {
+              matchesTab = !isRetired && (category === "bowlers" || role.includes("bowler"));
+            } else if (activeFilter === "all-rounders") {
+              matchesTab = !isRetired && (category === "all-rounders" || role.includes("all-rounder"));
+            }
+
             const matchesSearch = name.includes(searchQuery);
 
             if (matchesTab && matchesSearch) {
